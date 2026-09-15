@@ -40,7 +40,6 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -76,8 +75,8 @@ interface Paginated<T> {
   data: T[];
 }
 
-export default function Dashboard({ products }: { products: Paginated<Product>; }) {
-  
+export default function Dashboard({ products }: { products: Paginated<Product> }) {
+
   // ========== KODE UNTUK VIEW MODE (START) ==========
   // Ambil view_mode dari URL, default ke 'grid'
   const getInitialViewMode = (): 'list' | 'grid' => {
@@ -107,6 +106,7 @@ export default function Dashboard({ products }: { products: Paginated<Product>; 
   };
   // ========== KODE UNTUK VIEW MODE (END) ==========
 
+  // ========== KODE UNTUK FILTER (START) ==========
   const [openFilter, setOpenFilter] = useState<FilterState>({
     basic: true,
     oversize: false,
@@ -120,6 +120,7 @@ export default function Dashboard({ products }: { products: Paginated<Product>; 
   const toggleFilter = (key: keyof FilterState) => {
     setOpenFilter((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+  // ========== KODE UNTUK FILTER (END) ==========
 
   // ========== KODE UNTUK PAGINATION (START) ==========
   const start = Math.max(
@@ -185,33 +186,31 @@ export default function Dashboard({ products }: { products: Paginated<Product>; 
 
             {/* VIEW TOGGLE */}
             <div className="flex items-center overflow-hidden rounded-lg border bg-slate-50">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-9 gap-1 rounded-none ${
-                        viewMode === 'list'
-                            ? 'bg-white text-slate-900 shadow-sm'
-                            : 'text-slate-500'
-                    }`}
-                    onClick={() => changeViewMode('list')}
-                >
-                    <LayoutList className="h-4 w-4" />
-                    <span className="hidden md:block">List</span>
-                </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-9 gap-1 rounded-none ${viewMode === 'list'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500'
+                  }`}
+                onClick={() => changeViewMode('list')}
+              >
+                <LayoutList className="h-4 w-4" />
+                <span className="hidden md:block">List</span>
+              </Button>
 
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-9 gap-1 rounded-none ${
-                        viewMode === 'grid'
-                            ? 'bg-white text-slate-900 shadow-sm'
-                            : 'text-slate-500'
-                    }`}
-                    onClick={() => changeViewMode('grid')}
-                >
-                    <LayoutGrid className="h-4 w-4" />
-                    <span className="hidden md:block">Grid</span>
-                </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-9 gap-1 rounded-none ${viewMode === 'grid'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500'
+                  }`}
+                onClick={() => changeViewMode('grid')}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden md:block">Grid</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -244,7 +243,7 @@ export default function Dashboard({ products }: { products: Paginated<Product>; 
           </DrawerContent>
         </Drawer>
 
-        <p className="text-sm text-slate-500">Showing {products.from} - {products.to} results from total {products.total} products</p>
+        <p className="text-sm text-slate-500">Showing {products.from} - {products.to} of {products.total} products</p>
 
         {/* PRODUCT LIST */}
         <div className={`gap-4 grid ${viewMode === 'list' ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-5'}`}>
@@ -257,16 +256,12 @@ export default function Dashboard({ products }: { products: Paginated<Product>; 
           ))}
         </div>
 
-        <Pagination>
+        {/* PAGINATION SECTION */}
+        <Pagination className="justify-start">
           <PaginationContent>
-
-            {products.prev_page_url && (
-              <PaginationItem>
-                <PaginationPrevious
-                  href={products.prev_page_url}
-                />
-              </PaginationItem>
-            )}
+            <PaginationItem>
+              <PaginationPrevious href={products.prev_page_url ?? ''} isDisabled={!products.prev_page_url} />
+            </PaginationItem>
 
             {pages.map((page) => (
               <PaginationItem key={page}>
@@ -279,14 +274,9 @@ export default function Dashboard({ products }: { products: Paginated<Product>; 
               </PaginationItem>
             ))}
 
-            {products.next_page_url && (
-              <PaginationItem>
-                <PaginationNext
-                  href={products.next_page_url}
-                />
-              </PaginationItem>
-            )}
-
+            <PaginationItem>
+              <PaginationNext href={products.next_page_url ?? ''} isDisabled={!products.next_page_url} />
+            </PaginationItem>
           </PaginationContent>
         </Pagination>
 

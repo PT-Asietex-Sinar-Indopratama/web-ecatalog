@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 
 import { NavMain } from "@/components/NavMain"
@@ -24,7 +22,7 @@ const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    // avatar: "/avatars/shadcn.jpg",
   },
 
   navMain: [
@@ -54,8 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton className="group-data-[collapsible=icon]:p-1! pl-1!">
-              <Link href={route('main')} as="button" className="flex items-center gap-2">
-                {/* <img src="/favicon-192x192.png" className="mb-1.5 w-6 h-6 md:w-6.5 md:h-6.5 object-contain rounded-lg" /> */}
+              <Link href={route('main')} className="flex items-center gap-2 w-full">
                 <img src="/favicon-192x192.png" className="w-5.5 h-auto object-contain rounded-lg" />
                 <span className="text-base font-semibold group-data-[collapsible=icon]:hidden">Asietex</span>
               </Link>

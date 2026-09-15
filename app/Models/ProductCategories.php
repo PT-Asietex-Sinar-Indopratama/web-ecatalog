@@ -17,7 +17,7 @@ use Illuminate\Notifications\Notifiable;
     'is_active',
     'created_by',
 ])]
-class Product_categories extends Model
+class ProductCategories extends Model
 {
     use HasFactory, Notifiable;
 }

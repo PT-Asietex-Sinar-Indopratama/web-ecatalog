@@ -2,13 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Product_files;
+use App\Models\Products;
+use App\Models\ProductFiles;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Product_files>
+ * @extends Factory<ProductFiles>
  */
-class Product_filesFactory extends Factory
+class ProductFilesFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,7 +19,7 @@ class Product_filesFactory extends Factory
     public function definition(): array
     {
         return [
-            'product_id' => \App\Models\Products::inRandomOrder()->first()?->id ?? \App\Models\Products::factory(),
+            'product_id' => Products::inRandomOrder()->first()?->id ?? Products::factory(),
             'file_path' => 'files/' . $this->faker->word() . '.pdf',
             'file_name' => $this->faker->word() . '.pdf',
             'file_type' => 'application/pdf',

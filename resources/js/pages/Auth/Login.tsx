@@ -4,16 +4,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AuthLayout from '@/Layouts/AuthLayout';
+import { route } from 'ziggy-js';
 
 export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
-    name: '',
+    email: '',
     password: '',
   });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    post('/login');
+    post(route('login'));
   };
 
   return (
@@ -25,14 +26,14 @@ export default function Login() {
         <CardContent>
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <Label htmlFor="name">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="name"
-                type="text"
-                value={data.name}
-                onChange={(e) => setData('name', e.target.value)}
+                id="email"
+                type="email"
+                value={data.email}
+                onChange={(e) => setData('email', e.target.value)}
               />
-              {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+              {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
             </div>
 
             <div>

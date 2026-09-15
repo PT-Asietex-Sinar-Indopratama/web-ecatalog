@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('name');
             $table->string('slug');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('material');
             $table->boolean('is_active')->default(1);
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');

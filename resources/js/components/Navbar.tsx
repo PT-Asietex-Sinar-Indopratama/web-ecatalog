@@ -49,7 +49,7 @@ export default function Navbar() {
                     {auth.user 
                     ? (
                         <>
-                            <Link href={route('adminDashboard')} as="button">
+                            <Link href={route('dashboard.main')} as="button">
                                 <Button className="hover:font-semibold" variant={'ghost'}>Dashboard</Button>
                             </Link>
                             <Link href={route('logout')} method="post" as="button">

@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
     'product_id',
     'image_path',
 ])]
-class Product_images extends Model
+class ProductImages extends Model
 {
     use HasFactory, Notifiable;
 }

@@ -2,13 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Product_images;
+use App\Models\Products;
+use App\Models\ProductImages;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Product_images>
+ * @extends Factory<ProductImages>
  */
-class Product_imagesFactory extends Factory
+class ProductImagesFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,7 +19,7 @@ class Product_imagesFactory extends Factory
     public function definition(): array
     {
         return [
-            'product_id' => \App\Models\Products::inRandomOrder()->first()?->id ?? \App\Models\Products::factory(),
+            'product_id' => Products::inRandomOrder()->first()?->id ?? Products::factory(),
             'image_path' => 'products/' . $this->faker->fileExtension() . '.jpg',
         ];
     }

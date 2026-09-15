@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
     'file_name',
     'file_type',
 ])]
-class Product_files extends Model
+class ProductFiles extends Model
 {
     use HasFactory, Notifiable;
 }

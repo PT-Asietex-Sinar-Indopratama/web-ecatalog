@@ -46,9 +46,9 @@ function PaginationLink({
 }: PaginationLinkProps) {
   return (
     <Button
-      variant={isActive ? "outline" : "ghost"}
+      variant={isActive ? "default" : "outline"}
       size={size}
-      className={cn(className)}
+      className={cn("",className)}
       nativeButton={false}
       render={
         <a
@@ -62,17 +62,28 @@ function PaginationLink({
   )
 }
 
+type PaginationPreviousProps = React.ComponentProps<typeof PaginationLink> & {
+  text?: string
+  isDisabled?: boolean
+}
+
 function PaginationPrevious({
   className,
   text = "Previous",
+  isDisabled = false,
   ...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+}: PaginationPreviousProps) {
   return (
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      className={cn("pl-1.5!", className)}
+      className={cn(
+        "pl-1.5!",
+        isDisabled && "opacity-50 cursor-default",
+        className
+      )}
       {...props}
+      href={isDisabled ? undefined : props.href}
     >
       <ChevronLeftIcon data-icon="inline-start" />
       <span className="hidden sm:block">{text}</span>
@@ -80,17 +91,28 @@ function PaginationPrevious({
   )
 }
 
+type PaginationNextProps = React.ComponentProps<typeof PaginationLink> & {
+  text?: string
+  isDisabled?: boolean
+}
+
 function PaginationNext({
   className,
   text = "Next",
+  isDisabled = false,
   ...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+}: PaginationNextProps) {
   return (
     <PaginationLink
       aria-label="Go to next page"
       size="default"
-      className={cn("pr-1.5!", className)}
+      className={cn(
+        "pr-1.5!",
+        isDisabled && "opacity-50 cursor-default",
+        className
+      )}
       {...props}
+      href={isDisabled ? undefined : props.href}
     >
       <span className="hidden sm:block">{text}</span>
       <ChevronRightIcon data-icon="inline-end" />

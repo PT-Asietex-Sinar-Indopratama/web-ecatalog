@@ -13,8 +13,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import { ChevronRightIcon, TerminalSquareIcon } from "lucide-react"
+import { route } from "ziggy-js"
+import { ChevronRightIcon, PanelTop } from "lucide-react"
+import { Link } from "@inertiajs/react"
 
 export function NavMain({
   items,
@@ -39,8 +40,31 @@ export function NavMain({
             key={item.title}
             defaultOpen={item.isActive}
             className="group/collapsible"
-            render={<SidebarMenuItem />}
           >
+
+            <SidebarMenuItem className="flex items-center gap-2">
+              <SidebarMenuButton
+                tooltip="Dashboard"
+                className=""
+              >
+                <Link href={route('dashboard.main')} className="flex items-center gap-2 w-full cursor-pointer">
+                  <PanelTop />
+                  <span>Dashboard</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem className="flex items-center gap-2">
+              <SidebarMenuButton
+                tooltip="Product Category"
+                className=""
+              >
+                <Link href={route('dashboard.product-category')} className="flex items-center gap-2 w-full cursor-pointer">
+                  <PanelTop />
+                  <span>Product Category</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
 
             <CollapsibleTrigger
               render={<SidebarMenuButton tooltip={item.title} />}
@@ -66,16 +90,6 @@ export function NavMain({
           </Collapsible>
         ))}
 
-        <SidebarMenuItem className="flex items-center gap-2">
-          <SidebarMenuButton
-            tooltip="Quick Create"
-            className=""
-          >
-            <TerminalSquareIcon />
-            <span>Quick Create</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      
       </SidebarMenu>
     </SidebarGroup>
   )

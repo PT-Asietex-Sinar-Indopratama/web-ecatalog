@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 #[Fillable([
     'name',
 ])]
-class Role extends Model
+class Roles extends Model
 {
     use HasFactory, Notifiable;
 }
