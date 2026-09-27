@@ -1,51 +1,58 @@
-import React, { useState } from 'react';
-import { Home, Heart, ShoppingCart, User } from 'lucide-react';
-
+import { Link, usePage } from '@inertiajs/react';
+import { Home, User } from 'lucide-react';
+import { route } from 'ziggy-js';
 
 export default function BottomNav() {
-  // State sederhana untuk mendemonstrasikan menu yang aktif
-  // Di aplikasi nyata, Anda bisa menggunakan useRouter() dari Next.js atau useLocation() dari react-router
-  const [activeTab, setActiveTab] = useState('home');
+    const { auth } = usePage().props as any;
+    const currentUrl = usePage().url;
 
-  const navItems = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'wishlist', label: 'Favorite', icon: Heart },
-    { id: 'cart', label: 'Cart', icon: ShoppingCart },
-    { id: 'profile', label: 'Account', icon: User },
-  ];
+    const navItems = [
+        { id: 'home', label: 'Home', icon: Home, href: route('main') },
+        {
+            id: 'profile',
+            label: 'Account',
+            icon: User,
+            href: auth.user ? route('profile') : route('login'),
+        },
+    ];
 
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[9999] w-full bg-white border-t border-slate-200 md:hidden">
-      <div className="flex justify-around items-center h-16">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-200"
-            >
-              <Icon 
-                className={`w-5 h-5 ${
-                  isActive 
-                    ? 'text-blue-900 fill-blue-900/20' // Warna biru menyesuaikan tombol di desain Anda
-                    : 'text-slate-500'
-                }`} 
-                strokeWidth={isActive ? 2.5 : 2}
-              />
-              <span 
-                className={`text-[10px] font-medium ${
-                  isActive ? 'text-blue-900' : 'text-slate-500'
-                }`}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </nav>
-  );
-};
+    return (
+        <nav className="fixed right-0 bottom-0 left-0 z-[9999] w-full border-t border-slate-200 bg-white md:hidden">
+            <div className="flex h-16 items-center justify-around">
+                {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive =
+                        item.id === 'profile'
+                            ? currentUrl.startsWith('/profile')
+                            : item.id === 'home' && currentUrl === '/';
+
+                    return (
+                        <Link
+                            key={item.id}
+                            href={item.href}
+                            className="flex h-full w-full flex-col items-center justify-center space-y-1 transition-colors duration-200"
+                        >
+                            <Icon
+                                className={`h-5 w-5 ${
+                                    isActive
+                                        ? 'fill-blue-900/20 text-blue-900' // Warna biru menyesuaikan tombol di desain Anda
+                                        : 'text-slate-500'
+                                }`}
+                                strokeWidth={isActive ? 2.5 : 2}
+                            />
+                            <span
+                                className={`text-[10px] font-medium ${
+                                    isActive
+                                        ? 'text-blue-900'
+                                        : 'text-slate-500'
+                                }`}
+                            >
+                                {item.label}
+                            </span>
+                        </Link>
+                    );
+                })}
+            </div>
+        </nav>
+    );
+}

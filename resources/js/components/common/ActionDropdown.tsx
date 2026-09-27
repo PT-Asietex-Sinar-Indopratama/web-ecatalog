@@ -1,100 +1,101 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, SquarePen, Trash } from 'lucide-react';
+import { useState } from 'react';
+import DeleteConfirmation from '@/components/common/DeleteConfirmation';
+import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, SquarePen, Trash } from "lucide-react";
-import DeleteConfirmation from "@/components/common/DeleteConfirmation";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export interface CustomAction {
-  label: string;
-  icon?: React.ReactNode;
-  onClick: () => void;
-  variant?: "default" | "destructive";
+    label: string;
+    icon?: React.ReactNode;
+    onClick: () => void;
+    variant?: 'default' | 'destructive';
 }
 
 interface ActionDropdownProps {
-  onEdit?: () => void;
-  onDelete?: () => void;
-  deleteTitle?: string;
-  deleteDescription?: string;
-  customActions?: CustomAction[];
-  triggerLabel?: string;
+    onEdit?: () => void;
+    onDelete?: () => void;
+    deleteTitle?: string;
+    deleteDescription?: string;
+    customActions?: CustomAction[];
+    triggerLabel?: string;
 }
 
 export function ActionDropdown({
-  onEdit,
-  onDelete,
-  deleteTitle = "Delete Confirmation",
-  deleteDescription = "Are you sure you want to delete this item?",
-  customActions = [],
-  triggerLabel = "Action",
+    onEdit,
+    onDelete,
+    deleteTitle = 'Delete Confirmation',
+    deleteDescription = 'Are you sure you want to delete this item?',
+    customActions = [],
+    triggerLabel = 'Action',
 }: ActionDropdownProps) {
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleConfirmDelete = () => {
-    setShowDeleteConfirm(false);
-    if (onDelete) {
-      onDelete();
-    }
-  };
+    const handleConfirmDelete = () => {
+        setShowDeleteConfirm(false);
 
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button variant="outline" size="sm">
-              {triggerLabel}
-              <ChevronDown className="w-4 h-4 ml-1" />
-            </Button>
-          }
-        />
+        if (onDelete) {
+            onDelete();
+        }
+    };
 
-        <DropdownMenuContent>
-          <DropdownMenuGroup>
-            {onEdit && (
-              <DropdownMenuItem onClick={onEdit}>
-                <SquarePen className="w-3.5! h-3.5!" /> Edit
-              </DropdownMenuItem>
-            )}
+    return (
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger
+                    render={
+                        <Button variant="outline" size="sm">
+                            {triggerLabel}
+                            <ChevronDown className="ml-1 h-4 w-4" />
+                        </Button>
+                    }
+                />
 
-            {customActions.map((action, index) => (
-              <DropdownMenuItem
-                key={index}
-                variant={action.variant}
-                onClick={action.onClick}
-              >
-                {action.icon}
-                {action.label}
-              </DropdownMenuItem>
-            ))}
+                <DropdownMenuContent>
+                    <DropdownMenuGroup>
+                        {onEdit && (
+                            <DropdownMenuItem onClick={onEdit}>
+                                <SquarePen className="h-3.5! w-3.5!" /> Edit
+                            </DropdownMenuItem>
+                        )}
+
+                        {customActions.map((action, index) => (
+                            <DropdownMenuItem
+                                key={index}
+                                variant={action.variant}
+                                onClick={action.onClick}
+                            >
+                                {action.icon}
+                                {action.label}
+                            </DropdownMenuItem>
+                        ))}
+
+                        {onDelete && (
+                            <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => setShowDeleteConfirm(true)}
+                            >
+                                <Trash className="h-3.5! w-3.5!" /> Delete
+                            </DropdownMenuItem>
+                        )}
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
 
             {onDelete && (
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                <Trash className="w-3.5! h-3.5!" /> Delete
-              </DropdownMenuItem>
+                <DeleteConfirmation
+                    open={showDeleteConfirm}
+                    title={deleteTitle}
+                    description={deleteDescription}
+                    onConfirm={handleConfirmDelete}
+                    onCancel={() => setShowDeleteConfirm(false)}
+                />
             )}
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {onDelete && (
-        <DeleteConfirmation
-          open={showDeleteConfirm}
-          title={deleteTitle}
-          description={deleteDescription}
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setShowDeleteConfirm(false)}
-        />
-      )}
-    </>
-  );
+        </>
+    );
 }

@@ -1,41 +1,80 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 
-export default function ProductCardList({index, product}: any){
-    return(
+export default function ProductCardList({ index, product }: any) {
+    const thumbnailUrl = product.thumbnail_image?.image_url;
+    const downloadUrl = product.downloadable_file?.file_url;
+
+    return (
         <div
             key={index}
-            className="bg-white border border-slate-200 rounded-xl p-3 flex flex-col md:flex-row items-center justify-between gap-4 hover:shadow-md transition-shadow h-auto md:h-35"
+            className="flex h-auto flex-col items-center justify-between gap-4 rounded-xl bg-white md:h-35 md:flex-row"
         >
+            <div className="flex h-full w-full flex-1 items-start justify-start gap-4 md:w-auto">
+                <div className="aspect-[3/4] h-auto w-12 flex-shrink-0 overflow-hidden rounded-lg bg-blue-100 md:h-full md:w-auto">
+                    {thumbnailUrl && (
+                        <img
+                            src={thumbnailUrl}
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                        />
+                    )}
+                </div>
 
-            <div className="flex flex-1 items-start justify-start gap-4 w-full md:w-auto h-full">
-                {/* Thumbnail Placeholder */}
-                <div className="w-12 md:w-auto h-auto md:h-full aspect-[3/4] bg-blue-100 rounded-lg flex-shrink-0"></div>
-
-                <div className="flex flex-col justify-between space-y-4 md:space-y-1 h-full"> 
+                <div className="flex h-full flex-col justify-between space-y-4 md:space-y-1">
                     <div className="space-y-2">
-                        <h4 className="font-semibold text-sm md:text-base text-slate-900">{product.name}</h4>
+                        <h4 className="text-sm font-semibold text-slate-900 md:text-base">
+                            {product.name}
+                        </h4>
                         <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-                            <span className="bg-slate-100 px-2 py-0.5 rounded-full border">{product.material}</span>
+                            <span className="rounded-full border bg-slate-100 px-2 py-0.5">
+                                {product.material}
+                            </span>
                         </div>
                     </div>
 
                     {/* <span className="font-bold text-lg text-slate-900">{product.price ?? 'Rp. 0'}</span> */}
 
                     <div className="w-full md:hidden">
-                        <Button className="text-xs px-5 py-2 rounded-lg w-full" variant={'default'}>
+                        <Button
+                            className="w-full rounded-lg px-5 py-2 text-xs"
+                            variant={'default'}
+                            disabled={!downloadUrl}
+                            render={
+                                downloadUrl ? (
+                                    <a
+                                        href={downloadUrl}
+                                        download
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    />
+                                ) : undefined
+                            }
+                        >
                             Download
                         </Button>
                     </div>
                 </div>
-
             </div>
 
-            <div className="hidden md:flex flex-1 items-end justify-end w-full md:w-auto md:border-t-0 pt-3 md:pt-0 h-full">
-                <Button className="text-xs px-5 py-2 rounded-lg" variant={'default'}>
-                    Download
+            <div className="hidden h-full w-full flex-1 items-end justify-end pt-3 md:flex md:w-auto md:border-t-0 md:pt-0">
+                <Button
+                    className="rounded-lg px-5 py-2 text-xs"
+                    variant={'default'}
+                    disabled={!downloadUrl}
+                    render={
+                        downloadUrl ? (
+                            <a
+                                href={downloadUrl}
+                                download
+                                target="_blank"
+                                rel="noreferrer"
+                            />
+                        ) : undefined
+                    }
+                >
+                    {downloadUrl ? 'Download' : 'Download'}
                 </Button>
             </div>
-
         </div>
-    )
+    );
 }

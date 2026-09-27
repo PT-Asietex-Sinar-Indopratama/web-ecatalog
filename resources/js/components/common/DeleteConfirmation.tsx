@@ -1,16 +1,14 @@
+import { Trash } from 'lucide-react';
 import {
     AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
     AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
     AlertDialogDescription,
     AlertDialogFooter,
-    AlertDialogCancel,
-    AlertDialogAction,
-    AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Trash, Plus } from "lucide-react";
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface DeleteConfirmationProps {
     open: boolean;
@@ -20,14 +18,30 @@ interface DeleteConfirmationProps {
     onCancel: () => void;
 }
 
-export default function DeleteConfirmation({ open, title, description, onConfirm, onCancel, }: DeleteConfirmationProps) {
+export default function DeleteConfirmation({
+    open,
+    title,
+    description,
+    onConfirm,
+    onCancel,
+}: DeleteConfirmationProps) {
     return (
-        <AlertDialog open={open} onOpenChange={(open) => { if (!open) onCancel(); }}>
+        <AlertDialog
+            open={open}
+            onOpenChange={(open) => {
+                if (!open) {
+                    onCancel();
+                }
+            }}
+        >
             <AlertDialogContent className="">
                 <AlertDialogHeader>
                     <AlertDialogTitle className="flex items-center gap-2">
-                        <div className="bg-red-200 rounded-full w-6 h-6 flex items-center justify-center">
-                            <Trash className="text-destructive w-3" strokeWidth="2.5" />
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-200">
+                            <Trash
+                                className="w-3 text-destructive"
+                                strokeWidth="2.5"
+                            />
                         </div>
                         {title}
                     </AlertDialogTitle>
@@ -39,9 +53,7 @@ export default function DeleteConfirmation({ open, title, description, onConfirm
                 </AlertDialogHeader>
 
                 <AlertDialogFooter className="border-0 bg-transparent">
-                    <AlertDialogCancel>
-                        Cancel
-                    </AlertDialogCancel>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
 
                     <AlertDialogAction onClick={onConfirm}>
                         Delete

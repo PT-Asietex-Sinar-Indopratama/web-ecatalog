@@ -1,181 +1,192 @@
-import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Button } from "@/components/ui/button";
-import { route } from "ziggy-js";
-import { Link, router, usePage } from "@inertiajs/react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, RotateCcw } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { AlertComponent } from "@/components/common/AlertComponent";
-import { DataTable } from "@/components/common/DataTable";
-import { DataPagination } from "@/components/common/DataPagination";
-import { SearchInput } from "@/components/common/SearchInput";
-import { StatusFilter } from "@/components/common/StatusFilter";
-import { ActionDropdown } from "@/components/common/ActionDropdown";
-
-import type { PageProps } from "@inertiajs/core";
-import type { Paginated } from "@/types";
-import { useState } from "react";
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description: string;
-  is_active: boolean;
-}
+import type { PageProps } from '@inertiajs/core';
+import { router, usePage } from '@inertiajs/react';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { route } from 'ziggy-js';
+import { AlertComponent } from '@/components/common/AlertComponent';
+import { DashboardSearchFilter } from '@/components/common/DashboardSearchFilter';
+import { DataPagination } from '@/components/common/DataPagination';
+import { DataShowing } from '@/components/common/DataShowing';
+import { DataTable } from '@/components/common/DataTable';
+import { StatusFilter } from '@/components/common/StatusFilter';
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import DashboardLayout from '@/Layouts/DashboardLayout';
+import type { Paginated } from '@/types';
+import { getProductCategoryColumns } from './Columns';
+import type { Category } from './Columns';
+import { ProductCategoryForm } from './FormCreateEdit';
 
 interface FilterProps {
-  search?: string;
-  status?: string;
+    search?: string;
+    status?: string;
 }
 
 export default function ProductCategory({
-  category,
-  filters = {},
+    category,
+    filters = {},
 }: {
-  category: Paginated<Category>;
-  filters?: FilterProps;
+    category: Paginated<Category>;
+    filters?: FilterProps;
 }) {
-  const { flash } = usePage<PageProps>().props;
+    const { flash } = usePage<PageProps>().props;
 
-  const [search, setSearch] = useState(filters.search || "");
-  const [status, setStatus] = useState(filters.status || "all");
+    const [search, setSearch] = useState(filters.search || '');
+    const [status, setStatus] = useState(filters.status || 'all');
+    const [showFormModal, setShowFormModal] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<
+        Category | undefined
+    >();
 
-  const handleFilter = (newSearch: string, newStatus: string) => {
-    const query: Record<string, string> = {};
-    if (newSearch) query.search = newSearch;
-    if (newStatus && newStatus !== "all") query.status = newStatus;
+    const openCreateModal = () => {
+        setSelectedCategory(undefined);
+        setShowFormModal(true);
+    };
 
-    router.get(route("dashboard.product-category"), query, {
-      preserveState: true,
-      replace: true,
-    });
-  };
+    const openEditModal = (category: Category) => {
+        setSelectedCategory(category);
+        setShowFormModal(true);
+    };
 
-  const handleSearch = (newSearch: string) => {
-    setSearch(newSearch);
-    handleFilter(newSearch, status);
-  };
+    const closeFormModal = () => {
+        setShowFormModal(false);
+        setSelectedCategory(undefined);
+    };
 
-  const handleStatusChange = (newStatus: string) => {
-    setStatus(newStatus);
-    handleFilter(search, newStatus);
-  };
+    const handleFilter = (newSearch: string, newStatus: string) => {
+        const query: Record<string, string> = {};
 
-  const handleReset = () => {
-    setSearch("");
-    setStatus("all");
-    handleFilter("", "all");
-  };
+        if (newSearch) {
+            query.search = newSearch;
+        }
 
-  const breadcrumbs = [
+        if (newStatus && newStatus !== 'all') {
+            query.status = newStatus;
+        }
 
-    {
-      label: "Product Category",
-      url: route("dashboard.product-category"),
-    },
-  ];
+        router.get(route('dashboard.product-category'), query, {
+            preserveState: true,
+            replace: true,
+        });
+    };
 
-  // =========================
-  // TABLE COLUMNS
-  // =========================
+    const handleSearch = (newSearch: string) => {
+        setSearch(newSearch);
+        handleFilter(newSearch, status);
+    };
 
-  const columns = [
-    {
-      key: "action",
-      header: "Action",
-      sortable: false,
-      cell: (item: Category) => (
-        <ActionDropdown
-          onEdit={() =>
-            router.visit(route("dashboard.product-category.edit", item.id))
-          }
-          onDelete={() =>
-            router.delete(
-              route("dashboard.product-category.destroy", item.id)
-            )
-          }
-          deleteTitle="Delete Confirmation"
-          deleteDescription={`Are you sure you want to delete "${item.name}" ?`}
-        />
-      ),
-    },
-    {
-      key: "name",
-      header: "Name",
-      sortable: true,
-    },
-    {
-      key: "description",
-      header: "Description",
-      sortable: true,
-    },
-    {
-      key: "is_active",
-      header: "Status",
-      sortable: true,
-      cell: (item: Category) =>
-        item.is_active ? (
-          <Badge variant="green">Active</Badge>
-        ) : (
-          <Badge variant="yellow">Inactive</Badge>
-        ),
-    },
-  ];
+    const handleStatusChange = (newStatus: string) => {
+        setStatus(newStatus);
+        handleFilter(search, newStatus);
+    };
 
-  return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
-      {flash && (
-        <AlertComponent
-          title={flash.message}
-          variant={flash.type}
-          className="col-span-4 mb-4"
-        />
-      )}
+    const handleReset = () => {
+        setSearch('');
+        setStatus('all');
+        handleFilter('', 'all');
+    };
 
-      <div className="col-span-4 space-y-4">
-        <Card>
-          <CardContent>
-            {/* ADD SECTION */}
-            <div className="flex justify-end mb-4">
-              <Link href={route("dashboard.product-category.create")}>
-                <Button>
-                  <Plus /> Add Data
-                </Button>
-              </Link>
+    const breadcrumbs = [
+        {
+            label: 'Product Category',
+            url: route('dashboard.product-category'),
+        },
+    ];
+
+    const columns = getProductCategoryColumns({ onEdit: openEditModal });
+
+    return (
+        <DashboardLayout breadcrumbs={breadcrumbs}>
+            {/* FLASH SECTION */}
+            {flash && (
+                <AlertComponent
+                    title={flash.message}
+                    variant={flash.type}
+                    className="col-span-4 mb-4"
+                />
+            )}
+
+            {/* ADD, FILTER AND TABLE SECTION */}
+            <div className="col-span-4 space-y-4">
+                <Card>
+                    <CardContent>
+                        {/* ADD SECTION */}
+                        <div className="mb-4 flex justify-end">
+                            <Button onClick={openCreateModal}>
+                                <Plus /> Add Data
+                            </Button>
+                        </div>
+
+                        {/* FILTER SECTION */}
+                        <DashboardSearchFilter
+                            value={search}
+                            onSearch={handleSearch}
+                            onReset={handleReset}
+                            showReset={search !== '' || status !== 'all'}
+                            placeholder="Search"
+                        >
+                            <StatusFilter
+                                value={status}
+                                onChange={handleStatusChange}
+                            />
+                        </DashboardSearchFilter>
+
+                        <DataShowing
+                            meta={category}
+                            label="product categories"
+                        />
+
+                        {/* TABLE */}
+                        <DataTable data={category.data} columns={columns} />
+                    </CardContent>
+                </Card>
+
+                {/* PAGINATION */}
+                <DataPagination meta={category} />
             </div>
 
-            {/* FILTER SECTION */}
-            <div className="flex items-center gap-4 mb-4">
-              <SearchInput
-                value={search}
-                onSearch={handleSearch}
-                placeholder="Search"
-              />
+            {/* ALERT DIALOG SECTION */}
+            <AlertDialog
+                open={showFormModal}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        closeFormModal();
+                    } else {
+                        setShowFormModal(true);
+                    }
+                }}
+            >
+                <AlertDialogContent
+                    className="max-h-[90vh] w-full max-w-xl overflow-y-auto"
+                    overlayProps={{ onClick: closeFormModal }}
+                >
+                    <AlertDialogHeader className="place-items-start text-left">
+                        <AlertDialogTitle>
+                            {selectedCategory
+                                ? 'Edit Product Category'
+                                : 'Create Product Category'}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {selectedCategory
+                                ? 'Update product category data.'
+                                : 'Add a new product category.'}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
 
-              <StatusFilter
-                value={status}
-                onChange={handleStatusChange}
-              />
-
-              {(search !== "" || status !== "all") && (
-                <Button variant="secondary" onClick={handleReset}>
-                  <RotateCcw />
-                  <span className="hidden sm:inline-block">
-                    Reset
-                  </span>
-                </Button>
-              )}
-            </div>
-
-            {/* TABLE */}
-            <DataTable data={category.data} columns={columns} />
-          </CardContent>
-        </Card>
-
-        {/* PAGINATION */}
-        <DataPagination meta={category} />
-      </div>
-    </DashboardLayout>
-  );
+                    <ProductCategoryForm
+                        category={selectedCategory}
+                        onCancel={closeFormModal}
+                        onSuccess={closeFormModal}
+                    />
+                </AlertDialogContent>
+            </AlertDialog>
+        </DashboardLayout>
+    );
 }

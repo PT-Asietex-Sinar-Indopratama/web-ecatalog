@@ -1,12 +1,11 @@
-import Navbar from '@/components/Navbar';
-import BottomNav from '@/components/BottomNav';
 import React from 'react';
-import { cn } from "@/lib/utils"
+import BottomNav from '@/components/BottomNav';
+import Navbar from '@/components/Navbar';
+import { cn } from '@/lib/utils';
 
-export default function AppLayout({ children, className }: any) {
+export default function AuthLayout({ children, className }: any) {
     return (
-        <div className="text-slate-800">
-
+        <div className="min-h-screen text-slate-800">
             {/* NAVBAR */}
             <Navbar />
 
@@ -16,9 +15,10 @@ export default function AppLayout({ children, className }: any) {
             {/* MAIN CONTENT */}
             <div
                 className={cn(
-                    "max-w-7xl mx-auto px-6 md:px-20 w-full min-h-screen flex flex-col items-center justify-center",
-                    className
-            )}>
+                    'mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8',
+                    className,
+                )}
+            >
                 {children}
             </div>
         </div>

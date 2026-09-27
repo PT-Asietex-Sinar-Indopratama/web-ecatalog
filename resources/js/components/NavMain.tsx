@@ -1,96 +1,110 @@
+import { Link } from '@inertiajs/react';
+import { ChevronRightIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { route } from 'ziggy-js';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-import { route } from "ziggy-js"
-import { ChevronRightIcon, PanelTop } from "lucide-react"
-import { Link } from "@inertiajs/react"
+    SidebarGroup,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
+} from '@/components/ui/sidebar';
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: React.ReactNode
-    isActive?: boolean
+type NavItem = {
+    title: string;
+    url: string;
+    icon?: LucideIcon;
+    isActive?: boolean;
     items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) {
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
+        title: string;
+        url: string;
+    }[];
+};
 
-            <SidebarMenuItem className="flex items-center gap-2">
-              <SidebarMenuButton
-                tooltip="Dashboard"
-                className=""
-              >
-                <Link href={route('dashboard.main')} className="flex items-center gap-2 w-full cursor-pointer">
-                  <PanelTop />
-                  <span>Dashboard</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+function resolveUrl(url: string) {
+    return url === '#' ? url : route(url);
+}
 
-            <SidebarMenuItem className="flex items-center gap-2">
-              <SidebarMenuButton
-                tooltip="Product Category"
-                className=""
-              >
-                <Link href={route('dashboard.product-category')} className="flex items-center gap-2 w-full cursor-pointer">
-                  <PanelTop />
-                  <span>Product Category</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+export function NavMain({ label, items }: { label: string; items: NavItem[] }) {
+    return (
+        <SidebarGroup>
+            <SidebarGroupLabel>{label}</SidebarGroupLabel>
+            <SidebarMenu>
+                {items.map((item) => {
+                    const Icon = item.icon;
 
-            <CollapsibleTrigger
-              render={<SidebarMenuButton tooltip={item.title} />}
-            >
-              {item.icon}
-              <span>{item.title}</span>
-              <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-open/collapsible:rotate-90" />
-            </CollapsibleTrigger>
+                    if (!item.items?.length) {
+                        return (
+                            <SidebarMenuItem
+                                key={item.title}
+                                className="flex items-center gap-2"
+                            >
+                                <SidebarMenuButton tooltip={item.title}>
+                                    <Link
+                                        href={resolveUrl(item.url)}
+                                        className="flex w-full cursor-pointer items-center gap-2"
+                                    >
+                                        {Icon && <Icon />}
+                                        <span>{item.title}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        );
+                    }
 
-            <CollapsibleContent>
-              <SidebarMenuSub>
-                {item.items?.map((subItem) => (
-                  <SidebarMenuSubItem key={subItem.title}>
-                    <SidebarMenuSubButton render={<a href={subItem.url} />}>
-                      <span>{subItem.title}</span>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
-            </CollapsibleContent>
+                    return (
+                        <Collapsible
+                            key={item.title}
+                            defaultOpen={item.isActive}
+                            className="group/collapsible"
+                        >
+                            <SidebarMenuItem>
+                                <CollapsibleTrigger
+                                    render={
+                                        <SidebarMenuButton
+                                            tooltip={item.title}
+                                        />
+                                    }
+                                >
+                                    {Icon && <Icon />}
+                                    <span>{item.title}</span>
+                                    <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-open/collapsible:rotate-90" />
+                                </CollapsibleTrigger>
 
-
-          </Collapsible>
-        ))}
-
-      </SidebarMenu>
-    </SidebarGroup>
-  )
+                                <CollapsibleContent>
+                                    <SidebarMenuSub>
+                                        {item.items.map((subItem) => (
+                                            <SidebarMenuSubItem
+                                                key={subItem.title}
+                                            >
+                                                <SidebarMenuSubButton
+                                                    render={
+                                                        <Link
+                                                            href={resolveUrl(
+                                                                subItem.url,
+                                                            )}
+                                                        />
+                                                    }
+                                                >
+                                                    <span>{subItem.title}</span>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        ))}
+                                    </SidebarMenuSub>
+                                </CollapsibleContent>
+                            </SidebarMenuItem>
+                        </Collapsible>
+                    );
+                })}
+            </SidebarMenu>
+        </SidebarGroup>
+    );
 }
