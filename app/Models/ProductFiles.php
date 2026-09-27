@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string $file_path
+ * @property string $file_name
+ * @property string $file_type
+ * @property bool $is_downloadable
+ * @property-read Products $product
+ */
 #[Fillable([
     'product_id',
     'file_path',
@@ -31,6 +38,9 @@ class ProductFiles extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Products, $this>
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Products::class, 'product_id');

@@ -26,16 +26,16 @@ class UsersFactory extends Factory
         static $index = 0;
 
         $users = [
-            ['name' => 'Admin Asietex', 'email' => 'admin@asietex.test'],
-            ['name' => 'Dina Prasetya', 'email' => 'dina.prasetya@asietex.test'],
-            ['name' => 'Rafi Mahendra', 'email' => 'rafi.mahendra@asietex.test'],
-            ['name' => 'Maya Lestari', 'email' => 'maya.lestari@asietex.test'],
-            ['name' => 'Fajar Nugroho', 'email' => 'fajar.nugroho@asietex.test'],
-            ['name' => 'Nadia Safitri', 'email' => 'nadia.safitri@asietex.test'],
-            ['name' => 'Arman Wijaya', 'email' => 'arman.wijaya@asietex.test'],
-            ['name' => 'Siska Amelia', 'email' => 'siska.amelia@asietex.test'],
-            ['name' => 'Yoga Firmansyah', 'email' => 'yoga.firmansyah@asietex.test'],
-            ['name' => 'Putri Anggraini', 'email' => 'putri.anggraini@asietex.test'],
+            ['name' => 'Sir Alex Ferguson', 'email' => 'alex.ferguson@manutd.test'],
+            ['name' => 'Cristiano Ronaldo', 'email' => 'cristiano.ronaldo@manutd.test'],
+            ['name' => 'Wayne Rooney', 'email' => 'wayne.rooney@manutd.test'],
+            ['name' => 'Carlos Tevez', 'email' => 'carlos.tevez@manutd.test'],
+            ['name' => 'Ryan Giggs', 'email' => 'ryan.giggs@manutd.test'],
+            ['name' => 'Paul Scholes', 'email' => 'paul.scholes@manutd.test'],
+            ['name' => 'Rio Ferdinand', 'email' => 'rio.ferdinand@manutd.test'],
+            ['name' => 'Nemanja Vidic', 'email' => 'nemanja.vidic@manutd.test'],
+            ['name' => 'Patrice Evra', 'email' => 'patrice.evra@manutd.test'],
+            ['name' => 'Edwin van der Sar', 'email' => 'edwin.vandersar@manutd.test'],
         ];
 
         $user = $users[$index % count($users)];

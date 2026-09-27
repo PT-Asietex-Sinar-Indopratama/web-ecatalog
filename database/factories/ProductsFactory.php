@@ -48,14 +48,14 @@ class ProductsFactory extends Factory
         $index++;
 
         return [
-            'category_id' => ProductCategories::inRandomOrder()->first()?->id ?? ProductCategories::factory(),
+            'category_id' => ProductCategories::query()->inRandomOrder()->value('id') ?? ProductCategories::factory(),
             'sku' => $product['sku'],
             'name' => $product['name'],
             'slug' => $product['slug'],
             'description' => $product['description'],
             'material' => $product['material'],
             'is_active' => $product['is_active'],
-            'created_by' => Users::inRandomOrder()->first()?->id ?? Users::factory(),
+            'created_by' => Users::query()->inRandomOrder()->value('id') ?? Users::factory(),
         ];
     }
 }

@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string $image_path
+ * @property bool $is_thumbnail
+ * @property-read Products $product
+ */
 #[Fillable([
     'product_id',
     'image_path',
@@ -29,6 +34,9 @@ class ProductImages extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Products, $this>
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Products::class, 'product_id');

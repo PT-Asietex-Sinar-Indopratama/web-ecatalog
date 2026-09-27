@@ -37,7 +37,7 @@ class ProductImagesFactory extends Factory
         $index++;
 
         return [
-            'product_id' => Products::inRandomOrder()->first()?->id ?? Products::factory(),
+            'product_id' => Products::query()->inRandomOrder()->value('id') ?? Products::factory(),
             'image_path' => $imagePath,
         ];
     }

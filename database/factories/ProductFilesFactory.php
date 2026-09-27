@@ -37,7 +37,7 @@ class ProductFilesFactory extends Factory
         $index++;
 
         return [
-            'product_id' => Products::inRandomOrder()->first()?->id ?? Products::factory(),
+            'product_id' => Products::query()->inRandomOrder()->value('id') ?? Products::factory(),
             'file_path' => $file['file_path'],
             'file_name' => $file['file_name'],
             'file_type' => 'application/pdf',

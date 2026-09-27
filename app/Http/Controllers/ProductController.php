@@ -384,7 +384,7 @@ class ProductController extends Controller
         }
     }
 
-    private function setThumbnailImage(Products $product, ?string $imageId): void
+    private function setThumbnailImage(Products $product, int|string|null $imageId): void
     {
         if (! $imageId) {
             return;
@@ -400,7 +400,7 @@ class ProductController extends Controller
         $image->update(['is_thumbnail' => true]);
     }
 
-    private function setDownloadableFile(Products $product, ?string $fileId): void
+    private function setDownloadableFile(Products $product, int|string|null $fileId): void
     {
         if (! $fileId) {
             return;
