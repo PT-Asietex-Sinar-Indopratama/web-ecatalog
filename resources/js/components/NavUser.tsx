@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BellIcon, ChevronsUpDownIcon, LogOutIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, LogOutIcon, UserRoundIcon } from 'lucide-react';
 import { route } from 'ziggy-js';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -54,45 +54,45 @@ export function NavUser({ user }: { user: user }) {
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent
-                        className="w-fit"
+                        className="w-48"
                         side={isMobile ? 'bottom' : 'right'}
                         align="end"
                         sideOffset={4}
                     >
                         <DropdownMenuGroup>
-                            <DropdownMenuLabel className="p-0 font-normal">
-                                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                    <Avatar>
-                                        <AvatarFallback>CN</AvatarFallback>
-                                    </Avatar>
-                                    <div className="grid flex-1 text-left text-sm leading-tight">
-                                        <span className="truncate font-medium">
-                                            {user.name}
-                                        </span>
-                                        <span className="truncate text-xs">
-                                            {user.email}
-                                        </span>
-                                    </div>
+                            <DropdownMenuLabel>
+                                <div className="flex flex-col">
+                                    <span className="truncate text-sm font-medium">
+                                        {user.name}
+                                    </span>
+                                    <span className="truncate text-xs text-muted-foreground">
+                                        {user.email}
+                                    </span>
                                 </div>
                             </DropdownMenuLabel>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
-                                <BellIcon />
-                                Notifications
+                                <Link
+                                    href={route('profile')}
+                                    className="flex w-full items-center gap-2"
+                                >
+                                    <UserRoundIcon className="h-4 w-4" />
+                                    Show Profile
+                                </Link>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem variant="destructive">
                             <Link
                                 href={route('logout')}
                                 method="post"
                                 as="button"
+                                className="flex w-full items-center gap-2"
                             >
-                                <span className="flex gap-1.5 text-red-500">
-                                    <LogOutIcon /> Logout
-                                </span>
+                                <LogOutIcon className="h-4 w-4" />
+                                Logout
                             </Link>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
