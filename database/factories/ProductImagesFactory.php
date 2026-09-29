@@ -39,6 +39,7 @@ class ProductImagesFactory extends Factory
         return [
             'product_id' => Products::query()->inRandomOrder()->value('id') ?? Products::factory(),
             'image_path' => $imagePath,
+            'is_thumbnail' => true,
         ];
     }
 }

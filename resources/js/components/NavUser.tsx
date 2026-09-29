@@ -17,15 +17,16 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
+import type { User } from '@/types';
 
-interface user {
-    name: string;
-    email: string;
-    // avatar: string;
-}
-
-export function NavUser({ user }: { user: user }) {
+export function NavUser({ user }: { user: User }) {
     const { isMobile } = useSidebar();
+    const initials = user.name
+        .split(' ')
+        .map((name) => name[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
 
     return (
         <SidebarMenu>
@@ -40,7 +41,7 @@ export function NavUser({ user }: { user: user }) {
                         }
                     >
                         <Avatar>
-                            <AvatarFallback>CN</AvatarFallback>
+                            <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
                             <span className="truncate font-medium">

@@ -9,12 +9,6 @@ import {
 } from 'lucide-react';
 import { NavUser } from '@/components/NavUser';
 
-const user = {
-    name: 'shadcn',
-    email: 'm@example.com',
-    // avatar: "/avatars/shadcn.jpg",
-};
-
 export const site = {
     navMain: [
         {
@@ -88,8 +82,5 @@ export const site = {
 
     sidebarFooter: {
         component: NavUser,
-        props: {
-            user,
-        },
     },
 };

@@ -32,7 +32,6 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/Layouts/AppLayout';
 
@@ -82,6 +81,20 @@ interface Paginated<T> {
 interface FilterProps {
     search?: string;
     categories?: string[] | string;
+    sort?: SortOption;
+}
+
+const sortOptions = [
+    { label: 'Terbaru', value: 'latest' },
+    { label: 'Terlama', value: 'oldest' },
+    { label: 'Nama A-Z', value: 'name_asc' },
+    { label: 'Nama Z-A', value: 'name_desc' },
+] as const;
+
+type SortOption = (typeof sortOptions)[number]['value'];
+
+function isSortOption(value: string | null): value is SortOption {
+    return sortOptions.some((option) => option.value === value);
 }
 
 export default function Dashboard({
@@ -107,8 +120,15 @@ export default function Dashboard({
     const [search, setSearch] = useState(filters.search || '');
     const [selectedCategoryIds, setSelectedCategoryIds] =
         useState<string[]>(initialCategoryIds);
+    const [sort, setSort] = useState<SortOption>(filters.sort ?? 'latest');
+    const selectedSortLabel =
+        sortOptions.find((option) => option.value === sort)?.label ?? 'Terbaru';
 
-    const handleFilter = (newSearch: string, newCategoryIds: string[]) => {
+    const handleFilter = (
+        newSearch: string,
+        newCategoryIds: string[],
+        newSort: SortOption,
+    ) => {
         const query: Record<string, string | string[]> = {};
 
         if (newSearch) {
@@ -117,6 +137,10 @@ export default function Dashboard({
 
         if (newCategoryIds.length > 0) {
             query.categories = newCategoryIds;
+        }
+
+        if (newSort !== 'latest') {
+            query.sort = newSort;
         }
 
         router.get(route('main'), query, {
@@ -128,7 +152,7 @@ export default function Dashboard({
     const handleSearch = (newSearch: string) => {
         setSearch(newSearch);
         setSelectedCategoryIds([]);
-        handleFilter(newSearch, []);
+        handleFilter(newSearch, [], sort);
     };
 
     const toggleCategory = (categoryId: string) => {
@@ -137,13 +161,21 @@ export default function Dashboard({
             : [...selectedCategoryIds, categoryId];
 
         setSelectedCategoryIds(nextCategoryIds);
-        handleFilter(search, nextCategoryIds);
+        handleFilter(search, nextCategoryIds, sort);
+    };
+
+    const handleSortChange = (value: string | null) => {
+        const nextSort = isSortOption(value) ? value : 'latest';
+
+        setSort(nextSort);
+        handleFilter(search, selectedCategoryIds, nextSort);
     };
 
     const resetFilters = () => {
         setSearch('');
         setSelectedCategoryIds([]);
-        handleFilter('', []);
+        setSort('latest');
+        handleFilter('', [], 'latest');
     };
     // ========== KODE UNTUK FILTER (END) ==========
 
@@ -204,20 +236,24 @@ export default function Dashboard({
                         {/* SORT */}
                         <div className="flex items-center gap-2 text-sm text-slate-600">
                             <span>Urutkan:</span>
-                            <Select defaultValue="Populer">
+                            <Select
+                                value={sort}
+                                onValueChange={handleSortChange}
+                            >
                                 <SelectTrigger className="h-9 w-[120px]">
-                                    <SelectValue placeholder="Populer" />
+                                    <span className="flex-1 text-left">
+                                        {selectedSortLabel}
+                                    </span>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Populer">
-                                        Populer
-                                    </SelectItem>
-                                    <SelectItem value="Terbaru">
-                                        Terbaru
-                                    </SelectItem>
-                                    <SelectItem value="Termurah">
-                                        Termurah
-                                    </SelectItem>
+                                    {sortOptions.map((option) => (
+                                        <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -318,18 +354,16 @@ export default function Dashboard({
                 <div
                     className={`grid gap-7 ${viewMode === 'list' ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-5'} mb-4 md:mb-20`}
                 >
-                    {products.data.map((product, index) =>
+                    {products.data.map((product) =>
                         viewMode === 'list' ? (
                             <ProductCardList
-                                key={index}
+                                key={product.id}
                                 product={product}
-                                index={index}
                             />
                         ) : (
                             <ProductCardGrid
-                                key={index}
+                                key={product.id}
                                 product={product}
-                                index={index}
                             />
                         ),
                     )}

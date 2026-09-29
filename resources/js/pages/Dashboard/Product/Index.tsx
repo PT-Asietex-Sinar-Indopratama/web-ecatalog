@@ -27,6 +27,7 @@ import { ProductForm } from './FormCreateEdit';
 interface Category {
     id: number;
     name: string;
+    label: string;
 }
 
 interface FilterProps {

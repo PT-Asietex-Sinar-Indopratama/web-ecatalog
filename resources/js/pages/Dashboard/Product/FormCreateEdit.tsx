@@ -2,13 +2,13 @@ import { router, useForm } from '@inertiajs/react';
 import {
     CheckCircle2,
     ChevronLeft,
-    Download,
     FileText,
     Image,
     Save,
     Trash2,
     Upload,
 } from 'lucide-react';
+import { useState } from 'react';
 import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -58,6 +58,7 @@ interface Props {
     categories: Array<{
         id: number;
         name: string;
+        label: string;
     }>;
     onCancel?: () => void;
     onSuccess?: () => void;
@@ -70,6 +71,16 @@ export function ProductForm({
     onSuccess,
 }: Props) {
     const isEdit = !!product;
+    const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
+    const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
+    const existingImages = (product?.images ?? []).filter(
+        (image) => !deletedImageIds.includes(image.id),
+    );
+    const existingFiles = (product?.files ?? []).filter(
+        (file) => !deletedFileIds.includes(file.id),
+    );
+    const hasExistingImage = existingImages.length > 0;
+    const hasExistingFile = existingFiles.length > 0;
 
     const items = [
         { label: 'Active', value: '1' },
@@ -84,21 +95,13 @@ export function ProductForm({
         description: product?.description ?? '',
         material: product?.material ?? '',
         is_active: product ? (product.is_active ? '1' : '0') : '',
-        thumbnail_image_id: product?.images?.find((image) => image.is_thumbnail)
-            ?.id
-            ? String(product.images.find((image) => image.is_thumbnail)?.id)
-            : '',
-        download_file_id: product?.files?.find((file) => file.is_downloadable)
-            ?.id
-            ? String(product.files.find((file) => file.is_downloadable)?.id)
-            : '',
         images: [] as File[],
         files: [] as File[],
     });
 
     const selectedCategoryName = categories.find(
         (item) => String(item.id) === data.category_id,
-    )?.name;
+    )?.label;
     const selectedStatusLabel = items.find(
         (item) => item.value === data.is_active,
     )?.label;
@@ -131,37 +134,19 @@ export function ProductForm({
     const deleteImage = (imageId: number) => {
         router.delete(route('dashboard.product.image.destroy', imageId), {
             preserveScroll: true,
+            onSuccess: () => {
+                setDeletedImageIds((imageIds) => [...imageIds, imageId]);
+            },
         });
     };
 
     const deleteFile = (fileId: number) => {
         router.delete(route('dashboard.product.file.destroy', fileId), {
             preserveScroll: true,
+            onSuccess: () => {
+                setDeletedFileIds((fileIds) => [...fileIds, fileId]);
+            },
         });
-    };
-
-    const setThumbnailImage = (imageId: number) => {
-        setData('thumbnail_image_id', String(imageId));
-
-        router.put(
-            route('dashboard.product.image.thumbnail', imageId),
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
-    };
-
-    const setDownloadFile = (fileId: number) => {
-        setData('download_file_id', String(fileId));
-
-        router.put(
-            route('dashboard.product.file.download', fileId),
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
     };
 
     return (
@@ -204,7 +189,7 @@ export function ProductForm({
                                             value={String(item.id)}
                                         >
                                             {' '}
-                                            {item.name}{' '}
+                                            {item.label}{' '}
                                         </SelectItem>
                                     ))}
                                 </SelectGroup>
@@ -393,16 +378,25 @@ export function ProductForm({
 
                 <CardContent className="col-span-8 grid grid-cols-1 gap-4 [&_div]:mb-0">
                     <Field>
-                        <FieldLabel htmlFor="images">Product Images</FieldLabel>
+                        <FieldLabel htmlFor="images">Product Image</FieldLabel>
 
                         <label
-                            htmlFor="images"
-                            className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-5 text-center text-sm transition hover:bg-muted/60"
+                            htmlFor={hasExistingImage ? undefined : 'images'}
+                            aria-disabled={hasExistingImage}
+                            className={`flex min-h-28 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-5 text-center text-sm transition ${
+                                hasExistingImage
+                                    ? 'cursor-not-allowed opacity-60'
+                                    : 'cursor-pointer hover:bg-muted/60'
+                            }`}
                         >
                             <Image className="size-5 text-muted-foreground" />
-                            <span className="font-medium">Upload images</span>
+                            <span className="font-medium">
+                                {hasExistingImage
+                                    ? 'Delete the existing image to upload a new one'
+                                    : 'Upload image'}
+                            </span>
                             <span className="text-xs text-muted-foreground">
-                                JPG, PNG, or WEBP up to 5 MB each
+                                JPG, PNG, or WEBP up to 5 MB
                             </span>
                         </label>
 
@@ -410,19 +404,17 @@ export function ProductForm({
                             id="images"
                             type="file"
                             accept="image/jpeg,image/png,image/webp"
-                            multiple
+                            disabled={hasExistingImage}
                             className="sr-only"
-                            onChange={(e) =>
-                                setData(
-                                    'images',
-                                    Array.from(e.target.files ?? []),
-                                )
-                            }
+                            onChange={(e) => {
+                                const image = e.target.files?.[0];
+                                setData('images', image ? [image] : []);
+                            }}
                         />
 
                         {data.images.length > 0 && (
                             <p className="text-sm text-muted-foreground">
-                                {data.images.length} image(s) selected
+                                Selected: {data.images[0].name}
                             </p>
                         )}
 
@@ -433,90 +425,68 @@ export function ProductForm({
                             </p>
                         )}
                     </Field>
-                    {isEdit &&
-                        ((product.images?.length ?? 0) > 0 ||
-                            (product.files?.length ?? 0) > 0) && (
-                            <>
-                                {(product.images?.length ?? 0) > 0 && (
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-medium">
-                                            Existing Images
-                                        </h3>
+                    {isEdit && existingImages.length > 0 && (
+                        <div className="space-y-2">
+                            <h3 className="text-sm font-medium">
+                                Existing Image
+                            </h3>
 
-                                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                            {product.images?.map((image) => (
-                                                <div
-                                                    key={image.id}
-                                                    className="group relative overflow-hidden rounded-lg border"
-                                                >
-                                                    <img
-                                                        src={image.image_url}
-                                                        alt=""
-                                                        className="aspect-square w-full object-cover"
-                                                    />
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {existingImages.map((image) => (
+                                    <div
+                                        key={image.id}
+                                        className="group relative overflow-hidden rounded-lg border"
+                                    >
+                                        <img
+                                            src={image.image_url}
+                                            alt=""
+                                            className="aspect-square w-full object-cover"
+                                        />
 
-                                                    {image.is_thumbnail && (
-                                                        <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-green-600 px-2 py-1 text-xs font-medium text-white">
-                                                            <CheckCircle2 className="size-3" />
-                                                            Thumbnail
-                                                        </div>
-                                                    )}
+                                        {image.is_thumbnail && (
+                                            <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-green-600 px-2 py-1 text-xs font-medium text-white">
+                                                <CheckCircle2 className="size-3" />
+                                                Thumbnail
+                                            </div>
+                                        )}
 
-                                                    <Button
-                                                        type="button"
-                                                        variant="destructive"
-                                                        size="icon-sm"
-                                                        className="absolute top-2 right-2 opacity-90"
-                                                        onClick={() =>
-                                                            deleteImage(
-                                                                image.id,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash2 />
-                                                    </Button>
-
-                                                    <Button
-                                                        type="button"
-                                                        variant={
-                                                            image.is_thumbnail
-                                                                ? 'default'
-                                                                : 'secondary'
-                                                        }
-                                                        size="sm"
-                                                        className="absolute right-2 bottom-2 left-2"
-                                                        onClick={() =>
-                                                            setThumbnailImage(
-                                                                image.id,
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            image.is_thumbnail
-                                                        }
-                                                    >
-                                                        {image.is_thumbnail
-                                                            ? 'Selected'
-                                                            : 'Use Thumbnail'}
-                                                    </Button>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon-sm"
+                                            className="absolute top-2 right-2 opacity-90"
+                                            onClick={() =>
+                                                deleteImage(image.id)
+                                            }
+                                        >
+                                            <Trash2 />
+                                        </Button>
                                     </div>
-                                )}
-                            </>
-                        )}
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <Field>
-                        <FieldLabel htmlFor="files">Product Files</FieldLabel>
+                        <FieldLabel htmlFor="files">Product File</FieldLabel>
 
                         <label
-                            htmlFor="files"
-                            className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-5 text-center text-sm transition hover:bg-muted/60"
+                            htmlFor={hasExistingFile ? undefined : 'files'}
+                            aria-disabled={hasExistingFile}
+                            className={`flex min-h-28 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-5 text-center text-sm transition ${
+                                hasExistingFile
+                                    ? 'cursor-not-allowed opacity-60'
+                                    : 'cursor-pointer hover:bg-muted/60'
+                            }`}
                         >
                             <Upload className="size-5 text-muted-foreground" />
-                            <span className="font-medium">Upload files</span>
+                            <span className="font-medium">
+                                {hasExistingFile
+                                    ? 'Delete the existing file to upload a new one'
+                                    : 'Upload PDF file'}
+                            </span>
                             <span className="text-xs text-muted-foreground">
-                                PDF only, up to 10 MB each
+                                PDF only, up to 10 MB
                             </span>
                         </label>
 
@@ -524,19 +494,17 @@ export function ProductForm({
                             id="files"
                             type="file"
                             accept="application/pdf,.pdf"
-                            multiple
+                            disabled={hasExistingFile}
                             className="sr-only"
-                            onChange={(e) =>
-                                setData(
-                                    'files',
-                                    Array.from(e.target.files ?? []),
-                                )
-                            }
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                setData('files', file ? [file] : []);
+                            }}
                         />
 
                         {data.files.length > 0 && (
                             <p className="text-sm text-muted-foreground">
-                                {data.files.length} PDF file(s) selected
+                                Selected: {data.files[0].name}
                             </p>
                         )}
 
@@ -548,87 +516,61 @@ export function ProductForm({
                         )}
                     </Field>
 
-                    {isEdit &&
-                        ((product.images?.length ?? 0) > 0 ||
-                            (product.files?.length ?? 0) > 0) && (
-                            <>
-                                {(product.files?.length ?? 0) > 0 && (
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-medium">
-                                            Existing Files
-                                        </h3>
+                    {isEdit && existingFiles.length > 0 && (
+                        <div className="space-y-2">
+                            <h3 className="text-sm font-medium">
+                                Existing File
+                            </h3>
 
-                                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                            {product.files?.map((file) => (
-                                                <div
-                                                    key={file.id}
-                                                    className="overflow-hidden rounded-lg border"
-                                                >
-                                                    <div className="relative aspect-square bg-muted">
-                                                        <iframe
-                                                            src={`${file.file_url}#toolbar=0&navpanes=0&scrollbar=0&zoom=page-width`}
-                                                            title={
-                                                                file.file_name
-                                                            }
-                                                            className="aspect-square h-auto w-auto object-cover"
-                                                        />
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {existingFiles.map((file) => (
+                                    <div
+                                        key={file.id}
+                                        className="overflow-hidden rounded-lg border"
+                                    >
+                                        <div className="relative aspect-square bg-muted">
+                                            <iframe
+                                                src={`${file.file_url}#toolbar=0&navpanes=0&scrollbar=0&zoom=page-width`}
+                                                title={file.file_name}
+                                                className="aspect-square h-auto w-auto object-cover"
+                                            />
 
-                                                        {file.is_downloadable && (
-                                                            <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-green-600 px-2 py-1 text-xs font-medium text-white">
-                                                                <CheckCircle2 className="size-3" />
-                                                                Download
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="flex items-center gap-2 p-2">
-                                                        <FileText className="size-4 text-muted-foreground" />
-
-                                                        <a
-                                                            href={file.file_url}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="min-w-0 flex-1 truncate text-sm hover:underline"
-                                                        >
-                                                            {file.file_name}
-                                                        </a>
-
-                                                        <Button
-                                                            type="button"
-                                                            variant="secondary"
-                                                            size="icon-sm"
-                                                            onClick={() =>
-                                                                setDownloadFile(
-                                                                    file.id,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                file.is_downloadable
-                                                            }
-                                                        >
-                                                            <Download />
-                                                        </Button>
-
-                                                        <Button
-                                                            type="button"
-                                                            variant="destructive"
-                                                            size="icon-sm"
-                                                            onClick={() =>
-                                                                deleteFile(
-                                                                    file.id,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash2 />
-                                                        </Button>
-                                                    </div>
+                                            {file.is_downloadable && (
+                                                <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-green-600 px-2 py-1 text-xs font-medium text-white">
+                                                    <CheckCircle2 className="size-3" />
+                                                    Download
                                                 </div>
-                                            ))}
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-2 p-2">
+                                            <FileText className="size-4 text-muted-foreground" />
+
+                                            <a
+                                                href={file.file_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="min-w-0 flex-1 truncate text-sm hover:underline"
+                                            >
+                                                {file.file_name}
+                                            </a>
+
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="icon-sm"
+                                                onClick={() =>
+                                                    deleteFile(file.id)
+                                                }
+                                            >
+                                                <Trash2 />
+                                            </Button>
                                         </div>
                                     </div>
-                                )}
-                            </>
-                        )}
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

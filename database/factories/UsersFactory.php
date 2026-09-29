@@ -26,16 +26,17 @@ class UsersFactory extends Factory
         static $index = 0;
 
         $users = [
-            ['name' => 'Sir Alex Ferguson', 'email' => 'alex.ferguson@manutd.test'],
-            ['name' => 'Cristiano Ronaldo', 'email' => 'cristiano.ronaldo@manutd.test'],
-            ['name' => 'Wayne Rooney', 'email' => 'wayne.rooney@manutd.test'],
-            ['name' => 'Carlos Tevez', 'email' => 'carlos.tevez@manutd.test'],
-            ['name' => 'Ryan Giggs', 'email' => 'ryan.giggs@manutd.test'],
-            ['name' => 'Paul Scholes', 'email' => 'paul.scholes@manutd.test'],
-            ['name' => 'Rio Ferdinand', 'email' => 'rio.ferdinand@manutd.test'],
-            ['name' => 'Nemanja Vidic', 'email' => 'nemanja.vidic@manutd.test'],
-            ['name' => 'Patrice Evra', 'email' => 'patrice.evra@manutd.test'],
-            ['name' => 'Edwin van der Sar', 'email' => 'edwin.vandersar@manutd.test'],
+            ['name' => 'Sir Alex Ferguson', 'email' => 'alex.ferguson@asietex.test'],
+            ['name' => 'Cristiano Ronaldo', 'email' => 'cristiano.ronaldo@asietex.test'],
+            ['name' => 'Wayne Rooney', 'email' => 'wayne.rooney@asietex.test'],
+            ['name' => 'Carlos Tevez', 'email' => 'carlos.tevez@asietex.test'],
+            ['name' => 'Ryan Giggs', 'email' => 'ryan.giggs@asietex.test'],
+            ['name' => 'Paul Scholes', 'email' => 'paul.scholes@asietex.test'],
+            ['name' => 'Rio Ferdinand', 'email' => 'rio.ferdinand@asietex.test'],
+            ['name' => 'Nemanja Vidic', 'email' => 'nemanja.vidic@asietex.test'],
+            ['name' => 'Patrice Evra', 'email' => 'patrice.evra@asietex.test'],
+            ['name' => 'Edwin van der Sar', 'email' => 'edwin.vandersar@asietex.test'],
+            ['name' => 'user', 'email' => 'user@asietex.test'],
         ];
 
         $user = $users[$index % count($users)];

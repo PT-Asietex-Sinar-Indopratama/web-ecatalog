@@ -82,7 +82,9 @@ interface LatestProduct {
 
 interface CategoryOption {
     id: number;
+    parent_id: number | null;
     name: string;
+    label: string;
 }
 
 interface DashboardProps {
@@ -90,6 +92,7 @@ interface DashboardProps {
     needsAttention: NeedsAttention;
     latestProducts: LatestProduct[];
     categories: CategoryOption[];
+    categoryOptions: CategoryOption[];
 }
 
 const numberFormatter = new Intl.NumberFormat('id-ID');
@@ -169,6 +172,7 @@ export default function Admin({
     needsAttention,
     latestProducts,
     categories,
+    categoryOptions,
 }: DashboardProps) {
     const { flash } = usePage<PageProps>().props;
     const [showProductModal, setShowProductModal] = useState(false);
@@ -307,7 +311,21 @@ export default function Admin({
                             {latestProducts.map((product) => (
                                 <div
                                     key={product.id}
-                                    className="flex items-start justify-between gap-3 rounded-lg border p-3"
+                                    role="button"
+                                    tabIndex={0}
+                                    className="flex cursor-pointer items-start justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                                    onClick={() =>
+                                        openEditProductModal(product)
+                                    }
+                                    onKeyDown={(event) => {
+                                        if (
+                                            event.key === 'Enter' ||
+                                            event.key === ' '
+                                        ) {
+                                            event.preventDefault();
+                                            openEditProductModal(product);
+                                        }
+                                    }}
                                 >
                                     <div className="min-w-0 space-y-1">
                                         <div className="flex min-w-0 items-center gap-2">
@@ -340,9 +358,10 @@ export default function Admin({
                                         variant="ghost"
                                         size="icon-sm"
                                         aria-label={`Edit ${product.name}`}
-                                        onClick={() =>
-                                            openEditProductModal(product)
-                                        }
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            openEditProductModal(product);
+                                        }}
                                     >
                                         <ArrowRight />
                                     </Button>
@@ -417,6 +436,7 @@ export default function Admin({
                     </AlertDialogHeader>
 
                     <ProductCategoryForm
+                        categories={categoryOptions}
                         onCancel={closeCategoryModal}
                         onSuccess={closeCategoryModal}
                     />

@@ -41,6 +41,7 @@ class ProductFilesFactory extends Factory
             'file_path' => $file['file_path'],
             'file_name' => $file['file_name'],
             'file_type' => 'application/pdf',
+            'is_downloadable' => true,
         ];
     }
 }

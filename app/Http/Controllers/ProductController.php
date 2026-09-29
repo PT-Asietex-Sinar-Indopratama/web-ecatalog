@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -50,17 +51,31 @@ class ProductController extends Controller
             $categories = $request->input('categories');
             $categories = is_array($categories) ? $categories : [$categories];
 
-            $query->whereIn('category_id', $categories);
+            $query->whereIn(
+                'category_id',
+                ProductCategories::idsIncludingDescendants($categories),
+            );
         }
 
-        $products = $query->orderBy('updated_at', 'desc')
+        $sort = $request->string('sort', 'latest')->toString();
+
+        if (! in_array($sort, ['latest', 'oldest', 'name_asc', 'name_desc'], true)) {
+            $sort = 'latest';
+        }
+
+        match ($sort) {
+            'oldest' => $query->orderBy('updated_at')->orderBy('id'),
+            'name_asc' => $query->orderBy('name')->orderBy('id'),
+            'name_desc' => $query->orderByDesc('name')->orderByDesc('id'),
+            default => $query->orderByDesc('updated_at')->orderByDesc('id'),
+        };
+
+        $products = $query
             ->paginate(7)
             ->appends($request->except('view_mode'));
 
         if ($request->routeIs('main')) {
-            $categories = ProductCategories::where('is_active', true)
-                ->orderBy('name')
-                ->get(['id', 'name']);
+            $categories = ProductCategories::hierarchyOptions(activeOnly: true);
 
             return Inertia::render('Index', [
                 'products' => $products,
@@ -68,13 +83,12 @@ class ProductController extends Controller
                 'filters' => [
                     'search' => $request->input('search', ''),
                     'categories' => $request->input('categories', []),
+                    'sort' => $sort,
                 ],
             ]);
         }
 
-        $categories = ProductCategories::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $categories = ProductCategories::hierarchyOptions(activeOnly: true);
 
         return Inertia::render('Dashboard/Product/Index', [
             'products' => $products,
@@ -88,9 +102,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $categories = ProductCategories::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $categories = ProductCategories::hierarchyOptions(activeOnly: true);
 
         return Inertia::render('Dashboard/Product/FormCreateEdit', [
             'categories' => $categories,
@@ -159,9 +171,9 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'material' => 'required|string|max:255',
             'is_active' => 'required|boolean',
-            'images' => 'nullable|array',
+            'images' => 'nullable|array|max:1',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
-            'files' => 'nullable|array',
+            'files' => 'nullable|array|max:1',
             'files.*' => 'file|mimes:pdf|max:10240',
         ]);
 
@@ -192,9 +204,20 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Products $product)
     {
-        //
+        abort_unless($product->is_active, 404);
+
+        $product->load([
+            'category:id,parent_id,name,slug',
+            'category.parent:id,name,slug',
+            'thumbnailImage:id,product_id,image_path,is_thumbnail',
+            'downloadableFile:id,product_id,file_path,file_name,file_type,is_downloadable',
+        ]);
+
+        return Inertia::render('Product/Index', [
+            'product' => $product,
+        ]);
     }
 
     /**
@@ -203,9 +226,7 @@ class ProductController extends Controller
     public function edit(string $id)
     {
         $product = Products::with(['images:id,product_id,image_path,is_thumbnail', 'files:id,product_id,file_path,file_name,file_type,is_downloadable'])->findOrFail($id);
-        $categories = ProductCategories::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $categories = ProductCategories::hierarchyOptions(activeOnly: true);
 
         return Inertia::render('Dashboard/Product/FormCreateEdit', [
             'product' => $product,
@@ -218,6 +239,8 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $product = Products::findOrFail($id);
+
         $request->validate([
             'category_id' => 'required|exists:product_categories,id',
             'sku' => 'required|string|max:255|unique:products,sku,'.$id,
@@ -226,17 +249,27 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'material' => 'required|string|max:255',
             'is_active' => 'required|boolean',
-            'images' => 'nullable|array',
+            'images' => 'nullable|array|max:1',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
-            'files' => 'nullable|array',
+            'files' => 'nullable|array|max:1',
             'files.*' => 'file|mimes:pdf|max:10240',
-            'thumbnail_image_id' => 'nullable|exists:product_images,id',
-            'download_file_id' => 'nullable|exists:product_files,id',
         ]);
 
-        DB::transaction(function () use ($request, $id) {
-            $product = Products::findOrFail($id);
+        $assetErrors = [];
 
+        if ($request->hasFile('images') && $product->images()->exists()) {
+            $assetErrors['images'] = 'Delete the existing product image before uploading a new one.';
+        }
+
+        if ($request->hasFile('files') && $product->files()->exists()) {
+            $assetErrors['files'] = 'Delete the existing product file before uploading a new one.';
+        }
+
+        if ($assetErrors !== []) {
+            throw ValidationException::withMessages($assetErrors);
+        }
+
+        DB::transaction(function () use ($request, $product) {
             $product->update([
                 'category_id' => $request->category_id,
                 'sku' => $request->sku,
@@ -249,8 +282,6 @@ class ProductController extends Controller
 
             $this->storeProductImages($request, $product);
             $this->storeProductFiles($request, $product);
-            $this->setThumbnailImage($product, $request->thumbnail_image_id);
-            $this->setDownloadableFile($product, $request->download_file_id);
         });
 
         return redirect()
@@ -330,89 +361,37 @@ class ProductController extends Controller
         ]);
     }
 
-    public function setThumbnail(ProductImages $image)
-    {
-        $this->setThumbnailImage($image->product, $image->id);
-
-        return back()->with('flash', [
-            'type' => 'success',
-            'message' => 'Product thumbnail has been updated.',
-        ]);
-    }
-
-    public function setDownloadFile(ProductFiles $file)
-    {
-        $this->setDownloadableFile($file->product, $file->id);
-
-        return back()->with('flash', [
-            'type' => 'success',
-            'message' => 'Product download file has been updated.',
-        ]);
-    }
-
     private function storeProductImages(Request $request, Products $product): void
     {
-        if (! $request->hasFile('images')) {
-            return;
-        }
-
-        foreach ($request->file('images') as $image) {
-            $path = $image->store('products/images', 'public');
-
-            $product->images()->create([
-                'image_path' => $path,
-                'is_thumbnail' => ! $product->images()->exists(),
-            ]);
-        }
-    }
-
-    private function storeProductFiles(Request $request, Products $product): void
-    {
-        if (! $request->hasFile('files')) {
-            return;
-        }
-
-        foreach ($request->file('files') as $file) {
-            $path = $file->store('products/files', 'public');
-
-            $product->files()->create([
-                'file_path' => $path,
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => 'pdf',
-                'is_downloadable' => ! $product->files()->exists(),
-            ]);
-        }
-    }
-
-    private function setThumbnailImage(Products $product, int|string|null $imageId): void
-    {
-        if (! $imageId) {
-            return;
-        }
-
-        $image = $product->images()->whereKey($imageId)->first();
+        $image = $request->file('images.0');
 
         if (! $image) {
             return;
         }
 
-        $product->images()->update(['is_thumbnail' => false]);
-        $image->update(['is_thumbnail' => true]);
+        $path = $image->store('products/images', 'public');
+
+        $product->images()->create([
+            'image_path' => $path,
+            'is_thumbnail' => true,
+        ]);
     }
 
-    private function setDownloadableFile(Products $product, int|string|null $fileId): void
+    private function storeProductFiles(Request $request, Products $product): void
     {
-        if (! $fileId) {
-            return;
-        }
-
-        $file = $product->files()->whereKey($fileId)->first();
+        $file = $request->file('files.0');
 
         if (! $file) {
             return;
         }
 
-        $product->files()->update(['is_downloadable' => false]);
-        $file->update(['is_downloadable' => true]);
+        $path = $file->store('products/files', 'public');
+
+        $product->files()->create([
+            'file_path' => $path,
+            'file_name' => $file->getClientOriginalName(),
+            'file_type' => 'pdf',
+            'is_downloadable' => true,
+        ]);
     }
 }

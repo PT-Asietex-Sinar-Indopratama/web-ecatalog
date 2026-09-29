@@ -1,20 +1,25 @@
+import { Link } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 
-export default function ProductCardGrid({ index, product }: any) {
+export default function ProductCardGrid({ product }: any) {
     const thumbnailUrl = product.thumbnail_image?.image_url;
     const downloadUrl = product.downloadable_file?.file_url;
 
     return (
-        <div
-            key={index}
-            className="flex h-full w-full flex-col items-center gap-4 rounded-xl bg-white"
-        >
+        <article className="group relative flex h-full w-full flex-col items-center gap-4 rounded-xl bg-white transition-transform duration-200 hover:-translate-y-0.5">
+            <Link
+                href={route('product.show', product.id)}
+                aria-label={`View details for ${product.name}`}
+                className="absolute inset-0 z-10 cursor-pointer rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+            />
+
             <div className="aspect-[3/4] w-full flex-shrink-0 overflow-hidden rounded-lg bg-blue-100">
                 {thumbnailUrl && (
                     <img
                         src={thumbnailUrl}
                         alt={product.name}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
                     />
                 )}
             </div>
@@ -38,7 +43,7 @@ export default function ProductCardGrid({ index, product }: any) {
                     {/* <span className="font-bold text-sm text-slate-900 block">{product.price ?? 'Rp. 0'}</span> */}
 
                     <Button
-                        className="w-full rounded-lg px-5 py-2 text-xs"
+                        className="relative z-20 w-full rounded-lg px-5 py-2 text-xs"
                         variant={'default'}
                         disabled={!downloadUrl}
                         render={
@@ -56,6 +61,6 @@ export default function ProductCardGrid({ index, product }: any) {
                     </Button>
                 </div>
             </div>
-        </div>
+        </article>
     );
 }

@@ -5,10 +5,15 @@ import { Badge } from '@/components/ui/badge';
 
 export interface Category {
     id: number;
+    parent_id: number | null;
     name: string;
     slug: string;
     description: string;
     is_active: boolean;
+    parent?: {
+        id: number;
+        name: string;
+    } | null;
 }
 
 interface ProductCategoryColumnsProps {
@@ -43,6 +48,12 @@ export function getProductCategoryColumns({
             key: 'name',
             header: 'Name',
             sortable: true,
+        },
+        {
+            key: 'parent',
+            header: 'Parent Category',
+            sortable: false,
+            cell: (item: Category) => item.parent?.name ?? 'Top-level',
         },
         {
             key: 'description',

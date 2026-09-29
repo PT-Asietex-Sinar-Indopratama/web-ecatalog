@@ -32,9 +32,7 @@ class AdminController extends Controller
                 'is_active',
                 'updated_at',
             ]);
-        $categories = ProductCategories::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $categories = ProductCategories::hierarchyOptions(activeOnly: true);
 
         return Inertia::render('Dashboard/Index', [
             'stats' => [
@@ -53,6 +51,7 @@ class AdminController extends Controller
             ],
             'latestProducts' => $latestProducts,
             'categories' => $categories,
+            'categoryOptions' => ProductCategories::hierarchyOptions(),
         ]);
     }
 

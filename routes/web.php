@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public route
 Route::get('/', [ProductController::class, 'index'])->name('main');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('product.show');
 
 // Guest only
 Route::middleware('guest')->group(function () {
@@ -42,8 +43,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
         Route::delete('/product/image/delete/{image}', [ProductController::class, 'destroyImage'])->name('product.image.destroy');
         Route::delete('/product/file/delete/{file}', [ProductController::class, 'destroyFile'])->name('product.file.destroy');
-        Route::put('/product/image/thumbnail/{image}', [ProductController::class, 'setThumbnail'])->name('product.image.thumbnail');
-        Route::put('/product/file/download/{file}', [ProductController::class, 'setDownloadFile'])->name('product.file.download');
         Route::get('/product_images', [ProductController::class, 'images'])->name('product-images');
         Route::get('/product_files', [ProductController::class, 'files'])->name('product-files');
 

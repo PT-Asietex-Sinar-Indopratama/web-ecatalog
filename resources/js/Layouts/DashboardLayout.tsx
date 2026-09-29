@@ -132,7 +132,7 @@ export default function Page({ children, className, breadcrumbs = null }: any) {
 
                 <div
                     className={cn(
-                        'mx-auto grid min-h-screen w-full max-w-7xl grid-cols-4 px-4 pt-4 pb-10 sm:px-6 lg:px-8',
+                        'mx-auto grid w-full max-w-7xl grid-cols-4 px-4 pt-4 pb-10 sm:px-6 lg:px-8',
                         className,
                     )}
                 >

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Users;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleSeeder extends Seeder
 {
@@ -14,7 +15,7 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         // Reset cache permission Spatie
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Buat role admin dan user
         Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
@@ -22,9 +23,9 @@ class RoleSeeder extends Seeder
 
         // Buat user admin default dan assign role
         $admin = Users::firstOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'admin@asietex.test'],
             [
-                'name'     => 'Admin',
+                'name' => 'Admin',
                 'password' => bcrypt('password'),
                 'is_active' => true,
             ]

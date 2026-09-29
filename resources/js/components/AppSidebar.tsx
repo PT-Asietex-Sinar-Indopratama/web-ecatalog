@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/react';
+import type { PageProps } from '@inertiajs/core';
+import { Link, usePage } from '@inertiajs/react';
 import * as React from 'react';
 
 import { route } from 'ziggy-js';
@@ -17,6 +18,7 @@ import { site } from '@/lib/site';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const SidebarFooterComponent = site.sidebarFooter.component;
+    const { auth } = usePage<PageProps>().props;
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -52,7 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarContent>
 
             <SidebarFooter>
-                <SidebarFooterComponent {...site.sidebarFooter.props} />
+                <SidebarFooterComponent user={auth.user} />
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>

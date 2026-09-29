@@ -23,6 +23,7 @@ import type { Paginated } from '@/types';
 import { getProductCategoryColumns } from './Columns';
 import type { Category } from './Columns';
 import { ProductCategoryForm } from './FormCreateEdit';
+import type { CategoryOption } from './FormCreateEdit';
 
 interface FilterProps {
     search?: string;
@@ -31,9 +32,11 @@ interface FilterProps {
 
 export default function ProductCategory({
     category,
+    categoryOptions,
     filters = {},
 }: {
     category: Paginated<Category>;
+    categoryOptions: CategoryOption[];
     filters?: FilterProps;
 }) {
     const { flash } = usePage<PageProps>().props;
@@ -181,7 +184,9 @@ export default function ProductCategory({
                     </AlertDialogHeader>
 
                     <ProductCategoryForm
+                        key={selectedCategory?.id ?? 'new'}
                         category={selectedCategory}
+                        categories={categoryOptions}
                         onCancel={closeFormModal}
                         onSuccess={closeFormModal}
                     />

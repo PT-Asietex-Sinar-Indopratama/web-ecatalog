@@ -36,27 +36,8 @@ export default function Navbar() {
 
                 <nav className="hidden items-center gap-3 text-sm font-medium text-slate-600 md:flex">
                     <a href="#" className="">
-                        <Button
-                            className="font-semibold text-blue-600"
-                            variant={'ghost'}
-                        >
+                        <Button className="font-semibold" variant={'ghost'}>
                             Catalog
-                        </Button>
-                    </a>
-                    <a href="#" className="">
-                        <Button
-                            className="hover:font-semibold"
-                            variant={'ghost'}
-                        >
-                            Stock
-                        </Button>
-                    </a>
-                    <a href="#" className="">
-                        <Button
-                            className="hover:font-semibold"
-                            variant={'ghost'}
-                        >
-                            Blog
                         </Button>
                     </a>
                     <a href="#" className="">

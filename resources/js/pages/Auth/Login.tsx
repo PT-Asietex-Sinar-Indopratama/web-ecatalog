@@ -30,10 +30,7 @@ export default function Login() {
                         className="flex flex-col gap-4 [&_div]:mb-0"
                     >
                         <Field>
-                            <FieldLabel htmlFor="email">
-                                Email{' '}
-                                <span className="text-destructive">*</span>
-                            </FieldLabel>
+                            <FieldLabel htmlFor="email">Email</FieldLabel>
 
                             <Input
                                 id="email"
@@ -54,10 +51,7 @@ export default function Login() {
                         </Field>
 
                         <Field>
-                            <FieldLabel htmlFor="password">
-                                Password{' '}
-                                <span className="text-destructive">*</span>
-                            </FieldLabel>
+                            <FieldLabel htmlFor="password">Password</FieldLabel>
 
                             <Input
                                 id="password"
