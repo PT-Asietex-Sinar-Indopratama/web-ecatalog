@@ -28,6 +28,10 @@ class ProductController extends Controller
             'downloadableFile:id,product_id,file_path,file_name,file_type,is_downloadable',
         ]);
 
+        if ($request->routeIs('main')) {
+            $query->where('is_active', true);
+        }
+
         if ($request->filled('search')) {
             $search = '%'.addcslashes(strtolower(trim($request->search)), '%_\\').'%';
 

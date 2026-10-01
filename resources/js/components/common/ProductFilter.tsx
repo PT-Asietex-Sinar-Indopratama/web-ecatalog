@@ -50,13 +50,15 @@ export default function ProductFilter({
                     <h3 className="flex items-center gap-2 text-base font-semibold">
                         <Filter className="h-4 w-4" strokeWidth={2.3} /> Filter
                     </h3>
-                    <Button
-                        className="p-0 text-xs font-bold text-blue-600 hover:underline"
-                        variant="link"
-                        onClick={onReset}
-                    >
-                        Reset
-                    </Button>
+                    {selectedCategoryIds.length > 0 && (
+                        <Button
+                            className="p-0 text-xs font-bold text-blue-600 hover:underline"
+                            variant="link"
+                            onClick={onReset}
+                        >
+                            Reset
+                        </Button>
+                    )}
                 </div>
             )}
 

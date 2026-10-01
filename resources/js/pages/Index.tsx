@@ -2,11 +2,11 @@ import { router } from '@inertiajs/react';
 import { Filter, Grid2x2, List } from 'lucide-react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
+import ProductCardGrid from '@/components/common/ProductCardGrid';
+import ProductCardList from '@/components/common/ProductCardList';
+import type { ProductCategoryFilter } from '@/components/common/ProductFilter';
+import ProductFilter from '@/components/common/ProductFilter';
 import { SearchInput } from '@/components/common/SearchInput';
-import ProductCardGrid from '@/components/ProductCardGrid';
-import ProductCardList from '@/components/ProductCardList';
-import type { ProductCategoryFilter } from '@/components/ProductFilter';
-import ProductFilter from '@/components/ProductFilter';
 import { Button } from '@/components/ui/button';
 import {
     Drawer,

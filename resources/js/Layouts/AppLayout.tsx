@@ -1,7 +1,7 @@
 import { Mail, MapPin, Phone } from 'lucide-react';
 import React from 'react';
-import BottomNav from '@/components/BottomNav';
-import Navbar from '@/components/Navbar';
+import BottomNav from '@/components/common/BottomNav';
+import Navbar from '@/components/common/Navbar';
 import { cn } from '@/lib/utils';
 
 export default function AppLayout({ children, className }: any) {
@@ -85,8 +85,8 @@ export default function AppLayout({ children, className }: any) {
                 <div className="relative border-t border-slate-200/80 px-4 py-4 text-sm text-slate-500 sm:px-6 lg:px-8">
                     <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <span>
-                            &copy; {new Date().getFullYear()} E-Catalog. All
-                            rights reserved.
+                            &copy; {new Date().getFullYear()} Asietex Sinar
+                            Indopratama. All rights reserved.
                         </span>
                         <span>Designed with clarity and restraint.</span>
                     </div>

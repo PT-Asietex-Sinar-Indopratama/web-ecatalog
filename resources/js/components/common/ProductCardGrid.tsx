@@ -24,23 +24,29 @@ export default function ProductCardGrid({ product }: any) {
                 )}
             </div>
 
-            {/* Title, detail, price */}
             <div className="flex w-full flex-1 flex-col">
-                {/* Bagian atas: rata atas */}
-                <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-slate-900">
-                        {product.name}
-                    </h4>
-                    <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-                        <span className="rounded-full border bg-slate-100 px-2 py-0.5">
-                            {product.material}
+                <div className="space-y-2.5">
+                    <div className="flex flex-col gap-1">
+                        <span className="truncate text-sm text-slate-900">
+                            {product.name}
                         </span>
+                        <span className="text-xs font-bold text-slate-900">
+                            {product.category?.name}
+                        </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-[0.65rem]">
+                        {product.material && (
+                            <span className="rounded-full border bg-slate-100 px-2 py-0.5 text-slate-600">
+                                {product.material}
+                            </span>
+                        )}
                     </div>
                 </div>
 
-                {/* Bagian bawah: didorong ke bawah, sejajar antar card */}
                 <div className="mt-auto space-y-4 pt-4">
-                    {/* <span className="font-bold text-sm text-slate-900 block">{product.price ?? 'Rp. 0'}</span> */}
+                    <span className="text-lg font-bold text-slate-900">
+                        {product.price ?? 'Rp. 0'}
+                    </span>
 
                     <Button
                         className="relative z-20 w-full rounded-lg px-5 py-2 text-xs"

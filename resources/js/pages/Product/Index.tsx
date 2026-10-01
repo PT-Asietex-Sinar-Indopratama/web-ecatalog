@@ -63,7 +63,8 @@ export default function ProductShow({ product }: { product: Product }) {
                     Back to catalog
                 </Button>
 
-                <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+                {/* <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]"> */}
+                <div className="grid items-start gap-8 px-0 lg:grid-cols-[1fr_1fr] lg:px-40">
                     <section>
                         <div className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg bg-slate-100">
                             {image ? (

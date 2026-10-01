@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import * as React from 'react';
 
 import { route } from 'ziggy-js';
-import { NavMain } from '@/components/NavMain';
+import { NavMain } from '@/components/common/NavMain';
 import {
     Sidebar,
     SidebarContent,

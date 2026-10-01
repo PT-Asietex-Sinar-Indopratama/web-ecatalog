@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import React from 'react';
 import { route } from 'ziggy-js';
-import { AppSidebar } from '@/components/AppSidebar';
+import { AppSidebar } from '@/components/common/AppSidebar';
 import {
     Breadcrumb,
     BreadcrumbItem,

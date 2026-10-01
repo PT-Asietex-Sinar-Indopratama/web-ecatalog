@@ -7,7 +7,7 @@ import {
     UserCog,
     Users,
 } from 'lucide-react';
-import { NavUser } from '@/components/NavUser';
+import { NavUser } from '@/components/common/NavUser';
 
 export const site = {
     navMain: [

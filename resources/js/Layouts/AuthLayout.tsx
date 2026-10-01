@@ -1,6 +1,6 @@
 import React from 'react';
-import BottomNav from '@/components/BottomNav';
-import Navbar from '@/components/Navbar';
+import BottomNav from '@/components/common/BottomNav';
+import Navbar from '@/components/common/Navbar';
 import { cn } from '@/lib/utils';
 
 export default function AuthLayout({ children, className }: any) {

@@ -8,7 +8,7 @@ export default function ProductCardList({ product }: any) {
     const categoryName = product.category?.name;
 
     return (
-        <article className="group relative flex h-auto flex-col items-center justify-between gap-4 rounded-xl bg-white transition-colors hover:bg-slate-50 md:min-h-35 md:flex-row">
+        <article className="group relative flex h-auto flex-col items-center justify-between gap-4 rounded-xl bg-white transition-transform duration-200 hover:-translate-y-0.5 md:min-h-35 md:flex-row">
             <Link
                 href={route('product.show', product.id)}
                 aria-label={`View details for ${product.name}`}
@@ -21,41 +21,35 @@ export default function ProductCardList({ product }: any) {
                         <img
                             src={thumbnailUrl}
                             alt={product.name}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
                         />
                     )}
                 </div>
 
                 <div className="flex h-full flex-col justify-between space-y-4 md:space-y-3">
                     <div className="space-y-2.5">
-                        <h4 className="text-sm font-semibold text-slate-900 md:text-base">
-                            {product.name}
-                        </h4>
-                        <div className="grid gap-1 text-xs text-slate-500 sm:grid-cols-2">
-                            {product.sku && (
-                                <span className="truncate">
-                                    SKU: {product.sku}
-                                </span>
-                            )}
+                        <div className="flex flex-col gap-1">
+                            <span className="truncate text-sm text-slate-900">
+                                {product.name}
+                            </span>
                             {categoryName && (
-                                <span className="truncate">
-                                    Category: {categoryName}
+                                <span className="text-xs font-bold text-slate-900">
+                                    {categoryName}
                                 </span>
                             )}
                         </div>
-                        <div className="flex flex-wrap gap-2 text-xs">
+                        <div className="flex flex-wrap gap-2 text-[0.65rem]">
                             {product.material && (
                                 <span className="rounded-full border bg-slate-100 px-2 py-0.5 text-slate-600">
                                     {product.material}
                                 </span>
                             )}
-                            <span className="rounded-full border bg-slate-100 px-2 py-0.5 text-slate-600">
-                                {downloadUrl ? 'File available' : 'No file'}
-                            </span>
                         </div>
                     </div>
 
-                    {/* <span className="font-bold text-lg text-slate-900">{product.price ?? 'Rp. 0'}</span> */}
+                    <span className="text-lg font-bold text-slate-900">
+                        {product.price ?? 'Rp. 0'}
+                    </span>
 
                     <div className="w-full md:hidden">
                         <Button
