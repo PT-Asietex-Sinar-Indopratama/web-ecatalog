@@ -206,9 +206,10 @@ export default function Dashboard({
     // ========== KODE UNTUK PAGINATION (END) ==========
 
     return (
-        <AppLayout className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+        <AppLayout className="grid grid-cols-1 gap-8 rounded-4xl! bg-white p-5! lg:grid-cols-4 lg:p-8!">
+            {/* <Card className="hidden rounded-xl border border-border bg-white p-5 shadow-md md:block"> */}
             {/* SIDEBAR FILTER */}
-            <aside className="hidden h-fit space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-md md:block">
+            <aside className="hidden h-fit space-y-4 rounded-xl border border-border/50 bg-white p-5 shadow-lg md:block">
                 <ProductFilter
                     categories={categories}
                     selectedCategoryIds={selectedCategoryIds}
@@ -226,13 +227,13 @@ export default function Dashboard({
                         value={search}
                         onSearch={handleSearch}
                         placeholder="Search product..."
-                        className="fixed top-0 left-0 z-10 w-full flex-1 border-b border-slate-200 bg-white px-5 py-4 md:relative md:w-auto md:border-none md:px-0 md:py-0"
+                        className="fixed top-0 left-0 z-100 w-full flex-1 border-b border-slate-200 bg-white px-5 py-4 md:relative md:w-auto md:border-none md:px-0 md:py-0"
                         inputClassName="pl-9 bg-slate-50 border-slate-200 w-full"
                         iconClassName="absolute left-8 md:left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
                     />
 
                     {/* ACTIONS: SORT & VIEW */}
-                    <div className="mt-[80px] flex w-full items-center justify-between gap-4 md:mt-0 md:w-auto">
+                    <div className="flex w-full items-center justify-between gap-4 md:mt-0 md:w-auto">
                         {/* SORT */}
                         <div className="flex items-center gap-2 text-sm text-slate-600">
                             <span>Urutkan:</span>
@@ -399,6 +400,7 @@ export default function Dashboard({
                     </PaginationContent>
                 </Pagination>
             </main>
+            {/* </Card> */}
         </AppLayout>
     );
 }

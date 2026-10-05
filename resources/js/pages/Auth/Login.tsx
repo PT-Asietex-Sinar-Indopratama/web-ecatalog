@@ -22,7 +22,7 @@ export default function Login() {
         <AuthLayout>
             <Card className="w-full max-w-sm border shadow-sm">
                 <CardHeader className="place-items-start text-left">
-                    <CardTitle>Login</CardTitle>
+                    <CardTitle>Admin Login</CardTitle>
                 </CardHeader>
                 <CardContent className="[&_div]:mb-0">
                     <form
