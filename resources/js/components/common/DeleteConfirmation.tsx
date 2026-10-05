@@ -53,7 +53,7 @@ export default function DeleteConfirmation({
                 </AlertDialogHeader>
 
                 <AlertDialogFooter className="border-0 bg-transparent">
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Close</AlertDialogCancel>
 
                     <AlertDialogAction onClick={onConfirm}>
                         Delete

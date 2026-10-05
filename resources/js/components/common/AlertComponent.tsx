@@ -83,10 +83,11 @@ export function AlertComponent({
                 <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Dismiss notification"
                     className="h-6 w-6 text-muted-foreground hover:text-foreground"
                     onClick={() => setIsVisible(false)}
                 >
-                    <X className="h-4 w-4" />
+                    <X aria-hidden="true" className="h-4 w-4" />
                 </Button>
             </AlertAction>
         </Alert>

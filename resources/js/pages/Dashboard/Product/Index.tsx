@@ -9,19 +9,20 @@ import { DataPagination } from '@/components/common/DataPagination';
 import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusFilter } from '@/components/common/StatusFilter';
-import {
-    AlertDialog,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductColumns } from './Columns';
 import type { Product } from './Columns';
+import { ProductDetailDialog } from './Detail';
 import { ProductForm } from './FormCreateEdit';
 
 interface Category {
@@ -52,6 +53,9 @@ export default function Product({
     const [selectedProduct, setSelectedProduct] = useState<
         Product | undefined
     >();
+    const [selectedProductDetail, setSelectedProductDetail] = useState<
+        Product | undefined
+    >();
 
     const openCreateModal = () => {
         setSelectedProduct(undefined);
@@ -66,6 +70,14 @@ export default function Product({
     const closeFormModal = () => {
         setShowFormModal(false);
         setSelectedProduct(undefined);
+    };
+
+    const openDetailModal = (product: Product) => {
+        setSelectedProductDetail(product);
+    };
+
+    const closeDetailModal = () => {
+        setSelectedProductDetail(undefined);
     };
 
     const handleFilter = (newSearch: string, newStatus: string) => {
@@ -108,7 +120,10 @@ export default function Product({
         },
     ];
 
-    const columns = getProductColumns({ onEdit: openEditModal });
+    const columns = getProductColumns({
+        onDetail: openDetailModal,
+        onEdit: openEditModal,
+    });
 
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -128,7 +143,7 @@ export default function Product({
                         {/* ADD SECTION */}
                         <div className="mb-4 flex justify-end">
                             <Button onClick={openCreateModal}>
-                                <Plus /> Add Data
+                                <Plus /> Add product
                             </Button>
                         </div>
 
@@ -149,7 +164,23 @@ export default function Product({
                         <DataShowing meta={products} label="products" />
 
                         {/* TABLE */}
-                        <DataTable data={products.data} columns={columns} />
+                        <DataTable
+                            data={products.data}
+                            columns={columns}
+                            emptyMessage={
+                                search || status !== 'all'
+                                    ? 'No products match your filters.'
+                                    : 'No products yet.'
+                            }
+                            emptyAction={
+                                search || status !== 'all'
+                                    ? {
+                                          label: 'Clear filters',
+                                          onClick: handleReset,
+                                      }
+                                    : undefined
+                            }
+                        />
                     </CardContent>
                 </Card>
 
@@ -157,8 +188,7 @@ export default function Product({
                 <DataPagination meta={products} />
             </div>
 
-            {/* ALERT DIALOG SECTION */}
-            <AlertDialog
+            <Dialog
                 open={showFormModal}
                 onOpenChange={(open) => {
                     if (!open) {
@@ -168,22 +198,22 @@ export default function Product({
                     }
                 }}
             >
-                <AlertDialogContent
-                    className="max-h-[90vh] w-full max-w-2xl! overflow-y-auto"
-                    overlayProps={{ onClick: closeFormModal }}
+                <DialogContent
+                    className="h-[calc(100dvh-2rem)] max-h-[90vh] w-full max-w-2xl!"
+                    scrollable={false}
                 >
-                    <AlertDialogHeader className="place-items-start text-left">
-                        <AlertDialogTitle>
+                    <DialogHeader className="shrink-0">
+                        <DialogTitle>
                             {selectedProduct
                                 ? 'Edit Product'
                                 : 'Create Product'}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
+                        </DialogTitle>
+                        <DialogDescription>
                             {selectedProduct
                                 ? 'Update product data.'
                                 : 'Add a new product.'}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     <ProductForm
                         product={selectedProduct}
@@ -191,8 +221,13 @@ export default function Product({
                         onCancel={closeFormModal}
                         onSuccess={closeFormModal}
                     />
-                </AlertDialogContent>
-            </AlertDialog>
+                </DialogContent>
+            </Dialog>
+
+            <ProductDetailDialog
+                product={selectedProductDetail}
+                onClose={closeDetailModal}
+            />
         </DashboardLayout>
     );
 }

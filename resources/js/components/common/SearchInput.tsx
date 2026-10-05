@@ -6,6 +6,7 @@ interface SearchInputProps {
     value?: string;
     onSearch: (value: string) => void;
     placeholder?: string;
+    ariaLabel?: string;
     delay?: number;
     className?: string;
     inputClassName?: string;
@@ -16,9 +17,10 @@ export function SearchInput({
     value: initialValue = '',
     onSearch,
     placeholder = 'Search...',
+    ariaLabel,
     delay = 400,
-    className = 'relative md:flex-1 w-full',
-    inputClassName = 'pl-7',
+    className = 'relative min-w-0 w-full md:flex-1',
+    inputClassName = 'h-11 pl-7 sm:h-8',
     iconClassName = 'absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground w-3.5 h-3.5',
 }: SearchInputProps) {
     const [value, setValue] = useState(initialValue);
@@ -49,12 +51,14 @@ export function SearchInput({
         <div className={className}>
             <Input
                 type="text"
+                name="search"
+                aria-label={ariaLabel ?? placeholder}
                 placeholder={placeholder}
                 className={inputClassName}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
             />
-            <Search className={iconClassName} />
+            <Search aria-hidden="true" className={iconClassName} />
         </div>
     );
 }

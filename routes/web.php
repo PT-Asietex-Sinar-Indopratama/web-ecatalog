@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RequestQuotationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserRoleController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 // Public route
 Route::get('/', [ProductController::class, 'index'])->name('main');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('product.show');
+Route::post('/products/{product}/request-quotation', [RequestQuotationController::class, 'store'])
+    ->name('product.quotation.store');
 
 // Guest only
 Route::middleware('guest')->group(function () {
@@ -45,6 +48,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/product/file/delete/{file}', [ProductController::class, 'destroyFile'])->name('product.file.destroy');
         Route::get('/product_images', [ProductController::class, 'images'])->name('product-images');
         Route::get('/product_files', [ProductController::class, 'files'])->name('product-files');
+        Route::get('/request_quotations', [RequestQuotationController::class, 'index'])
+            ->name('request-quotations');
 
         Route::get('/user', [UserController::class, 'index'])->name('user');
         Route::post('/user/store', [UserController::class, 'store'])->name('user.store');

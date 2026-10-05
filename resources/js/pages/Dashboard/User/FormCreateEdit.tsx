@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { ChevronLeft, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -262,7 +262,7 @@ export function UserForm({ user, roles = [], onCancel, onSuccess }: Props) {
                     className="w-fit"
                     onClick={onCancel}
                 >
-                    <ChevronLeft /> Cancel
+                    Close
                 </Button>
 
                 <Button type="submit" disabled={processing} className="w-30">

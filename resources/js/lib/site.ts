@@ -1,5 +1,6 @@
 import {
     Box,
+    ClipboardList,
     FileText,
     Image,
     PanelsTopLeft,
@@ -43,6 +44,16 @@ export const site = {
                     title: 'Product Files',
                     url: 'dashboard.product-files',
                     icon: FileText,
+                },
+            ],
+        },
+        {
+            label: 'Sales',
+            items: [
+                {
+                    title: 'Request Quotation',
+                    url: 'dashboard.request-quotations',
+                    icon: ClipboardList,
                 },
             ],
         },

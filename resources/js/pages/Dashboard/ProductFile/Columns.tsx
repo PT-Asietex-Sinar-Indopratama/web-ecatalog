@@ -1,4 +1,4 @@
-import { ExternalLink, FileSearch } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export interface ProductFile {
@@ -14,11 +14,7 @@ export interface ProductFile {
     file_url: string;
 }
 
-interface ProductFileColumnsProps {
-    onPreview: (file: ProductFile) => void;
-}
-
-export function getProductFileColumns({ onPreview }: ProductFileColumnsProps) {
+export function getProductFileColumns() {
     return [
         {
             key: 'preview',
@@ -27,16 +23,6 @@ export function getProductFileColumns({ onPreview }: ProductFileColumnsProps) {
             className: 'w-1 whitespace-nowrap',
             cell: (item: ProductFile) => (
                 <div className="inline-flex w-max gap-2 whitespace-nowrap">
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        size="icon-sm"
-                        className="gap-2 md:h-8 md:w-auto md:px-2.5"
-                        onClick={() => onPreview(item)}
-                    >
-                        <span className="hidden md:block">Show</span>
-                        <FileSearch />
-                    </Button>
                     <a href={item.file_url} target="_blank" rel="noreferrer">
                         <Button
                             type="button"
@@ -44,7 +30,7 @@ export function getProductFileColumns({ onPreview }: ProductFileColumnsProps) {
                             size="icon-sm"
                             className="gap-2 md:h-8 md:w-auto md:px-2.5"
                         >
-                            <span className="hidden md:block">Open Link</span>
+                            <span className="hidden md:block">Open</span>
                             <ExternalLink />
                         </Button>
                     </a>

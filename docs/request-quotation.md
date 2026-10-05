@@ -33,9 +33,16 @@ Sales menerima dan melakukan follow-up
 - Checkout, pembayaran, stok, pengiriman, dan invoice.
 - Inquiry cart dan inquiry history terautentikasi; ini adalah roadmap Phase 2.
 
+## Keputusan implementasi MVP
+
+- Inquiry dapat dikirim sebagai guest tanpa login.
+- Field wajib: nama lengkap dan nomor WhatsApp.
+- Field opsional: nama perusahaan, jumlah kebutuhan, dan catatan atau kebutuhan khusus.
+- Inquiry disimpan ke database dengan status awal `new`.
+- Data produk yang disimpan mencakup `product_id`, nama, dan SKU sebagai snapshot.
+- Setelah inquiry berhasil disimpan, WhatsApp Sales dibuka dengan pesan yang sudah diisi konteks produk dan data inquiry.
+- Nomor WhatsApp dikonfigurasi melalui `SALES_WHATSAPP_NUMBER`, dengan nomor dummy `6280000000000` untuk sementara.
+
 ## Open decisions
 
-- Field inquiry yang wajib.
-- Kanal dan alamat penerima inquiry.
-- Apakah inquiry disimpan ke database pada MVP.
-- Status dan alur follow-up sales.
+- Alur status lanjutan selain `new` masih perlu disepakati bersama tim sales.

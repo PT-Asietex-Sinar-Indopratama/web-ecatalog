@@ -17,10 +17,12 @@ export interface Category {
 }
 
 interface ProductCategoryColumnsProps {
+    onDetail: (category: Category) => void;
     onEdit: (category: Category) => void;
 }
 
 export function getProductCategoryColumns({
+    onDetail,
     onEdit,
 }: ProductCategoryColumnsProps) {
     return [
@@ -30,6 +32,7 @@ export function getProductCategoryColumns({
             sortable: false,
             cell: (item: Category) => (
                 <ActionDropdown
+                    onDetail={() => onDetail(item)}
                     onEdit={() => onEdit(item)}
                     onDelete={() =>
                         router.delete(

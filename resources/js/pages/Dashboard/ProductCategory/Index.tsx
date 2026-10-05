@@ -9,19 +9,20 @@ import { DataPagination } from '@/components/common/DataPagination';
 import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusFilter } from '@/components/common/StatusFilter';
-import {
-    AlertDialog,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductCategoryColumns } from './Columns';
 import type { Category } from './Columns';
+import { ProductCategoryDetailDialog } from './Detail';
 import { ProductCategoryForm } from './FormCreateEdit';
 import type { CategoryOption } from './FormCreateEdit';
 
@@ -47,6 +48,9 @@ export default function ProductCategory({
     const [selectedCategory, setSelectedCategory] = useState<
         Category | undefined
     >();
+    const [selectedCategoryDetail, setSelectedCategoryDetail] = useState<
+        Category | undefined
+    >();
 
     const openCreateModal = () => {
         setSelectedCategory(undefined);
@@ -61,6 +65,14 @@ export default function ProductCategory({
     const closeFormModal = () => {
         setShowFormModal(false);
         setSelectedCategory(undefined);
+    };
+
+    const openDetailModal = (category: Category) => {
+        setSelectedCategoryDetail(category);
+    };
+
+    const closeDetailModal = () => {
+        setSelectedCategoryDetail(undefined);
     };
 
     const handleFilter = (newSearch: string, newStatus: string) => {
@@ -103,7 +115,10 @@ export default function ProductCategory({
         },
     ];
 
-    const columns = getProductCategoryColumns({ onEdit: openEditModal });
+    const columns = getProductCategoryColumns({
+        onDetail: openDetailModal,
+        onEdit: openEditModal,
+    });
 
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -123,7 +138,7 @@ export default function ProductCategory({
                         {/* ADD SECTION */}
                         <div className="mb-4 flex justify-end">
                             <Button onClick={openCreateModal}>
-                                <Plus /> Add Data
+                                <Plus /> Add category
                             </Button>
                         </div>
 
@@ -147,7 +162,23 @@ export default function ProductCategory({
                         />
 
                         {/* TABLE */}
-                        <DataTable data={category.data} columns={columns} />
+                        <DataTable
+                            data={category.data}
+                            columns={columns}
+                            emptyMessage={
+                                search || status !== 'all'
+                                    ? 'No categories match your filters.'
+                                    : 'No categories yet.'
+                            }
+                            emptyAction={
+                                search || status !== 'all'
+                                    ? {
+                                          label: 'Clear filters',
+                                          onClick: handleReset,
+                                      }
+                                    : undefined
+                            }
+                        />
                     </CardContent>
                 </Card>
 
@@ -155,8 +186,7 @@ export default function ProductCategory({
                 <DataPagination meta={category} />
             </div>
 
-            {/* ALERT DIALOG SECTION */}
-            <AlertDialog
+            <Dialog
                 open={showFormModal}
                 onOpenChange={(open) => {
                     if (!open) {
@@ -166,22 +196,22 @@ export default function ProductCategory({
                     }
                 }}
             >
-                <AlertDialogContent
-                    className="max-h-[90vh] w-full max-w-xl overflow-y-auto"
-                    overlayProps={{ onClick: closeFormModal }}
+                <DialogContent
+                    className="h-[calc(100dvh-2rem)] max-h-[90vh] w-full max-w-xl"
+                    scrollable={false}
                 >
-                    <AlertDialogHeader className="place-items-start text-left">
-                        <AlertDialogTitle>
+                    <DialogHeader className="shrink-0">
+                        <DialogTitle>
                             {selectedCategory
                                 ? 'Edit Product Category'
                                 : 'Create Product Category'}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
+                        </DialogTitle>
+                        <DialogDescription>
                             {selectedCategory
                                 ? 'Update product category data.'
                                 : 'Add a new product category.'}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     <ProductCategoryForm
                         key={selectedCategory?.id ?? 'new'}
@@ -190,8 +220,13 @@ export default function ProductCategory({
                         onCancel={closeFormModal}
                         onSuccess={closeFormModal}
                     />
-                </AlertDialogContent>
-            </AlertDialog>
+                </DialogContent>
+            </Dialog>
+
+            <ProductCategoryDetailDialog
+                category={selectedCategoryDetail}
+                onClose={closeDetailModal}
+            />
         </DashboardLayout>
     );
 }

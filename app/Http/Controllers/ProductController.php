@@ -201,7 +201,7 @@ class ProductController extends Controller
             ->route('dashboard.product')
             ->with('flash', [
                 'type' => 'success',
-                'message' => "Product '{$request->name}' has been added.",
+                'message' => "Product '{$request->sku} {$request->name}' has been added.",
             ]);
     }
 
@@ -292,7 +292,7 @@ class ProductController extends Controller
             ->route('dashboard.product')
             ->with('flash', [
                 'type' => 'success',
-                'message' => "Product '{$request->name}' has been updated.",
+                'message' => "Product '{$product->sku} {$product->name}' has been updated.",
             ]);
     }
 
@@ -317,7 +317,7 @@ class ProductController extends Controller
             ->route('dashboard.product')
             ->with('flash', [
                 'type' => 'success',
-                'message' => "Product '{$product->name}' has been deleted.",
+                'message' => "Product '{$product->sku} {$product->name}' has been deleted.",
             ]);
     }
 

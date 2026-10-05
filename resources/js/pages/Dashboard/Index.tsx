@@ -387,10 +387,11 @@ export default function Admin({
                 }}
             >
                 <AlertDialogContent
-                    className="max-h-[90vh] w-full max-w-2xl! overflow-y-auto"
+                    className="h-[calc(100dvh-2rem)] max-h-[90vh] w-full max-w-2xl!"
+                    scrollable={false}
                     overlayProps={{ onClick: closeProductModal }}
                 >
-                    <AlertDialogHeader className="place-items-start text-left">
+                    <AlertDialogHeader className="shrink-0 place-items-start text-left">
                         <AlertDialogTitle>
                             {selectedProduct
                                 ? 'Edit Product'
@@ -423,10 +424,11 @@ export default function Admin({
                 }}
             >
                 <AlertDialogContent
-                    className="max-h-[90vh] w-full max-w-xl overflow-y-auto"
+                    className="h-[calc(100dvh-2rem)] max-h-[90vh] w-full max-w-xl"
+                    scrollable={false}
                     overlayProps={{ onClick: closeCategoryModal }}
                 >
-                    <AlertDialogHeader className="place-items-start text-left">
+                    <AlertDialogHeader className="shrink-0 place-items-start text-left">
                         <AlertDialogTitle>
                             Create Product Category
                         </AlertDialogTitle>

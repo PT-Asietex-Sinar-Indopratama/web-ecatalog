@@ -70,7 +70,7 @@ export default function ProductFile({
         },
     ];
 
-    const columns = getProductFileColumns({ onPreview: setSelectedFile });
+    const columns = getProductFileColumns();
 
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -95,7 +95,23 @@ export default function ProductFile({
 
                         <DataShowing meta={files} label="product files" />
 
-                        <DataTable data={files.data} columns={columns} />
+                        <DataTable
+                            data={files.data}
+                            columns={columns}
+                            emptyMessage={
+                                search
+                                    ? 'No product files match your search.'
+                                    : 'No product files yet.'
+                            }
+                            emptyAction={
+                                search
+                                    ? {
+                                          label: 'Clear search',
+                                          onClick: handleReset,
+                                      }
+                                    : undefined
+                            }
+                        />
                     </CardContent>
                 </Card>
 
@@ -111,7 +127,7 @@ export default function ProductFile({
                 }}
             >
                 <AlertDialogContent
-                    className="max-h-[90vh] w-full max-w-4xl! overflow-y-auto"
+                    className="max-h-[90vh] w-full max-w-4xl!"
                     overlayProps={{ onClick: closePreview }}
                 >
                     <AlertDialogHeader className="place-items-start text-left">

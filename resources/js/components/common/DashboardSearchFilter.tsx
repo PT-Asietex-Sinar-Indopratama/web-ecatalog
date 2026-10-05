@@ -21,7 +21,7 @@ export function DashboardSearchFilter({
     children,
 }: DashboardSearchFilterProps) {
     return (
-        <div className="mb-4 flex items-center gap-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <SearchInput
                 value={value}
                 onSearch={onSearch}
@@ -31,7 +31,13 @@ export function DashboardSearchFilter({
             {children}
 
             {showReset && (
-                <Button variant="secondary" onClick={onReset}>
+                <Button
+                    type="button"
+                    variant="secondary"
+                    aria-label="Reset filters"
+                    className="min-h-11 shrink-0 sm:min-h-8"
+                    onClick={onReset}
+                >
                     <RotateCcw />
                     <span className="hidden sm:inline-block">Reset</span>
                 </Button>

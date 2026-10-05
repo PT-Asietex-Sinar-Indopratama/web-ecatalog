@@ -8,6 +8,13 @@ import { DataPagination } from '@/components/common/DataPagination';
 import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductImageColumns } from './Columns';
@@ -26,6 +33,9 @@ export default function ProductImage({
 }) {
     const { flash } = usePage<PageProps>().props;
     const [search, setSearch] = useState(filters.search || '');
+    const [selectedImage, setSelectedImage] = useState<ProductImage | null>(
+        null,
+    );
 
     const handleFilter = (newSearch: string) => {
         const query: Record<string, string> = {};
@@ -57,7 +67,9 @@ export default function ProductImage({
         },
     ];
 
-    const columns = getProductImageColumns();
+    const columns = getProductImageColumns({
+        onPreview: setSelectedImage,
+    });
 
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -82,12 +94,62 @@ export default function ProductImage({
 
                         <DataShowing meta={images} label="product images" />
 
-                        <DataTable data={images.data} columns={columns} />
+                        <DataTable
+                            data={images.data}
+                            columns={columns}
+                            emptyMessage={
+                                search
+                                    ? 'No product images match your search.'
+                                    : 'No product images yet.'
+                            }
+                            emptyAction={
+                                search
+                                    ? {
+                                          label: 'Clear search',
+                                          onClick: handleReset,
+                                      }
+                                    : undefined
+                            }
+                        />
                     </CardContent>
                 </Card>
 
                 <DataPagination meta={images} />
             </div>
+
+            <Dialog
+                open={!!selectedImage}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectedImage(null);
+                    }
+                }}
+            >
+                <DialogContent className="max-h-[90vh] w-full max-w-5xl!">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {selectedImage?.product?.name ?? 'Product image'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {selectedImage?.product?.sku ??
+                                'Full image preview'}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {selectedImage && (
+                        <div className="flex max-h-[70vh] justify-center overflow-hidden rounded-md border bg-muted p-2">
+                            <img
+                                src={selectedImage.image_url}
+                                alt={
+                                    selectedImage.product?.name ??
+                                    'Product image'
+                                }
+                                className="max-h-[65vh] w-full object-contain"
+                            />
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </DashboardLayout>
     );
 }

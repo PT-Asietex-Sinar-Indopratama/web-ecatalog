@@ -15,7 +15,12 @@ export function DataShowing({
     const to = meta.to ?? 0;
 
     return (
-        <p className={className}>
+        <p
+            className={className}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+        >
             Showing {from} - {to} of {meta.total} {label}
         </p>
     );

@@ -8,15 +8,15 @@ import { DashboardSearchFilter } from '@/components/common/DashboardSearchFilter
 import { DataPagination } from '@/components/common/DataPagination';
 import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
-import {
-    AlertDialog,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getUserRoleColumns } from './Columns';
@@ -104,7 +104,7 @@ export default function UserRole({
                     <CardContent>
                         <div className="mb-4 flex justify-end">
                             <Button onClick={openCreateModal}>
-                                <Plus /> Add Data
+                                <Plus /> Add role
                             </Button>
                         </div>
 
@@ -118,15 +118,30 @@ export default function UserRole({
 
                         <DataShowing meta={roles} label="user roles" />
 
-                        <DataTable data={roles.data} columns={columns} />
+                        <DataTable
+                            data={roles.data}
+                            columns={columns}
+                            emptyMessage={
+                                search
+                                    ? 'No user roles match your search.'
+                                    : 'No user roles yet.'
+                            }
+                            emptyAction={
+                                search
+                                    ? {
+                                          label: 'Clear search',
+                                          onClick: handleReset,
+                                      }
+                                    : undefined
+                            }
+                        />
                     </CardContent>
                 </Card>
 
                 <DataPagination meta={roles} />
             </div>
 
-            {/* ALERT DIALOG SECTION */}
-            <AlertDialog
+            <Dialog
                 open={showFormModal}
                 onOpenChange={(open) => {
                     if (!open) {
@@ -136,30 +151,27 @@ export default function UserRole({
                     }
                 }}
             >
-                <AlertDialogContent
-                    className="max-h-[90vh] w-full max-w-xl overflow-y-auto"
-                    overlayProps={{ onClick: closeFormModal }}
-                >
-                    <AlertDialogHeader className="place-items-start text-left">
-                        <AlertDialogTitle>
+                <DialogContent className="max-h-[90vh] w-full max-w-xl">
+                    <DialogHeader>
+                        <DialogTitle>
                             {selectedRole
                                 ? 'Edit User Role'
                                 : 'Create User Role'}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
+                        </DialogTitle>
+                        <DialogDescription>
                             {selectedRole
                                 ? 'Update user role data.'
                                 : 'Add a new user role.'}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     <UserRoleForm
                         role={selectedRole}
                         onCancel={closeFormModal}
                         onSuccess={closeFormModal}
                     />
-                </AlertDialogContent>
-            </AlertDialog>
+                </DialogContent>
+            </Dialog>
         </DashboardLayout>
     );
 }

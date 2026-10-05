@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { ChevronLeft, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -119,186 +119,200 @@ export function ProductCategoryForm({
     };
 
     return (
-        <form onSubmit={submit} className="grid grid-cols-8 gap-4 [&_div]:mb-0">
+        <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
             {/* FORM CARD */}
-            <Card className="col-span-8 grid grid-cols-8 gap-4 border-0 shadow-none [&_div]:mb-0">
-                <CardContent className="col-span-8 flex flex-col gap-4 [&_div]:mb-0">
-                    {/* NAME */}
-                    <Field>
-                        <FieldLabel htmlFor="name">
-                            Name <span className="text-destructive">*</span>
-                        </FieldLabel>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+                <Card className="grid grid-cols-8 gap-4 border-0 shadow-none [&_div]:mb-0">
+                    <CardContent className="col-span-8 flex flex-col gap-4 [&_div]:mb-0">
+                        {/* NAME */}
+                        <Field>
+                            <FieldLabel htmlFor="name">
+                                Name <span className="text-destructive">*</span>
+                            </FieldLabel>
 
-                        <Input
-                            id="name"
-                            type="text"
-                            placeholder="Office Chair"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            required
-                        />
+                            <Input
+                                id="name"
+                                type="text"
+                                placeholder="Office Chair"
+                                value={data.name}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
+                                }
+                                required
+                            />
 
-                        {errors.name && (
-                            <p className="text-sm text-red-500">
-                                {' '}
-                                {errors.name}{' '}
-                            </p>
-                        )}
-                    </Field>
+                            {errors.name && (
+                                <p className="text-sm text-red-500">
+                                    {' '}
+                                    {errors.name}{' '}
+                                </p>
+                            )}
+                        </Field>
 
-                    {/* PARENT CATEGORY */}
-                    <Field>
-                        <FieldLabel htmlFor="parent_id">
-                            Parent Category
-                        </FieldLabel>
+                        {/* PARENT CATEGORY */}
+                        <Field>
+                            <FieldLabel htmlFor="parent_id">
+                                Parent Category
+                            </FieldLabel>
 
-                        <Select
-                            value={data.parent_id}
-                            onValueChange={(value) =>
-                                setData('parent_id', value ?? 'none')
-                            }
-                        >
-                            <SelectTrigger id="parent_id" className="w-full">
-                                <span
-                                    className={
-                                        selectedParentLabel
-                                            ? ''
-                                            : 'text-muted-foreground'
-                                    }
+                            <Select
+                                value={data.parent_id}
+                                onValueChange={(value) =>
+                                    setData('parent_id', value ?? 'none')
+                                }
+                            >
+                                <SelectTrigger
+                                    id="parent_id"
+                                    className="w-full"
                                 >
-                                    {selectedParentLabel ??
-                                        'Select Parent Category'}
-                                </span>
-                            </SelectTrigger>
+                                    <span
+                                        className={
+                                            selectedParentLabel
+                                                ? ''
+                                                : 'text-muted-foreground'
+                                        }
+                                    >
+                                        {selectedParentLabel ??
+                                            'Select Parent Category'}
+                                    </span>
+                                </SelectTrigger>
 
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Parent Category</SelectLabel>
-                                    <SelectItem value="none">
-                                        No parent (top-level)
-                                    </SelectItem>
-
-                                    {availableParentCategories.map((item) => (
-                                        <SelectItem
-                                            key={item.id}
-                                            value={String(item.id)}
-                                        >
-                                            {item.label}
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>
+                                            Parent Category
+                                        </SelectLabel>
+                                        <SelectItem value="none">
+                                            No parent (top-level)
                                         </SelectItem>
-                                    ))}
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
 
-                        {errors.parent_id && (
-                            <p className="text-sm text-red-500">
-                                {errors.parent_id}
-                            </p>
-                        )}
-                    </Field>
+                                        {availableParentCategories.map(
+                                            (item) => (
+                                                <SelectItem
+                                                    key={item.id}
+                                                    value={String(item.id)}
+                                                >
+                                                    {item.label}
+                                                </SelectItem>
+                                            ),
+                                        )}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
 
-                    {/* SLUG */}
-                    <Field>
-                        <FieldLabel htmlFor="slug">
-                            Slug <span className="text-destructive">*</span>
-                        </FieldLabel>
+                            {errors.parent_id && (
+                                <p className="text-sm text-red-500">
+                                    {errors.parent_id}
+                                </p>
+                            )}
+                        </Field>
 
-                        <Input
-                            id="slug"
-                            type="text"
-                            placeholder="office-chair"
-                            value={data.slug}
-                            onChange={(e) => setData('slug', e.target.value)}
-                            required
-                        />
+                        {/* SLUG */}
+                        <Field>
+                            <FieldLabel htmlFor="slug">
+                                Slug <span className="text-destructive">*</span>
+                            </FieldLabel>
 
-                        {errors.slug && (
-                            <p className="text-sm text-red-500">
-                                {' '}
-                                {errors.slug}{' '}
-                            </p>
-                        )}
-                    </Field>
+                            <Input
+                                id="slug"
+                                type="text"
+                                placeholder="office-chair"
+                                value={data.slug}
+                                onChange={(e) =>
+                                    setData('slug', e.target.value)
+                                }
+                                required
+                            />
 
-                    {/* DESCRIPTION */}
-                    <Field>
-                        <FieldLabel htmlFor="description">
-                            Description{' '}
-                            <span className="text-destructive">*</span>
-                        </FieldLabel>
+                            {errors.slug && (
+                                <p className="text-sm text-red-500">
+                                    {' '}
+                                    {errors.slug}{' '}
+                                </p>
+                            )}
+                        </Field>
 
-                        <Textarea
-                            id="description"
-                            placeholder="Category for office chair products."
-                            value={data.description}
-                            onChange={(e) =>
-                                setData('description', e.target.value)
-                            }
-                            required
-                        />
+                        {/* DESCRIPTION */}
+                        <Field>
+                            <FieldLabel htmlFor="description">
+                                Description{' '}
+                                <span className="text-destructive">*</span>
+                            </FieldLabel>
 
-                        {errors.description && (
-                            <p className="text-sm text-red-500">
-                                {' '}
-                                {errors.description}{' '}
-                            </p>
-                        )}
-                    </Field>
+                            <Textarea
+                                id="description"
+                                placeholder="Category for office chair products."
+                                value={data.description}
+                                onChange={(e) =>
+                                    setData('description', e.target.value)
+                                }
+                                required
+                            />
 
-                    {/* STATUS */}
-                    <Field>
-                        <FieldLabel htmlFor="is_active">
-                            Status <span className="text-destructive">*</span>
-                        </FieldLabel>
+                            {errors.description && (
+                                <p className="text-sm text-red-500">
+                                    {' '}
+                                    {errors.description}{' '}
+                                </p>
+                            )}
+                        </Field>
 
-                        <Select
-                            value={data.is_active}
-                            onValueChange={(value) =>
-                                setData('is_active', value ?? '')
-                            }
-                            required
-                        >
-                            <SelectTrigger className="w-full">
-                                <span
-                                    className={
-                                        selectedStatusLabel
-                                            ? ''
-                                            : 'text-muted-foreground'
-                                    }
-                                >
-                                    {selectedStatusLabel ?? 'Select Status'}
-                                </span>
-                            </SelectTrigger>
+                        {/* STATUS */}
+                        <Field>
+                            <FieldLabel htmlFor="is_active">
+                                Status{' '}
+                                <span className="text-destructive">*</span>
+                            </FieldLabel>
 
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Status</SelectLabel>
+                            <Select
+                                value={data.is_active}
+                                onValueChange={(value) =>
+                                    setData('is_active', value ?? '')
+                                }
+                                required
+                            >
+                                <SelectTrigger className="w-full">
+                                    <span
+                                        className={
+                                            selectedStatusLabel
+                                                ? ''
+                                                : 'text-muted-foreground'
+                                        }
+                                    >
+                                        {selectedStatusLabel ?? 'Select Status'}
+                                    </span>
+                                </SelectTrigger>
 
-                                    {items.map((item) => (
-                                        <SelectItem
-                                            key={item.value}
-                                            value={item.value}
-                                        >
-                                            {' '}
-                                            {item.label}{' '}
-                                        </SelectItem>
-                                    ))}
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Status</SelectLabel>
 
-                        {errors.is_active && (
-                            <p className="text-sm text-red-500">
-                                {' '}
-                                {errors.is_active}{' '}
-                            </p>
-                        )}
-                    </Field>
-                </CardContent>
-            </Card>
+                                        {items.map((item) => (
+                                            <SelectItem
+                                                key={item.value}
+                                                value={item.value}
+                                            >
+                                                {' '}
+                                                {item.label}{' '}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+
+                            {errors.is_active && (
+                                <p className="text-sm text-red-500">
+                                    {' '}
+                                    {errors.is_active}{' '}
+                                </p>
+                            )}
+                        </Field>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* BUTTONS */}
-            <div className="col-span-8 mt-5 flex justify-end gap-2">
+            <div className="flex shrink-0 justify-end gap-2">
                 <Button
                     type="button"
                     variant="secondary"
@@ -306,7 +320,7 @@ export function ProductCategoryForm({
                     className="w-fit"
                     onClick={onCancel}
                 >
-                    <ChevronLeft /> Cancel
+                    Close
                 </Button>
 
                 <Button type="submit" disabled={processing} className="w-30">

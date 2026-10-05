@@ -29,6 +29,12 @@ export default function Page({ children, className, breadcrumbs = null }: any) {
 
     return (
         <SidebarProvider>
+            <a
+                href="#dashboard-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:text-foreground focus:shadow-md focus:ring-2 focus:ring-ring focus:outline-none"
+            >
+                Skip to content
+            </a>
             <AppSidebar />
             <SidebarInset>
                 <header className="sticky top-0 z-40 flex h-16 w-full shrink-0 items-center gap-2 border-b-1 bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -131,8 +137,10 @@ export default function Page({ children, className, breadcrumbs = null }: any) {
                 </header>
 
                 <div
+                    id="dashboard-content"
+                    tabIndex={-1}
                     className={cn(
-                        'mx-auto grid w-full max-w-7xl grid-cols-4 px-4 pt-4 pb-10 sm:px-6 lg:px-8',
+                        'mx-auto grid w-full max-w-7xl scroll-mt-16 grid-cols-4 px-4 pt-4 pb-10 outline-none sm:px-6 lg:px-8',
                         className,
                     )}
                 >

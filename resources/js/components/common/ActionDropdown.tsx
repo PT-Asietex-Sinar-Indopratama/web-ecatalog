@@ -1,4 +1,4 @@
-import { ChevronDown, SquarePen, Trash } from 'lucide-react';
+import { ChevronDown, Eye, SquarePen, Trash } from 'lucide-react';
 import { useState } from 'react';
 import DeleteConfirmation from '@/components/common/DeleteConfirmation';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ export interface CustomAction {
 }
 
 interface ActionDropdownProps {
+    onDetail?: () => void;
     onEdit?: () => void;
     onDelete?: () => void;
     deleteTitle?: string;
@@ -27,6 +28,7 @@ interface ActionDropdownProps {
 }
 
 export function ActionDropdown({
+    onDetail,
     onEdit,
     onDelete,
     deleteTitle = 'Delete Confirmation',
@@ -49,7 +51,11 @@ export function ActionDropdown({
             <DropdownMenu>
                 <DropdownMenuTrigger
                     render={
-                        <Button variant="outline" size="sm">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="min-h-11 sm:min-h-7"
+                        >
                             {triggerLabel}
                             <ChevronDown className="ml-1 h-4 w-4" />
                         </Button>
@@ -58,6 +64,12 @@ export function ActionDropdown({
 
                 <DropdownMenuContent>
                     <DropdownMenuGroup>
+                        {onDetail && (
+                            <DropdownMenuItem onClick={onDetail}>
+                                <Eye className="h-3.5! w-3.5!" /> Detail
+                            </DropdownMenuItem>
+                        )}
+
                         {onEdit && (
                             <DropdownMenuItem onClick={onEdit}>
                                 <SquarePen className="h-3.5! w-3.5!" /> Edit

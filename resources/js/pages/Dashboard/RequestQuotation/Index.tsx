@@ -1,6 +1,5 @@
 import type { PageProps } from '@inertiajs/core';
 import { router, usePage } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
 import { AlertComponent } from '@/components/common/AlertComponent';
@@ -9,56 +8,32 @@ import { DataPagination } from '@/components/common/DataPagination';
 import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusFilter } from '@/components/common/StatusFilter';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
-import { getUserColumns } from './Columns';
-import type { Role, User } from './Columns';
-import { UserForm } from './FormCreateEdit';
+import { getRequestQuotationColumns } from './Columns';
+import type { RequestQuotation } from './Columns';
 
 interface FilterProps {
     search?: string;
     status?: string;
 }
 
-export default function User({
-    users,
-    roles,
+const statusOptions = [
+    { label: 'Show All', value: 'all' },
+    { label: 'New', value: 'new' },
+];
+
+export default function RequestQuotation({
+    quotations,
     filters = {},
 }: {
-    users: Paginated<User>;
-    roles: Role[];
+    quotations: Paginated<RequestQuotation>;
     filters?: FilterProps;
 }) {
     const { flash } = usePage<PageProps>().props;
-
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || 'all');
-    const [showFormModal, setShowFormModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<User | undefined>();
-
-    const openCreateModal = () => {
-        setSelectedUser(undefined);
-        setShowFormModal(true);
-    };
-
-    const openEditModal = (user: User) => {
-        setSelectedUser(user);
-        setShowFormModal(true);
-    };
-
-    const closeFormModal = () => {
-        setShowFormModal(false);
-        setSelectedUser(undefined);
-    };
 
     const handleFilter = (newSearch: string, newStatus: string) => {
         const query: Record<string, string> = {};
@@ -71,7 +46,7 @@ export default function User({
             query.status = newStatus;
         }
 
-        router.get(route('dashboard.user'), query, {
+        router.get(route('dashboard.request-quotations'), query, {
             preserveState: true,
             replace: true,
         });
@@ -95,16 +70,16 @@ export default function User({
 
     const breadcrumbs = [
         {
-            label: 'User',
-            url: route('dashboard.user'),
+            label: 'Request Quotation',
+            url: route('dashboard.request-quotations'),
         },
     ];
 
-    const columns = getUserColumns({ onEdit: openEditModal });
+    const columns = getRequestQuotationColumns();
+    const hasFilters = search !== '' || status !== 'all';
 
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
-            {/* FLASH SECTION */}
             {flash && (
                 <AlertComponent
                     title={flash.message}
@@ -113,41 +88,38 @@ export default function User({
                 />
             )}
 
-            {/* ADD, FILTER AND TABLE SECTION */}
             <div className="col-span-4 space-y-4">
                 <Card>
                     <CardContent>
-                        <div className="mb-4 flex justify-end">
-                            <Button onClick={openCreateModal}>
-                                <Plus /> Add user
-                            </Button>
-                        </div>
-
                         <DashboardSearchFilter
                             value={search}
                             onSearch={handleSearch}
                             onReset={handleReset}
-                            showReset={search !== '' || status !== 'all'}
-                            placeholder="Search"
+                            showReset={hasFilters}
+                            placeholder="Search customer or product"
                         >
                             <StatusFilter
                                 value={status}
                                 onChange={handleStatusChange}
+                                options={statusOptions}
                             />
                         </DashboardSearchFilter>
 
-                        <DataShowing meta={users} label="users" />
+                        <DataShowing
+                            meta={quotations}
+                            label="request quotations"
+                        />
 
                         <DataTable
-                            data={users.data}
+                            data={quotations.data}
                             columns={columns}
                             emptyMessage={
-                                search || status !== 'all'
-                                    ? 'No users match your filters.'
-                                    : 'No users yet.'
+                                hasFilters
+                                    ? 'No request quotations match your filters.'
+                                    : 'No request quotations yet.'
                             }
                             emptyAction={
-                                search || status !== 'all'
+                                hasFilters
                                     ? {
                                           label: 'Clear filters',
                                           onClick: handleReset,
@@ -158,39 +130,8 @@ export default function User({
                     </CardContent>
                 </Card>
 
-                <DataPagination meta={users} />
+                <DataPagination meta={quotations} />
             </div>
-
-            <Dialog
-                open={showFormModal}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        closeFormModal();
-                    } else {
-                        setShowFormModal(true);
-                    }
-                }}
-            >
-                <DialogContent className="max-h-[90vh] w-full max-w-2xl!">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {selectedUser ? 'Edit User' : 'Create User'}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {selectedUser
-                                ? 'Update user access data.'
-                                : 'Add a new user access.'}
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <UserForm
-                        user={selectedUser}
-                        roles={roles}
-                        onCancel={closeFormModal}
-                        onSuccess={closeFormModal}
-                    />
-                </DialogContent>
-            </Dialog>
         </DashboardLayout>
     );
 }

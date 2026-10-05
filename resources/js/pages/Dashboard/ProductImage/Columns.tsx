@@ -9,18 +9,31 @@ export interface ProductImage {
     image_url: string;
 }
 
-export function getProductImageColumns() {
+interface ProductImageColumnsProps {
+    onPreview: (image: ProductImage) => void;
+}
+
+export function getProductImageColumns({
+    onPreview,
+}: ProductImageColumnsProps) {
     return [
         {
             key: 'image_url',
             header: 'Preview',
             sortable: false,
             cell: (item: ProductImage) => (
-                <img
-                    src={item.image_url}
-                    alt={item.product?.name ?? 'Product image'}
-                    className="h-14 w-14 rounded-md border object-cover"
-                />
+                <button
+                    type="button"
+                    onClick={() => onPreview(item)}
+                    className="group block cursor-zoom-in rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                    aria-label={`View full image of ${item.product?.name ?? 'product'}`}
+                >
+                    <img
+                        src={item.image_url}
+                        alt={item.product?.name ?? 'Product image'}
+                        className="h-40 w-40 rounded-md border object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                </button>
             ),
         },
         {

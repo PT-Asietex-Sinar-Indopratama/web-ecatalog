@@ -16,6 +16,8 @@ export interface Product {
     description?: string;
     material: string;
     is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
     images?: Array<{
         id: number;
         image_path: string;
@@ -33,10 +35,11 @@ export interface Product {
 }
 
 interface ProductColumnsProps {
+    onDetail: (product: Product) => void;
     onEdit: (product: Product) => void;
 }
 
-export function getProductColumns({ onEdit }: ProductColumnsProps) {
+export function getProductColumns({ onDetail, onEdit }: ProductColumnsProps) {
     return [
         {
             key: 'action',
@@ -44,6 +47,7 @@ export function getProductColumns({ onEdit }: ProductColumnsProps) {
             sortable: false,
             cell: (item: Product) => (
                 <ActionDropdown
+                    onDetail={() => onDetail(item)}
                     onEdit={() => onEdit(item)}
                     onDelete={() =>
                         router.delete(

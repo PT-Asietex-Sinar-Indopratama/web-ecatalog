@@ -23,9 +23,21 @@ interface Column<T> {
 interface DataTableProps<T> {
     data: T[];
     columns: Column<T>[];
+    emptyMessage?: string;
+    emptyDescription?: string;
+    emptyAction?: {
+        label: string;
+        onClick: () => void;
+    };
 }
 
-export function DataTable<T>({ data, columns }: DataTableProps<T>) {
+export function DataTable<T>({
+    data,
+    columns,
+    emptyMessage = 'No records found.',
+    emptyDescription = 'Try adjusting your search or filters.',
+    emptyAction,
+}: DataTableProps<T>) {
     const [sortKey, setSortKey] = useState<string | null>(null);
 
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -77,48 +89,96 @@ export function DataTable<T>({ data, columns }: DataTableProps<T>) {
         });
     }, [data, sortKey, sortDirection]);
 
+    const renderCell = (item: T, column: Column<T>) =>
+        column.cell
+            ? column.cell(item)
+            : String(item[column.key as keyof T] ?? '');
+
+    const emptyState = (
+        <div className="rounded-lg border border-dashed p-6 text-center">
+            <p className="text-sm font-medium text-foreground">
+                {emptyMessage}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+                {emptyDescription}
+            </p>
+            {emptyAction && (
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4 min-h-11 sm:min-h-7"
+                    onClick={emptyAction.onClick}
+                >
+                    {emptyAction.label}
+                </Button>
+            )}
+        </div>
+    );
+
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    {columns.map((column) => (
-                        <TableHead
-                            key={String(column.key)}
-                            className={cn(
-                                column.className,
-                                column.headerClassName,
-                            )}
-                        >
-                            <div className="flex items-center gap-1">
-                                <span>{column.header}</span>
+                    {columns.map((column) => {
+                        const key = String(column.key);
+                        const isActive = sortKey === key;
 
-                                {column.sortable && (
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-6 w-6"
-                                        onClick={() =>
-                                            handleSort(
-                                                String(column.key),
-                                                column.sortable,
-                                            )
-                                        }
-                                    >
-                                        {sortKey === column.key ? (
-                                            sortDirection === 'asc' ? (
-                                                <ArrowUpWideNarrow className="h-4 w-4" />
-                                            ) : (
-                                                <ArrowDownWideNarrow className="h-4 w-4" />
-                                            )
-                                        ) : (
-                                            <ArrowUpWideNarrow className="h-4 w-4 opacity-30" />
-                                        )}
-                                    </Button>
+                        return (
+                            <TableHead
+                                key={key}
+                                aria-sort={
+                                    column.sortable
+                                        ? isActive
+                                            ? sortDirection === 'asc'
+                                                ? 'ascending'
+                                                : 'descending'
+                                            : 'none'
+                                        : undefined
+                                }
+                                className={cn(
+                                    column.className,
+                                    column.headerClassName,
                                 )}
-                            </div>
-                        </TableHead>
-                    ))}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <span>{column.header}</span>
+
+                                    {column.sortable && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-11 w-11 shrink-0 sm:h-6 sm:w-6"
+                                            aria-label={`Sort by ${column.header} ${isActive && sortDirection === 'asc' ? 'descending' : 'ascending'}`}
+                                            onClick={() =>
+                                                handleSort(key, column.sortable)
+                                            }
+                                        >
+                                            {isActive ? (
+                                                sortDirection === 'asc' ? (
+                                                    <ArrowUpWideNarrow
+                                                        aria-hidden="true"
+                                                        className="h-4 w-4"
+                                                    />
+                                                ) : (
+                                                    <ArrowDownWideNarrow
+                                                        aria-hidden="true"
+                                                        className="h-4 w-4"
+                                                    />
+                                                )
+                                            ) : (
+                                                <ArrowUpWideNarrow
+                                                    aria-hidden="true"
+                                                    className="h-4 w-4 opacity-30"
+                                                />
+                                            )}
+                                        </Button>
+                                    )}
+                                </div>
+                            </TableHead>
+                        );
+                    })}
                 </TableRow>
             </TableHeader>
 
@@ -131,22 +191,15 @@ export function DataTable<T>({ data, columns }: DataTableProps<T>) {
                                     key={String(column.key)}
                                     className={column.className}
                                 >
-                                    {column.cell
-                                        ? column.cell(item)
-                                        : String(
-                                              item[column.key as keyof T] ?? '',
-                                          )}
+                                    {renderCell(item, column)}
                                 </TableCell>
                             ))}
                         </TableRow>
                     ))
                 ) : (
                     <TableRow>
-                        <TableCell
-                            colSpan={columns.length}
-                            className="py-6 text-center text-slate-500"
-                        >
-                            Tidak ada data.
+                        <TableCell colSpan={columns.length} className="p-4">
+                            {emptyState}
                         </TableCell>
                     </TableRow>
                 )}
