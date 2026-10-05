@@ -16,6 +16,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Card, CardContent } from '@/components/ui/card';
+import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductFileColumns } from './Columns';
@@ -23,6 +24,8 @@ import type { ProductFile } from './Columns';
 
 interface FilterProps {
     search?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
 }
 
 export default function ProductFile({
@@ -34,18 +37,25 @@ export default function ProductFile({
 }) {
     const { flash } = usePage<PageProps>().props;
     const [search, setSearch] = useState(filters.search || '');
+    const tableSort = useServerTableSort(filters);
     const [selectedFile, setSelectedFile] = useState<ProductFile | undefined>();
 
     const closePreview = () => {
         setSelectedFile(undefined);
     };
 
-    const handleFilter = (newSearch: string) => {
+    const handleFilter = (
+        newSearch: string,
+        newSort = tableSort.sort,
+        newDirection = tableSort.direction,
+    ) => {
         const query: Record<string, string> = {};
 
         if (newSearch) {
             query.search = newSearch;
         }
+
+        tableSort.appendSortQuery(query, newSort, newDirection);
 
         router.get(route('dashboard.product-files'), query, {
             preserveState: true,
@@ -60,7 +70,14 @@ export default function ProductFile({
 
     const handleReset = () => {
         setSearch('');
-        handleFilter('');
+        tableSort.resetSort();
+        handleFilter('', 'updated_at', 'desc');
+    };
+
+    const handleSort = (newSort: string, newDirection: 'asc' | 'desc') => {
+        tableSort.applySort(newSort, newDirection, (nextSort, nextDirection) =>
+            handleFilter(search, nextSort, nextDirection),
+        );
     };
 
     const breadcrumbs = [
@@ -89,7 +106,7 @@ export default function ProductFile({
                             value={search}
                             onSearch={handleSearch}
                             onReset={handleReset}
-                            showReset={search !== ''}
+                            showReset={search !== '' || tableSort.hasSorting}
                             placeholder="Search product or file"
                         />
 
@@ -98,13 +115,16 @@ export default function ProductFile({
                         <DataTable
                             data={files.data}
                             columns={columns}
+                            sortKey={tableSort.sort}
+                            sortDirection={tableSort.direction}
+                            onSort={handleSort}
                             emptyMessage={
                                 search
                                     ? 'No product files match your search.'
                                     : 'No product files yet.'
                             }
                             emptyAction={
-                                search
+                                search || tableSort.hasSorting
                                     ? {
                                           label: 'Clear search',
                                           onClick: handleReset,

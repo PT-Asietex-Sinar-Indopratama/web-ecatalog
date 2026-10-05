@@ -18,6 +18,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getUserColumns } from './Columns';
@@ -27,6 +28,8 @@ import { UserForm } from './FormCreateEdit';
 interface FilterProps {
     search?: string;
     status?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
 }
 
 export default function User({
@@ -42,6 +45,7 @@ export default function User({
 
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || 'all');
+    const tableSort = useServerTableSort(filters);
     const [showFormModal, setShowFormModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | undefined>();
 
@@ -60,7 +64,12 @@ export default function User({
         setSelectedUser(undefined);
     };
 
-    const handleFilter = (newSearch: string, newStatus: string) => {
+    const handleFilter = (
+        newSearch: string,
+        newStatus: string,
+        newSort = tableSort.sort,
+        newDirection = tableSort.direction,
+    ) => {
         const query: Record<string, string> = {};
 
         if (newSearch) {
@@ -70,6 +79,8 @@ export default function User({
         if (newStatus && newStatus !== 'all') {
             query.status = newStatus;
         }
+
+        tableSort.appendSortQuery(query, newSort, newDirection);
 
         router.get(route('dashboard.user'), query, {
             preserveState: true,
@@ -90,7 +101,14 @@ export default function User({
     const handleReset = () => {
         setSearch('');
         setStatus('all');
-        handleFilter('', 'all');
+        tableSort.resetSort();
+        handleFilter('', 'all', 'updated_at', 'desc');
+    };
+
+    const handleSort = (newSort: string, newDirection: 'asc' | 'desc') => {
+        tableSort.applySort(newSort, newDirection, (nextSort, nextDirection) =>
+            handleFilter(search, status, nextSort, nextDirection),
+        );
     };
 
     const breadcrumbs = [
@@ -127,7 +145,11 @@ export default function User({
                             value={search}
                             onSearch={handleSearch}
                             onReset={handleReset}
-                            showReset={search !== '' || status !== 'all'}
+                            showReset={
+                                search !== '' ||
+                                status !== 'all' ||
+                                tableSort.hasSorting
+                            }
                             placeholder="Search"
                         >
                             <StatusFilter
@@ -141,13 +163,18 @@ export default function User({
                         <DataTable
                             data={users.data}
                             columns={columns}
+                            sortKey={tableSort.sort}
+                            sortDirection={tableSort.direction}
+                            onSort={handleSort}
                             emptyMessage={
                                 search || status !== 'all'
                                     ? 'No users match your filters.'
                                     : 'No users yet.'
                             }
                             emptyAction={
-                                search || status !== 'all'
+                                search ||
+                                status !== 'all' ||
+                                tableSort.hasSorting
                                     ? {
                                           label: 'Clear filters',
                                           onClick: handleReset,

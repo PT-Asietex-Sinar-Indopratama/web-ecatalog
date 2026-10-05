@@ -25,7 +25,26 @@ class UserController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
-        $users = $query->orderBy('updated_at', 'desc')
+        $sortableColumns = [
+            'name',
+            'email',
+            'is_active',
+            'updated_at',
+        ];
+
+        $sort = $request->string('sort', 'updated_at')->toString();
+        $direction = $request->string('direction', 'desc')->toString();
+
+        if (! in_array($sort, $sortableColumns, true)) {
+            $sort = 'updated_at';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'desc';
+        }
+
+        $users = $query->orderBy($sort, $direction)
+            ->orderBy('id', $direction)
             ->paginate(7)
             ->withQueryString();
 
@@ -34,7 +53,12 @@ class UserController extends Controller
         return Inertia::render('Dashboard/User/Index', [
             'users' => $users,
             'roles' => $roles,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'status' => $request->input('status', 'all'),
+                'sort' => $sort,
+                'direction' => $direction,
+            ],
         ]);
     }
 

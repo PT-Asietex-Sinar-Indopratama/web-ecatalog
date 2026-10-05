@@ -61,18 +61,44 @@ class ProductController extends Controller
             );
         }
 
-        $sort = $request->string('sort', 'latest')->toString();
+        if ($request->routeIs('main')) {
+            $sort = $request->string('sort', 'latest')->toString();
 
-        if (! in_array($sort, ['latest', 'oldest', 'name_asc', 'name_desc'], true)) {
-            $sort = 'latest';
+            if (! in_array($sort, ['latest', 'oldest', 'name_asc', 'name_desc'], true)) {
+                $sort = 'latest';
+            }
+
+            match ($sort) {
+                'oldest' => $query->orderBy('updated_at')->orderBy('id'),
+                'name_asc' => $query->orderBy('name')->orderBy('id'),
+                'name_desc' => $query->orderByDesc('name')->orderByDesc('id'),
+                default => $query->orderByDesc('updated_at')->orderByDesc('id'),
+            };
+        } else {
+            $sortableColumns = [
+                'sku',
+                'name',
+                'price',
+                'category_id',
+                'material',
+                'is_active',
+                'updated_at',
+            ];
+
+            $sort = $request->string('sort', 'updated_at')->toString();
+            $direction = $request->string('direction', 'desc')->toString();
+
+            if (! in_array($sort, $sortableColumns, true)) {
+                $sort = 'updated_at';
+            }
+
+            if (! in_array($direction, ['asc', 'desc'], true)) {
+                $direction = 'desc';
+            }
+
+            $query->orderBy($sort, $direction)
+                ->orderBy('id', $direction);
         }
-
-        match ($sort) {
-            'oldest' => $query->orderBy('updated_at')->orderBy('id'),
-            'name_asc' => $query->orderBy('name')->orderBy('id'),
-            'name_desc' => $query->orderByDesc('name')->orderByDesc('id'),
-            default => $query->orderByDesc('updated_at')->orderByDesc('id'),
-        };
 
         $products = $query
             ->paginate(7)
@@ -97,7 +123,12 @@ class ProductController extends Controller
         return Inertia::render('Dashboard/Product/Index', [
             'products' => $products,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'status' => $request->input('status', 'all'),
+                'sort' => $sort,
+                'direction' => $direction,
+            ],
         ]);
     }
 
@@ -127,13 +158,44 @@ class ProductController extends Controller
             });
         }
 
-        $images = $query->orderBy('updated_at', 'desc')
+        $sortableColumns = [
+            'image_path',
+            'product',
+            'updated_at',
+        ];
+
+        $sort = $request->string('sort', 'updated_at')->toString();
+        $direction = $request->string('direction', 'desc')->toString();
+
+        if (! in_array($sort, $sortableColumns, true)) {
+            $sort = 'updated_at';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'desc';
+        }
+
+        if ($sort === 'product') {
+            $query->orderBy(
+                Products::select('name')
+                    ->whereColumn('products.id', 'product_images.product_id'),
+                $direction,
+            );
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
+        $images = $query->orderBy('id', $direction)
             ->paginate(8)
-            ->appends($request->only('search'));
+            ->appends($request->only(['search', 'sort', 'direction']));
 
         return Inertia::render('Dashboard/ProductImage/Index', [
             'images' => $images,
-            'filters' => $request->only('search'),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'sort' => $sort,
+                'direction' => $direction,
+            ],
         ]);
     }
 
@@ -152,13 +214,44 @@ class ProductController extends Controller
             });
         }
 
-        $files = $query->orderBy('updated_at', 'desc')
+        $sortableColumns = [
+            'file_name',
+            'product',
+            'updated_at',
+        ];
+
+        $sort = $request->string('sort', 'updated_at')->toString();
+        $direction = $request->string('direction', 'desc')->toString();
+
+        if (! in_array($sort, $sortableColumns, true)) {
+            $sort = 'updated_at';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'desc';
+        }
+
+        if ($sort === 'product') {
+            $query->orderBy(
+                Products::select('name')
+                    ->whereColumn('products.id', 'product_files.product_id'),
+                $direction,
+            );
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
+        $files = $query->orderBy('id', $direction)
             ->paginate(8)
-            ->appends($request->only('search'));
+            ->appends($request->only(['search', 'sort', 'direction']));
 
         return Inertia::render('Dashboard/ProductFile/Index', [
             'files' => $files,
-            'filters' => $request->only('search'),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'sort' => $sort,
+                'direction' => $direction,
+            ],
         ]);
     }
 

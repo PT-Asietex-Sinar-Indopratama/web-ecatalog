@@ -25,14 +25,38 @@ class ProductCategoryController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
-        $category = $query->orderBy('updated_at', 'desc')
+        $sortableColumns = [
+            'name',
+            'description',
+            'is_active',
+            'updated_at',
+        ];
+
+        $sort = $request->string('sort', 'updated_at')->toString();
+        $direction = $request->string('direction', 'desc')->toString();
+
+        if (! in_array($sort, $sortableColumns, true)) {
+            $sort = 'updated_at';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'desc';
+        }
+
+        $category = $query->orderBy($sort, $direction)
+            ->orderBy('id', $direction)
             ->paginate(7)
             ->withQueryString();
 
         return Inertia::render('Dashboard/ProductCategory/Index', [
             'category' => $category,
             'categoryOptions' => ProductCategories::hierarchyOptions(),
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'status' => $request->input('status', 'all'),
+                'sort' => $sort,
+                'direction' => $direction,
+            ],
         ]);
     }
 

@@ -17,6 +17,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getUserRoleColumns } from './Columns';
@@ -25,6 +26,8 @@ import { UserRoleForm } from './FormCreateEdit';
 
 interface FilterProps {
     search?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
 }
 
 export default function UserRole({
@@ -37,6 +40,7 @@ export default function UserRole({
     const { flash } = usePage<PageProps>().props;
 
     const [search, setSearch] = useState(filters.search || '');
+    const tableSort = useServerTableSort(filters);
     const [showFormModal, setShowFormModal] = useState(false);
     const [selectedRole, setSelectedRole] = useState<Role | undefined>();
 
@@ -55,12 +59,18 @@ export default function UserRole({
         setSelectedRole(undefined);
     };
 
-    const handleFilter = (newSearch: string) => {
+    const handleFilter = (
+        newSearch: string,
+        newSort = tableSort.sort,
+        newDirection = tableSort.direction,
+    ) => {
         const query: Record<string, string> = {};
 
         if (newSearch) {
             query.search = newSearch;
         }
+
+        tableSort.appendSortQuery(query, newSort, newDirection);
 
         router.get(route('dashboard.user-role'), query, {
             preserveState: true,
@@ -75,7 +85,14 @@ export default function UserRole({
 
     const handleReset = () => {
         setSearch('');
-        handleFilter('');
+        tableSort.resetSort();
+        handleFilter('', 'updated_at', 'desc');
+    };
+
+    const handleSort = (newSort: string, newDirection: 'asc' | 'desc') => {
+        tableSort.applySort(newSort, newDirection, (nextSort, nextDirection) =>
+            handleFilter(search, nextSort, nextDirection),
+        );
     };
 
     const breadcrumbs = [
@@ -112,7 +129,7 @@ export default function UserRole({
                             value={search}
                             onSearch={handleSearch}
                             onReset={handleReset}
-                            showReset={search !== ''}
+                            showReset={search !== '' || tableSort.hasSorting}
                             placeholder="Search"
                         />
 
@@ -121,13 +138,16 @@ export default function UserRole({
                         <DataTable
                             data={roles.data}
                             columns={columns}
+                            sortKey={tableSort.sort}
+                            sortDirection={tableSort.direction}
+                            onSort={handleSort}
                             emptyMessage={
                                 search
                                     ? 'No user roles match your search.'
                                     : 'No user roles yet.'
                             }
                             emptyAction={
-                                search
+                                search || tableSort.hasSorting
                                     ? {
                                           label: 'Clear search',
                                           onClick: handleReset,

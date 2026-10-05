@@ -31,14 +31,39 @@ class RequestQuotationController extends Controller
             $query->where('status', $request->status);
         }
 
+        $sortableColumns = [
+            'created_at',
+            'customer_name',
+            'product_name',
+            'quantity',
+            'status',
+        ];
+
+        $sort = $request->string('sort', 'created_at')->toString();
+        $direction = $request->string('direction', 'desc')->toString();
+
+        if (! in_array($sort, $sortableColumns, true)) {
+            $sort = 'created_at';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'desc';
+        }
+
         $quotations = $query
-            ->latest('created_at')
+            ->orderBy($sort, $direction)
+            ->orderBy('id', $direction)
             ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('Dashboard/RequestQuotation/Index', [
             'quotations' => $quotations,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'status' => $request->input('status', 'all'),
+                'sort' => $sort,
+                'direction' => $direction,
+            ],
         ]);
     }
 

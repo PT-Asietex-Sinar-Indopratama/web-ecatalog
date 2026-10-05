@@ -9,7 +9,7 @@
 
 Perusahaan adalah manufaktur tekstil yang telah berdiri sejak 1980. Saat ini proses penjualan masih banyak dilakukan secara manual: customer menghubungi sales melalui WhatsApp, sales mengirim katalog PDF, customer berdiskusi dan menegosiasikan harga, lalu pembayaran dan pemrosesan order dilakukan secara manual.
 
-Web E-Catalog menjadi tahap pertama digitalisasi proses tersebut. Aplikasi memungkinkan pengunjung melihat produk aktif, mencari dan memfilter katalog, membuka detail produk, serta mengunduh file PDF produk tanpa login. Aplikasi juga menyediakan dashboard internal untuk staff dan admin dalam mengelola data produk, kategori, aset produk, user, dan role.
+Web E-Catalog menjadi tahap pertama digitalisasi proses tersebut. Aplikasi memungkinkan pengunjung melihat produk aktif, mencari dan memfilter katalog, membuka detail produk, serta mengunduh file PDF produk tanpa login. Aplikasi juga menyediakan dashboard internal bagi Staff dan Admin untuk mengelola katalog dan inquiry, sedangkan pengelolaan user dan role hanya tersedia bagi Admin.
 
 Produk ini berfungsi sebagai digital sales assistant, bukan pengganti tim sales. Tujuannya adalah mengurangi pekerjaan berulang, membantu customer menemukan produk secara mandiri, dan membuat proses request quotation lebih terstruktur.
 
@@ -86,7 +86,7 @@ Manual Order Processing
 1. Informasi produk perlu tersedia dalam satu katalog digital yang terpusat.
 2. Tim sales perlu menemukan detail produk dengan cepat ketika melayani customer.
 3. Customer perlu mengakses informasi dan file produk tanpa proses login.
-4. Admin perlu mengelola data produk, kategori, aset, user, dan role dari satu dashboard.
+4. Staff dan Admin perlu mengelola data produk, kategori, aset, dan inquiry dari satu dashboard; pengelolaan user dan role hanya dilakukan oleh Admin.
 5. Data katalog perlu memiliki status publikasi sederhana agar produk yang belum siap tidak tampil kepada pengunjung.
 
 Pain point bisnis yang menjadi dasar produk:
@@ -109,17 +109,6 @@ Pain point bisnis yang menjadi dasar produk:
 - Menyediakan tombol yang mengarahkan customer ke WhatsApp sales tanpa integrasi WhatsApp langsung.
 - Memusatkan pengelolaan katalog pada dashboard internal.
 - Menjaga konsistensi data melalui validasi, status aktif/nonaktif, dan pengelolaan role.
-
-### Indikator keberhasilan
-
-Indikator berikut perlu diukur setelah instrumentasi analitik tersedia:
-
-- Waktu yang dibutuhkan staff sales untuk menemukan produk.
-- Jumlah kunjungan halaman detail produk.
-- Jumlah download file PDF produk.
-- Persentase pencarian yang menghasilkan produk relevan.
-- Persentase produk aktif yang memiliki gambar dan file PDF.
-- Waktu respons halaman katalog dan dashboard.
 
 ### Customer journey yang dituju
 
@@ -162,9 +151,9 @@ Target MVP memperkuat katalog untuk kebutuhan customer dan sales dengan fitur be
 - Download PDF produk.
 - Request quotation dari halaman produk.
 - Tombol WhatsApp yang membuka WhatsApp sales, idealnya dengan pesan awal yang memuat nama atau SKU produk.
-- Admin CMS untuk mengelola katalog.
+- CMS internal untuk Staff dan Admin dalam mengelola katalog.
 
-Request quotation pada MVP merupakan proses inquiry, bukan checkout dan bukan pembayaran online. Detail field, penerima inquiry, dan alur tindak lanjut ditentukan bersama proses bisnis sales.
+Request quotation pada MVP merupakan proses inquiry yang wajib disimpan ke database, bukan checkout dan bukan pembayaran online. Seluruh Staff dan Admin dapat melihat dan memproses inquiry.
 
 ### 5.3 Future roadmap
 
@@ -209,10 +198,10 @@ Fitur transaksi baru dipertimbangkan setelah proses bisnis siap:
 | Persona    | Deskripsi                                          | Akses                                                                              |
 | ---------- | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Pengunjung | Customer atau pihak eksternal yang melihat katalog | Melihat katalog, mencari, memfilter, membuka detail, dan mengunduh PDF tanpa login |
-| Staff/User | Staff internal, termasuk tim sales                 | Login dan mengakses area internal sesuai konfigurasi akses aplikasi                |
+| Staff/User | Staff internal, termasuk tim sales                 | Mengakses seluruh fitur internal kecuali pengelolaan user dan role                 |
 | Admin      | Pengelola katalog dan user                         | Mengakses dashboard, mengelola produk, kategori, aset, user, dan role              |
 
-Pada versi saat ini, seluruh admin memiliki tingkat akses yang sama. Pengembangan permission granular dapat dilakukan pada fase berikutnya jika kebutuhan organisasi meningkat.
+Seluruh Staff dan Admin dapat melihat dan memproses inquiry. Hanya Admin yang dapat mengakses menu dan route pengelolaan user dan role. Pembatasan akses wajib diterapkan pada backend dan tidak hanya dengan menyembunyikan menu pada frontend. Pada versi saat ini, seluruh Admin memiliki tingkat akses yang sama.
 
 ## 7. Ruang Lingkup Fitur
 
@@ -251,11 +240,81 @@ Detail produk menampilkan:
 - Tombol request quotation yang mengarahkan customer ke proses inquiry.
 - Tombol WhatsApp yang membuka percakapan dengan sales. Tombol ini hanya berupa link/redirect dan tidak mencakup WhatsApp API, bot, webhook, atau sinkronisasi chat.
 
+#### Request quotation
+
+Request quotation adalah inquiry dari customer terhadap produk yang dipilih.
+Fitur ini bukan checkout, bukan pembayaran, dan bukan order final.
+
+Alur target:
+
+```text
+Visitor membuka detail produk
+   ↓
+Memilih request quotation atau WhatsApp sales
+   ↓
+Mengirim konteks produk
+   ↓
+Sales menerima dan melakukan follow-up
+```
+
+Keputusan implementasi MVP:
+
+- Request quotation dapat dimulai dari halaman detail produk.
+- Inquiry dapat dikirim sebagai guest tanpa login.
+- Inquiry membawa konteks produk, minimal nama atau SKU.
+- Field wajib: nama lengkap dan nomor WhatsApp.
+- Field opsional: nama perusahaan, jumlah kebutuhan, dan catatan atau kebutuhan khusus.
+- Inquiry disimpan ke database dengan status awal `new`.
+- Data produk yang disimpan mencakup `product_id`, nama, dan SKU sebagai snapshot.
+- Setelah inquiry berhasil disimpan, WhatsApp Sales dibuka dengan pesan yang sudah diisi konteks produk dan data inquiry.
+- Nomor WhatsApp dikonfigurasi melalui `SALES_WHATSAPP_NUMBER`, dengan nomor dummy `6280000000000` untuk sementara.
+- Kegagalan membuka WhatsApp tidak boleh membatalkan atau menghapus inquiry yang sudah tersimpan.
+- Seluruh Staff dan Admin dapat melihat, memproses, menambahkan catatan, mengubah status, menutup, dan membuka kembali inquiry.
+- Inquiry tidak ditugaskan kepada satu Staff tertentu.
+- Status inquiry terdiri dari `new`, `in_progress`, dan `closed`.
+- Inquiry yang ditutup wajib memiliki alasan `won`, `lost`, atau `invalid`.
+- Sistem mencatat user dan waktu untuk setiap perubahan status, penutupan, pembukaan kembali, dan perubahan penting lainnya.
+- Sistem harus mencegah perubahan diam-diam ketika dua user memperbarui inquiry yang sama, minimal dengan mendeteksi bahwa data telah berubah sejak halaman dibuka dan meminta user memuat ulang data terbaru.
+- Inquiry baru harus mulai ditindaklanjuti maksimal satu hari kerja setelah diterima.
+- Inquiry berstatus `new` yang melewati satu hari kerja ditandai terlambat pada dashboard.
+- Inquiry yang diterima di luar jam kerja mulai dihitung pada hari kerja berikutnya. Definisi hari dan jam kerja mengikuti konfigurasi operasional perusahaan.
+
+Keamanan dan pencegahan penyalahgunaan request quotation:
+
+- Maksimal lima pengiriman inquiry dari satu alamat IP dalam 15 menit.
+- Maksimal sepuluh pengiriman inquiry dari satu alamat IP dalam 24 jam.
+- Kombinasi nomor WhatsApp dan produk yang sama tidak dapat dikirim kembali dalam 10 menit.
+- Nilai batas dan periode pembatasan harus dapat diubah melalui konfigurasi aplikasi.
+- Tombol submit dinonaktifkan selama request diproses untuk mencegah pengiriman berulang dari antarmuka.
+- Pelanggaran rate limit menampilkan pesan umum tanpa membocorkan aturan keamanan secara terperinci dan dicatat dalam security log.
+- Jika alamat IP disimpan hanya untuk pembatasan dan deteksi penyalahgunaan, alamat tersebut disimpan dalam bentuk hash.
+- Data inquiry hanya dapat diakses oleh Staff dan Admin melalui endpoint yang dilindungi autentikasi dan otorisasi backend.
+- Form menampilkan pemberitahuan singkat bahwa data customer digunakan untuk menindaklanjuti permintaan quotation.
+
+Di luar scope request quotation MVP:
+
+- Harga otomatis atau customer-specific pricing.
+- Checkout, pembayaran, stok, pengiriman, dan invoice.
+- Inquiry cart dan inquiry history terautentikasi; ini adalah roadmap Phase 2.
+
+#### Product assets publik
+
+- Gambar produk digunakan untuk thumbnail dan detail.
+- File PDF digunakan sebagai materi download produk.
+- Gallery gambar tambahan menjadi target E-Catalog MVP.
+- Satu produk memiliki satu gambar utama dan satu file PDF pada current implementation.
+- Satu gambar ditetapkan sebagai gambar utama pada target gallery MVP.
+- Gambar tambahan dapat ditampilkan di halaman detail.
+- Batas jumlah gambar tambahan masih perlu ditetapkan sebelum implementasi final.
+
 #### Aturan akses publik
 
 - Produk nonaktif tidak boleh muncul pada katalog publik.
 - Produk nonaktif tidak boleh diakses melalui halaman detail publik.
 - Pengunjung tidak wajib login untuk mengakses katalog dan download PDF.
+- File PDF hanya ditampilkan jika tersedia dan valid.
+- URL detail harus stabil dan mudah dibagikan.
+- Metadata halaman harus mendukung SEO; produk nonaktif tidak boleh diindeks.
 
 ### 7.2 Autentikasi dan profil
 
@@ -267,10 +326,10 @@ Sistem harus menyediakan:
 - Regenerasi session setelah login.
 - Logout yang mengakhiri session.
 - Halaman profil untuk user yang sedang login.
-- Proteksi dashboard untuk user terautentikasi.
-- Proteksi area admin menggunakan role admin.
+- Proteksi dashboard untuk Staff dan Admin yang terautentikasi.
+- Proteksi pengelolaan user dan role menggunakan role Admin.
 
-### 7.3 Dashboard admin
+### 7.3 Dashboard internal
 
 Dashboard menampilkan:
 
@@ -286,7 +345,7 @@ Dashboard menampilkan:
 
 ### 7.4 Pengelolaan produk
 
-Admin dapat:
+Staff dan Admin dapat:
 
 - Melihat daftar produk.
 - Mencari produk.
@@ -303,8 +362,8 @@ Admin dapat:
 
 #### Target pengelolaan gallery pada MVP
 
-- Admin dapat menyimpan satu gambar utama dan gambar tambahan untuk satu produk.
-- Admin dapat menentukan gambar utama.
+- Staff dan Admin dapat menyimpan satu gambar utama dan gambar tambahan untuk satu produk.
+- Staff dan Admin dapat menentukan gambar utama.
 - Pengunjung dapat melihat gambar utama dan gambar tambahan pada halaman detail.
 - Batas jumlah, ukuran, dan format gambar tambahan perlu ditetapkan sebelum implementasi final.
 
@@ -322,7 +381,7 @@ Admin dapat:
 
 ### 7.5 Pengelolaan kategori
 
-Admin dapat:
+Staff dan Admin dapat:
 
 - Melihat daftar kategori.
 - Mencari kategori.
@@ -343,7 +402,7 @@ Admin dapat:
 
 ### 7.6 Pengelolaan aset produk
 
-Admin dapat:
+Staff dan Admin dapat:
 
 - Melihat daftar gambar produk.
 - Mencari gambar berdasarkan nama produk, SKU, atau path.
@@ -415,20 +474,28 @@ Model data MVP harus memprioritaskan kebutuhan katalog, tetapi tetap memberi rua
 
 ### Entitas untuk perluasan masa depan
 
-Entitas customer, variant, inquiry, quotation, cart, order, dan payment tidak wajib diimplementasikan pada E-Catalog MVP. Entitas tersebut dapat ditambahkan bertahap tanpa mengganggu katalog ketika proses bisnis B2B sudah siap, dan tidak boleh menambah kompleksitas transaksi terlalu dini.
+Entitas `inquiries` wajib diimplementasikan pada E-Catalog MVP untuk menyimpan request quotation. Entitas customer, variant, quotation, cart, order, dan payment tidak wajib diimplementasikan pada E-Catalog MVP. Entitas tersebut dapat ditambahkan bertahap tanpa mengganggu katalog ketika proses bisnis B2B sudah siap dan tidak boleh menambah kompleksitas transaksi terlalu dini.
 
 ## 9. Kebutuhan Non-Fungsional
 
 ### Keamanan
 
 - Dashboard hanya dapat diakses user yang sudah login.
-- Area admin hanya dapat diakses user dengan role admin.
+- Dashboard internal hanya dapat diakses user dengan role Staff atau Admin.
+- Pengelolaan user dan role hanya dapat diakses user dengan role Admin.
 - Password harus disimpan menggunakan hashing.
 - Validasi tipe dan ukuran file wajib diterapkan di server.
 - Akses file dan route harus mengikuti hak akses yang ditentukan.
 - Session harus diregenerasi saat login dan diinvalidasi saat logout.
 - Data sensitif tidak boleh ditampilkan dalam response publik.
 - Sistem perlu memiliki perlindungan terhadap upload file berbahaya dan path traversal.
+- Otorisasi Staff dan Admin wajib diterapkan pada route dan action backend, bukan hanya pada tampilan frontend.
+- Aplikasi wajib menerapkan perlindungan terhadap CSRF, XSS, SQL injection, mass assignment, dan request berulang.
+- Endpoint login dan pengiriman inquiry wajib menggunakan rate limiting.
+- Data inquiry tidak boleh tersedia melalui endpoint publik dan hanya dapat diakses oleh Staff dan Admin yang terautentikasi.
+- Validasi inquiry dan upload file wajib dilakukan di server meskipun frontend juga melakukan validasi.
+- Pesan error publik tidak boleh membocorkan stack trace, query database, path server, credential, atau detail internal lainnya.
+- Aktivitas pemrosesan inquiry, perubahan status, penutupan, dan pembukaan kembali wajib dicatat beserta user dan waktunya.
 
 ### Performa
 
@@ -474,7 +541,7 @@ Entitas customer, variant, inquiry, quotation, cart, order, dan payment tidak wa
 - Halaman detail yang dapat dibagikan melalui URL.
 - Download PDF tanpa login.
 - Tampilan grid dan list untuk kebutuhan browsing yang berbeda.
-- Informasi produk terpusat dan dapat dikelola oleh admin.
+- Informasi produk terpusat dan dapat dikelola oleh Staff dan Admin.
 
 ### Dukungan sales pada target E-Catalog MVP
 
@@ -515,9 +582,9 @@ Fitur berikut dapat dipertimbangkan setelah versi saat ini stabil:
 3. Pengunjung dapat mencari, memfilter, mengurutkan, dan melakukan pagination katalog.
 4. Pengunjung dapat membuka detail produk dan mengunduh PDF jika tersedia.
 5. User yang belum login tidak dapat mengakses dashboard.
-6. User non-admin tidak dapat mengakses route admin.
-7. Admin dapat membuat, mengubah, dan menghapus produk dengan validasi yang sesuai.
-8. Admin dapat mengelola kategori bertingkat tanpa membuat siklus parent-child.
+6. User tanpa role Staff atau Admin tidak dapat mengakses dashboard internal.
+7. Staff dan Admin dapat membuat, mengubah, dan menghapus produk dengan validasi yang sesuai.
+8. Staff dan Admin dapat mengelola kategori bertingkat tanpa membuat siklus parent-child.
 9. Admin dapat mengelola user dan role.
 10. Upload gambar dan PDF menolak format atau ukuran yang tidak sesuai.
 11. Produk yang dihapus tidak meninggalkan aset file di storage.
@@ -526,6 +593,13 @@ Fitur berikut dapat dipertimbangkan setelah versi saat ini stabil:
 14. Target MVP menyediakan request quotation dari produk yang dipilih.
 15. Target MVP menyediakan tombol/link WhatsApp menuju sales tanpa integrasi WhatsApp langsung.
 16. Sistem memiliki rencana backup, keamanan, audit, monitoring, dan pemulihan sebelum digunakan sebagai aplikasi produksi.
+17. Request quotation yang valid tersimpan ke database dengan status awal `new` sebelum WhatsApp dibuka.
+18. Seluruh Staff dan Admin dapat memproses inquiry, sedangkan hanya Admin yang dapat mengakses pengelolaan user dan role.
+19. Inquiry menggunakan status `new`, `in_progress`, atau `closed`; status `closed` wajib memiliki alasan `won`, `lost`, atau `invalid`.
+20. Inquiry `new` yang belum ditindaklanjuti setelah satu hari kerja ditandai terlambat.
+21. Pengiriman inquiry dibatasi berdasarkan IP serta kombinasi nomor WhatsApp dan produk sesuai konfigurasi aplikasi.
+22. Percobaan akses inquiry tanpa autentikasi atau tanpa role yang sesuai ditolak oleh backend.
+23. Sistem mendeteksi konflik ketika dua user mencoba memperbarui inquiry yang sama berdasarkan data yang sudah tidak terbaru.
 
 ## 13. Asumsi dan Keputusan
 
@@ -536,5 +610,10 @@ Fitur berikut dapat dipertimbangkan setelah versi saat ini stabil:
 - Seluruh admin memiliki hak akses yang sama.
 - Pengunjung tidak membutuhkan akun.
 - Tombol WhatsApp menuju sales termasuk target MVP, sedangkan integrasi WhatsApp API tidak termasuk scope.
+- Request quotation wajib disimpan ke database sebelum WhatsApp dibuka.
+- Seluruh Staff dan Admin dapat memproses inquiry tanpa penugasan kepada satu Staff tertentu.
+- Staff dapat mengakses seluruh fitur internal kecuali pengelolaan user dan role.
+- SLA tindak lanjut pertama inquiry adalah maksimal satu hari kerja.
+- Status inquiry dibatasi menjadi `new`, `in_progress`, dan `closed`, dengan alasan penutupan `won`, `lost`, atau `invalid`.
 - Fitur semi e-commerce dan full e-commerce hanya menjadi arah roadmap, bukan scope implementasi saat ini.
-- Detail prioritas, target waktu implementasi, dan target bisnis kuantitatif dapat ditetapkan pada perencanaan proyek berikutnya.
+- Detail prioritas dan target waktu implementasi dapat ditetapkan pada perencanaan proyek berikutnya.

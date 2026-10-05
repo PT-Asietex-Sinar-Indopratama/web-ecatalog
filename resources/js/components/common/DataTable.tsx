@@ -29,6 +29,9 @@ interface DataTableProps<T> {
         label: string;
         onClick: () => void;
     };
+    sortKey?: string | null;
+    sortDirection?: 'asc' | 'desc';
+    onSort?: (key: string, direction: 'asc' | 'desc') => void;
 }
 
 export function DataTable<T>({
@@ -37,26 +40,40 @@ export function DataTable<T>({
     emptyMessage = 'No records found.',
     emptyDescription = 'Try adjusting your search or filters.',
     emptyAction,
+    sortKey: controlledSortKey,
+    sortDirection: controlledSortDirection,
+    onSort,
 }: DataTableProps<T>) {
-    const [sortKey, setSortKey] = useState<string | null>(null);
+    const [localSortKey, setLocalSortKey] = useState<string | null>(null);
 
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [localSortDirection, setLocalSortDirection] = useState<
+        'asc' | 'desc'
+    >('asc');
+
+    const sortKey = controlledSortKey ?? localSortKey;
+    const sortDirection = controlledSortDirection ?? localSortDirection;
+    const isServerSorted = Boolean(onSort);
 
     const handleSort = (key: string, sortable?: boolean) => {
         if (!sortable) {
             return;
         }
 
-        if (sortKey === key) {
-            setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-        } else {
-            setSortKey(key);
-            setSortDirection('asc');
+        const nextDirection =
+            sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
+
+        if (onSort) {
+            onSort(key, nextDirection);
+
+            return;
         }
+
+        setLocalSortKey(key);
+        setLocalSortDirection(nextDirection);
     };
 
     const sortedData = useMemo(() => {
-        if (!sortKey) {
+        if (!sortKey || isServerSorted) {
             return data;
         }
 
@@ -87,7 +104,7 @@ export function DataTable<T>({
 
             return sortDirection === 'asc' ? result : -result;
         });
-    }, [data, sortKey, sortDirection]);
+    }, [data, isServerSorted, sortKey, sortDirection]);
 
     const renderCell = (item: T, column: Column<T>) =>
         column.cell

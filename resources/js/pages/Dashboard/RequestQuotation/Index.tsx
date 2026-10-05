@@ -9,6 +9,7 @@ import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusFilter } from '@/components/common/StatusFilter';
 import { Card, CardContent } from '@/components/ui/card';
+import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getRequestQuotationColumns } from './Columns';
@@ -17,6 +18,8 @@ import type { RequestQuotation } from './Columns';
 interface FilterProps {
     search?: string;
     status?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
 }
 
 const statusOptions = [
@@ -34,8 +37,14 @@ export default function RequestQuotation({
     const { flash } = usePage<PageProps>().props;
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || 'all');
+    const tableSort = useServerTableSort(filters, 'created_at');
 
-    const handleFilter = (newSearch: string, newStatus: string) => {
+    const handleFilter = (
+        newSearch: string,
+        newStatus: string,
+        newSort = tableSort.sort,
+        newDirection = tableSort.direction,
+    ) => {
         const query: Record<string, string> = {};
 
         if (newSearch) {
@@ -45,6 +54,8 @@ export default function RequestQuotation({
         if (newStatus && newStatus !== 'all') {
             query.status = newStatus;
         }
+
+        tableSort.appendSortQuery(query, newSort, newDirection);
 
         router.get(route('dashboard.request-quotations'), query, {
             preserveState: true,
@@ -65,7 +76,14 @@ export default function RequestQuotation({
     const handleReset = () => {
         setSearch('');
         setStatus('all');
-        handleFilter('', 'all');
+        tableSort.resetSort();
+        handleFilter('', 'all', 'created_at', 'desc');
+    };
+
+    const handleSort = (newSort: string, newDirection: 'asc' | 'desc') => {
+        tableSort.applySort(newSort, newDirection, (nextSort, nextDirection) =>
+            handleFilter(search, status, nextSort, nextDirection),
+        );
     };
 
     const breadcrumbs = [
@@ -76,7 +94,8 @@ export default function RequestQuotation({
     ];
 
     const columns = getRequestQuotationColumns();
-    const hasFilters = search !== '' || status !== 'all';
+    const hasFilters =
+        search !== '' || status !== 'all' || tableSort.hasSorting;
 
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -113,6 +132,9 @@ export default function RequestQuotation({
                         <DataTable
                             data={quotations.data}
                             columns={columns}
+                            sortKey={tableSort.sort}
+                            sortDirection={tableSort.direction}
+                            onSort={handleSort}
                             emptyMessage={
                                 hasFilters
                                     ? 'No request quotations match your filters.'

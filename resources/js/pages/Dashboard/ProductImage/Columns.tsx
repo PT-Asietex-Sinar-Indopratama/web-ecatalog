@@ -39,7 +39,7 @@ export function getProductImageColumns({
         {
             key: 'product',
             header: 'Product',
-            sortable: false,
+            sortable: true,
             cell: (item: ProductImage) => (
                 <div className="space-y-1">
                     <p className="font-medium">{item.product?.name ?? '-'}</p>

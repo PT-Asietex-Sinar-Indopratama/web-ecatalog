@@ -15,6 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductImageColumns } from './Columns';
@@ -22,6 +23,8 @@ import type { ProductImage } from './Columns';
 
 interface FilterProps {
     search?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
 }
 
 export default function ProductImage({
@@ -33,16 +36,23 @@ export default function ProductImage({
 }) {
     const { flash } = usePage<PageProps>().props;
     const [search, setSearch] = useState(filters.search || '');
+    const tableSort = useServerTableSort(filters);
     const [selectedImage, setSelectedImage] = useState<ProductImage | null>(
         null,
     );
 
-    const handleFilter = (newSearch: string) => {
+    const handleFilter = (
+        newSearch: string,
+        newSort = tableSort.sort,
+        newDirection = tableSort.direction,
+    ) => {
         const query: Record<string, string> = {};
 
         if (newSearch) {
             query.search = newSearch;
         }
+
+        tableSort.appendSortQuery(query, newSort, newDirection);
 
         router.get(route('dashboard.product-images'), query, {
             preserveState: true,
@@ -57,7 +67,14 @@ export default function ProductImage({
 
     const handleReset = () => {
         setSearch('');
-        handleFilter('');
+        tableSort.resetSort();
+        handleFilter('', 'updated_at', 'desc');
+    };
+
+    const handleSort = (newSort: string, newDirection: 'asc' | 'desc') => {
+        tableSort.applySort(newSort, newDirection, (nextSort, nextDirection) =>
+            handleFilter(search, nextSort, nextDirection),
+        );
     };
 
     const breadcrumbs = [
@@ -88,7 +105,7 @@ export default function ProductImage({
                             value={search}
                             onSearch={handleSearch}
                             onReset={handleReset}
-                            showReset={search !== ''}
+                            showReset={search !== '' || tableSort.hasSorting}
                             placeholder="Search product or image"
                         />
 
@@ -97,13 +114,16 @@ export default function ProductImage({
                         <DataTable
                             data={images.data}
                             columns={columns}
+                            sortKey={tableSort.sort}
+                            sortDirection={tableSort.direction}
+                            onSort={handleSort}
                             emptyMessage={
                                 search
                                     ? 'No product images match your search.'
                                     : 'No product images yet.'
                             }
                             emptyAction={
-                                search
+                                search || tableSort.hasSorting
                                     ? {
                                           label: 'Clear search',
                                           onClick: handleReset,

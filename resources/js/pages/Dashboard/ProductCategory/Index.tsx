@@ -18,6 +18,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductCategoryColumns } from './Columns';
@@ -29,6 +30,8 @@ import type { CategoryOption } from './FormCreateEdit';
 interface FilterProps {
     search?: string;
     status?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
 }
 
 export default function ProductCategory({
@@ -44,6 +47,7 @@ export default function ProductCategory({
 
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || 'all');
+    const tableSort = useServerTableSort(filters);
     const [showFormModal, setShowFormModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<
         Category | undefined
@@ -75,7 +79,12 @@ export default function ProductCategory({
         setSelectedCategoryDetail(undefined);
     };
 
-    const handleFilter = (newSearch: string, newStatus: string) => {
+    const handleFilter = (
+        newSearch: string,
+        newStatus: string,
+        newSort = tableSort.sort,
+        newDirection = tableSort.direction,
+    ) => {
         const query: Record<string, string> = {};
 
         if (newSearch) {
@@ -85,6 +94,8 @@ export default function ProductCategory({
         if (newStatus && newStatus !== 'all') {
             query.status = newStatus;
         }
+
+        tableSort.appendSortQuery(query, newSort, newDirection);
 
         router.get(route('dashboard.product-category'), query, {
             preserveState: true,
@@ -105,7 +116,14 @@ export default function ProductCategory({
     const handleReset = () => {
         setSearch('');
         setStatus('all');
-        handleFilter('', 'all');
+        tableSort.resetSort();
+        handleFilter('', 'all', 'updated_at', 'desc');
+    };
+
+    const handleSort = (newSort: string, newDirection: 'asc' | 'desc') => {
+        tableSort.applySort(newSort, newDirection, (nextSort, nextDirection) =>
+            handleFilter(search, status, nextSort, nextDirection),
+        );
     };
 
     const breadcrumbs = [
@@ -147,7 +165,11 @@ export default function ProductCategory({
                             value={search}
                             onSearch={handleSearch}
                             onReset={handleReset}
-                            showReset={search !== '' || status !== 'all'}
+                            showReset={
+                                search !== '' ||
+                                status !== 'all' ||
+                                tableSort.hasSorting
+                            }
                             placeholder="Search"
                         >
                             <StatusFilter
@@ -165,13 +187,18 @@ export default function ProductCategory({
                         <DataTable
                             data={category.data}
                             columns={columns}
+                            sortKey={tableSort.sort}
+                            sortDirection={tableSort.direction}
+                            onSort={handleSort}
                             emptyMessage={
                                 search || status !== 'all'
                                     ? 'No categories match your filters.'
                                     : 'No categories yet.'
                             }
                             emptyAction={
-                                search || status !== 'all'
+                                search ||
+                                status !== 'all' ||
+                                tableSort.hasSorting
                                     ? {
                                           label: 'Clear filters',
                                           onClick: handleReset,
