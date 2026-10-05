@@ -17,6 +17,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'quantity',
     'notes',
     'status',
+    'closed_reason',
+    'admin_notes',
+    'status_changed_by',
+    'status_changed_at',
 ])]
 class RequestQuotations extends Model
 {
@@ -28,5 +32,20 @@ class RequestQuotations extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Products::class);
+    }
+
+    /**
+     * @return BelongsTo<Users, $this>
+     */
+    public function statusChangedBy(): BelongsTo
+    {
+        return $this->belongsTo(Users::class, 'status_changed_by');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'status_changed_at' => 'datetime',
+        ];
     }
 }

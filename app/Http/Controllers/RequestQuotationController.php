@@ -6,6 +6,8 @@ use App\Models\Products;
 use App\Models\RequestQuotations;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +15,11 @@ class RequestQuotationController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = RequestQuotations::query()->with('product:id,name,sku');
+        $query = RequestQuotations::query()
+            ->with([
+                'product:id,name,sku',
+                'statusChangedBy:id,name',
+            ]);
 
         if ($request->filled('search')) {
             $query->where(function ($query) use ($request) {
@@ -105,6 +111,58 @@ class RequestQuotationController extends Controller
             'type' => 'success',
             'message' => 'Permintaan penawaran berhasil disimpan.',
             'whatsapp_url' => $whatsappUrl,
+        ]);
+    }
+
+    /**
+     * Update status inquiry oleh Staff atau Admin.
+     * Status: new → in_progress → closed (membutuhkan closed_reason: won|lost|invalid).
+     * Juga mendukung membuka kembali inquiry yang sudah closed ke in_progress.
+     */
+    public function updateStatus(Request $request, RequestQuotations $quotation): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:new,in_progress,closed'],
+            'closed_reason' => [
+                'nullable',
+                'string',
+                'in:won,lost,invalid',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->status === 'closed' && empty($value)) {
+                        $fail('Alasan penutupan wajib diisi saat menutup inquiry.');
+                    }
+                },
+            ],
+            'admin_notes' => ['nullable', 'string', 'max:2000'],
+            'updated_at' => ['required', 'date'], // Optimistic concurrency check
+        ]);
+
+        // Optimistic concurrency: cegah dua user memperbarui data yang sama secara bersamaan
+        if ($quotation->updated_at->toISOString() !== $validated['updated_at']) {
+            throw ValidationException::withMessages([
+                'conflict' => 'Data inquiry telah diubah oleh pengguna lain. Muat ulang halaman untuk melihat data terbaru.',
+            ]);
+        }
+
+        $updateData = [
+            'status' => $validated['status'],
+            'admin_notes' => $validated['admin_notes'] ?? $quotation->admin_notes,
+            'status_changed_by' => Auth::id(),
+            'status_changed_at' => now(),
+        ];
+
+        // Hanya simpan closed_reason saat status closed; hapus saat dibuka kembali
+        if ($validated['status'] === 'closed') {
+            $updateData['closed_reason'] = $validated['closed_reason'];
+        } elseif ($quotation->status === 'closed') {
+            $updateData['closed_reason'] = null;
+        }
+
+        $quotation->update($updateData);
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Status inquiry berhasil diperbarui.',
         ]);
     }
 }

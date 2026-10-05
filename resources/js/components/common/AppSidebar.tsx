@@ -16,9 +16,25 @@ import {
 } from '@/components/ui/sidebar';
 import { site } from '@/lib/site';
 
+interface AuthProps {
+    auth: {
+        user: { name: string } | null;
+        is_admin: boolean;
+    };
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const SidebarFooterComponent = site.sidebarFooter.component;
-    const { auth } = usePage<PageProps>().props;
+    const { auth } = usePage<PageProps & AuthProps>().props;
+
+    // Sembunyikan grup User Management untuk non-admin
+    const visibleNavGroups = site.navMain.filter((group) => {
+        if (group.adminOnly && !auth.is_admin) {
+            return false;
+        }
+
+        return true;
+    });
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -44,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
 
             <SidebarContent>
-                {site.navMain.map((group) => (
+                {visibleNavGroups.map((group) => (
                     <NavMain
                         key={group.label}
                         label={group.label}

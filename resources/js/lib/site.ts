@@ -59,6 +59,7 @@ export const site = {
         },
         {
             label: 'User Management',
+            adminOnly: true, // Hanya tampil untuk Admin
             items: [
                 {
                     title: 'User',

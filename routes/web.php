@@ -14,12 +14,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [ProductController::class, 'index'])->name('main');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('product.show');
 Route::post('/products/{product}/request-quotation', [RequestQuotationController::class, 'store'])
+    ->middleware('throttle:quotation')
     ->name('product.quotation.store');
 
 // Guest only
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
-    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login');
 });
 
 // Authenticated routes
@@ -27,8 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 
-    // Dashboard — hanya untuk role admin (via Spatie)
-    Route::middleware('role:admin')->prefix('/dashboard')->name('dashboard.')->group(function () {
+    // Dashboard — dapat diakses Staff dan Admin (role:admin|staff)
+    Route::middleware('role:admin|staff')->prefix('/dashboard')->name('dashboard.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('main');
 
         Route::get('/product_category', [ProductCategoryController::class, 'index'])->name('product-category');
@@ -48,17 +49,21 @@ Route::middleware('auth')->group(function () {
         Route::delete('/product/file/delete/{file}', [ProductController::class, 'destroyFile'])->name('product.file.destroy');
         Route::get('/product_images', [ProductController::class, 'images'])->name('product-images');
         Route::get('/product_files', [ProductController::class, 'files'])->name('product-files');
-        Route::get('/request_quotations', [RequestQuotationController::class, 'index'])
-            ->name('request-quotations');
 
-        Route::get('/user', [UserController::class, 'index'])->name('user');
-        Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
-        Route::put('/user/update/{id}', [UserController::class, 'update'])->name('user.update');
-        Route::delete('/user/delete/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+        Route::get('/request_quotations', [RequestQuotationController::class, 'index'])->name('request-quotations');
+        Route::put('/request_quotations/{quotation}/status', [RequestQuotationController::class, 'updateStatus'])->name('request-quotations.update-status');
 
-        Route::get('/user_role', [UserRoleController::class, 'index'])->name('user-role');
-        Route::post('/user_role/store', [UserRoleController::class, 'store'])->name('user-role.store');
-        Route::put('/user_role/update/{id}', [UserRoleController::class, 'update'])->name('user-role.update');
-        Route::delete('/user_role/delete/{id}', [UserRoleController::class, 'destroy'])->name('user-role.destroy');
+        // Hanya Admin yang dapat mengelola user dan role
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/user', [UserController::class, 'index'])->name('user');
+            Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
+            Route::put('/user/update/{id}', [UserController::class, 'update'])->name('user.update');
+            Route::delete('/user/delete/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+
+            Route::get('/user_role', [UserRoleController::class, 'index'])->name('user-role');
+            Route::post('/user_role/store', [UserRoleController::class, 'store'])->name('user-role.store');
+            Route::put('/user_role/update/{id}', [UserRoleController::class, 'update'])->name('user-role.update');
+            Route::delete('/user_role/delete/{id}', [UserRoleController::class, 'destroy'])->name('user-role.destroy');
+        });
     });
 });

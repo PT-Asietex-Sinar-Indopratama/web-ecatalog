@@ -23,8 +23,10 @@ interface FilterProps {
 }
 
 const statusOptions = [
-    { label: 'Show All', value: 'all' },
+    { label: 'Semua', value: 'all' },
     { label: 'New', value: 'new' },
+    { label: 'In Progress', value: 'in_progress' },
+    { label: 'Closed', value: 'closed' },
 ];
 
 export default function RequestQuotation({
@@ -115,7 +117,7 @@ export default function RequestQuotation({
                             onSearch={handleSearch}
                             onReset={handleReset}
                             showReset={hasFilters}
-                            placeholder="Search customer or product"
+                            placeholder="Cari customer atau produk"
                         >
                             <StatusFilter
                                 value={status}
@@ -137,13 +139,13 @@ export default function RequestQuotation({
                             onSort={handleSort}
                             emptyMessage={
                                 hasFilters
-                                    ? 'No request quotations match your filters.'
-                                    : 'No request quotations yet.'
+                                    ? 'Tidak ada inquiry yang sesuai filter.'
+                                    : 'Belum ada request quotation.'
                             }
                             emptyAction={
                                 hasFilters
                                     ? {
-                                          label: 'Clear filters',
+                                          label: 'Hapus filter',
                                           onClick: handleReset,
                                       }
                                     : undefined
