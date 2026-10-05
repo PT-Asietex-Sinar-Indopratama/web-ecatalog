@@ -85,6 +85,13 @@ export function ProductDetailDialog({
                                     <DetailField label="Name">
                                         {product.name}
                                     </DetailField>
+                                    <DetailField label="Price">
+                                        {new Intl.NumberFormat('id-ID', {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                            maximumFractionDigits: 2,
+                                        }).format(product.price)}
+                                    </DetailField>
                                     <DetailField label="Slug">
                                         {product.slug}
                                     </DetailField>

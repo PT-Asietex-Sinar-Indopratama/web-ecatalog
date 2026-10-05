@@ -26,6 +26,7 @@ class AdminController extends Controller
                 'category_id',
                 'sku',
                 'name',
+                'price',
                 'slug',
                 'description',
                 'material',

@@ -12,6 +12,7 @@ export interface Product {
     };
     sku: string;
     name: string;
+    price: number;
     slug: string;
     description?: string;
     material: string;
@@ -68,6 +69,17 @@ export function getProductColumns({ onDetail, onEdit }: ProductColumnsProps) {
             key: 'name',
             header: 'Name',
             sortable: true,
+        },
+        {
+            key: 'price',
+            header: 'Price',
+            sortable: true,
+            cell: (item: Product) =>
+                new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    maximumFractionDigits: 2,
+                }).format(item.price),
         },
         {
             key: 'category_id',

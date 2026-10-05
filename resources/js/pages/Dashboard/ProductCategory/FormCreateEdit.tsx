@@ -122,7 +122,7 @@ export function ProductCategoryForm({
         <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
             {/* FORM CARD */}
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
-                <Card className="grid grid-cols-8 gap-4 border-0 shadow-none [&_div]:mb-0">
+                <Card className="grid grid-cols-8 gap-4 border-0 shadow-none ring-0 [&_div]:mb-0">
                     <CardContent className="col-span-8 flex flex-col gap-4 [&_div]:mb-0">
                         {/* NAME */}
                         <Field>

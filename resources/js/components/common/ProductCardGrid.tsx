@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button';
 export default function ProductCardGrid({ product }: any) {
     const thumbnailUrl = product.thumbnail_image?.image_url;
     const downloadUrl = product.downloadable_file?.file_url;
+    const formattedPrice =
+        product.price != null
+            ? new Intl.NumberFormat('id-ID', {
+                  style: 'currency',
+                  currency: 'IDR',
+                  maximumFractionDigits: 2,
+              }).format(product.price)
+            : 'Rp. 0';
 
     return (
         <article className="group relative flex h-full w-full flex-col items-center gap-4 rounded-xl bg-white transition-transform duration-200 hover:-translate-y-0.5">
@@ -45,7 +53,7 @@ export default function ProductCardGrid({ product }: any) {
 
                 <div className="mt-auto space-y-4 pt-4">
                     <span className="text-lg font-bold text-slate-900">
-                        {product.price ?? 'Rp. 0'}
+                        {formattedPrice}
                     </span>
 
                     <Button

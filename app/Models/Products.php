@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
     'category_id',
     'sku',
     'name',
+    'price',
     'slug',
     'description',
     'material',

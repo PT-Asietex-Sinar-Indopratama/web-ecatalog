@@ -55,6 +55,7 @@ interface LatestProduct {
     category_id: number;
     sku: string;
     name: string;
+    price: number;
     slug: string;
     description?: string;
     material: string;

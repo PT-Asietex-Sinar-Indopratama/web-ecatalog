@@ -6,6 +6,14 @@ export default function ProductCardList({ product }: any) {
     const thumbnailUrl = product.thumbnail_image?.image_url;
     const downloadUrl = product.downloadable_file?.file_url;
     const categoryName = product.category?.name;
+    const formattedPrice =
+        product.price != null
+            ? new Intl.NumberFormat('id-ID', {
+                  style: 'currency',
+                  currency: 'IDR',
+                  maximumFractionDigits: 2,
+              }).format(product.price)
+            : 'Rp. 0';
 
     return (
         <article className="group relative flex h-auto flex-col items-center justify-between gap-4 rounded-xl bg-white transition-transform duration-200 hover:-translate-y-0.5 md:min-h-35 md:flex-row">
@@ -48,7 +56,7 @@ export default function ProductCardList({ product }: any) {
                     </div>
 
                     <span className="text-lg font-bold text-slate-900">
-                        {product.price ?? 'Rp. 0'}
+                        {formattedPrice}
                     </span>
 
                     <div className="w-full md:hidden">

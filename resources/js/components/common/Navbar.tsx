@@ -17,48 +17,51 @@ export default function Navbar() {
     const { auth } = usePage().props as any;
 
     return (
-        <header className="fixed top-0 z-50 hidden w-full border-b bg-white md:block">
+        <header className="fixed top-0 z-50 hidden w-full border-b border-border bg-background md:block">
             <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-                <div className="flex items-center gap-8">
-                    <Link href={route('main')}>
-                        <Button
-                            className="flex items-center gap-2 text-xl font-semibold"
-                            variant={'ghost'}
-                        >
-                            <img
-                                src="/favicon-192x192.png"
-                                className="h-6 w-6 rounded-lg object-contain md:h-8 md:w-8"
-                            />{' '}
-                            Asietex
-                        </Button>
-                    </Link>
+                <div>
+                    <Button
+                        className="flex items-center gap-2 text-xl font-semibold"
+                        variant="ghost"
+                        render={<Link href={route('main')} />}
+                    >
+                        <img
+                            src="/favicon-192x192.png"
+                            alt=""
+                            className="h-6 w-6 rounded-lg object-contain md:h-8 md:w-8"
+                        />
+                        Asietex
+                    </Button>
                 </div>
 
-                <nav className="hidden items-center gap-3 text-sm font-medium text-slate-600 md:flex">
-                    <a href="#" className="">
-                        <Button className="font-semibold" variant={'ghost'}>
-                            Catalog
-                        </Button>
-                    </a>
-                    <a href="#" className="">
-                        <Button
-                            className="hover:font-semibold"
-                            variant={'ghost'}
-                        >
-                            About
-                        </Button>
-                    </a>
-                    <a href="#" className="">
-                        <Button
-                            className="hover:font-semibold"
-                            variant={'ghost'}
-                        >
-                            FAQ
-                        </Button>
-                    </a>
+                <nav
+                    aria-label="Navigasi utama"
+                    className="hidden items-center gap-3 text-sm font-medium text-muted-foreground md:flex"
+                >
+                    <Button
+                        className="font-semibold"
+                        variant="ghost"
+                        render={<Link href={route('main')} />}
+                    >
+                        Katalog
+                    </Button>
+                    <Button
+                        className="hover:font-semibold"
+                        variant="ghost"
+                        render={<a href="#about" />}
+                    >
+                        Tentang
+                    </Button>
+                    <Button
+                        className="hover:font-semibold"
+                        variant="ghost"
+                        render={<a href="#faq" />}
+                    >
+                        FAQ
+                    </Button>
                 </nav>
 
-                <div className="flex items-center text-slate-600">
+                <div className="flex items-center text-muted-foreground">
                     {auth.user ? (
                         <>
                             <DropdownMenu>
@@ -68,6 +71,7 @@ export default function Navbar() {
                                             className="group hover:font-semibold"
                                             variant={'ghost'}
                                             size={'icon'}
+                                            aria-label="Buka menu akun"
                                         />
                                     }
                                 >
@@ -99,7 +103,7 @@ export default function Navbar() {
                                             className="flex w-full items-center gap-2"
                                         >
                                             <UserRound className="h-4 w-4" />
-                                            Show Profile
+                                            Profil
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
@@ -119,21 +123,20 @@ export default function Navbar() {
                                             className="flex w-full items-center gap-2"
                                         >
                                             <LogOut className="h-4 w-4" />
-                                            Logout
+                                            Keluar
                                         </Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </>
                     ) : (
-                        <Link href={route('login')}>
-                            <Button
-                                className="text-blue-500 hover:font-semibold"
-                                variant={'ghost'}
-                            >
-                                Login
-                            </Button>
-                        </Link>
+                        <Button
+                            className="text-primary hover:font-semibold"
+                            variant="ghost"
+                            render={<Link href={route('login')} />}
+                        >
+                            Masuk
+                        </Button>
                     )}
                 </div>
             </div>

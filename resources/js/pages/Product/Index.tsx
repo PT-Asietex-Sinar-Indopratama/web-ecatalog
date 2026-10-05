@@ -7,7 +7,7 @@ import {
     MessageCircle,
     Send,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { route } from 'ziggy-js';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Field, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/Layouts/AppLayout';
@@ -56,12 +56,21 @@ interface Product {
     sku: string;
     name: string;
     slug: string;
+    price: number;
     description?: string | null;
     material: string;
     category?: ProductCategory | null;
     thumbnail_image?: ProductImage | null;
     downloadable_file?: ProductFile | null;
 }
+
+const quotationFields = [
+    'customer_name',
+    'customer_phone',
+    'company_name',
+    'quantity',
+    'notes',
+] as const;
 
 export default function ProductShow({ product }: { product: Product }) {
     const [quotationOpen, setQuotationOpen] = useState(false);
@@ -79,6 +88,14 @@ export default function ProductShow({ product }: { product: Product }) {
     const categoryLabel = product.category?.parent
         ? `${product.category.parent.name} / ${product.category.name}`
         : product.category?.name;
+
+    useEffect(() => {
+        const invalidField = quotationFields.find((field) => errors[field]);
+
+        if (invalidField) {
+            document.getElementById(invalidField)?.focus();
+        }
+    }, [errors]);
 
     const openQuotation = () => {
         clearErrors();
@@ -122,13 +139,12 @@ export default function ProductShow({ product }: { product: Product }) {
                     render={<Link href={route('main')} />}
                 >
                     <ArrowLeft />
-                    Back to catalog
+                    Kembali ke katalog
                 </Button>
 
-                {/* <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]"> */}
                 <div className="grid items-start gap-8 px-0 lg:grid-cols-[1fr_1fr] lg:px-40">
                     <section>
-                        <div className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg bg-slate-100">
+                        <div className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg bg-muted">
                             {image ? (
                                 <img
                                     src={image.image_url}
@@ -136,9 +152,9 @@ export default function ProductShow({ product }: { product: Product }) {
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <div className="flex flex-col items-center gap-2 text-sm text-slate-500">
+                                <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
                                     <ImageOff className="size-8" />
-                                    No image available
+                                    Gambar belum tersedia
                                 </div>
                             )}
                         </div>
@@ -147,15 +163,22 @@ export default function ProductShow({ product }: { product: Product }) {
                     <section className="space-y-6 lg:sticky lg:top-24">
                         <div className="space-y-3">
                             {categoryLabel && (
-                                <p className="text-sm font-medium text-blue-600">
+                                <p className="text-sm font-medium text-primary">
                                     {categoryLabel}
                                 </p>
                             )}
-                            <h1 className="text-3xl font-semibold text-slate-950">
+                            <h1 className="text-3xl font-semibold text-foreground">
                                 {product.name}
                             </h1>
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-muted-foreground">
                                 SKU: {product.sku}
+                            </p>
+                            <p className="text-2xl font-semibold text-foreground">
+                                {new Intl.NumberFormat('id-ID', {
+                                    style: 'currency',
+                                    currency: 'IDR',
+                                    maximumFractionDigits: 2,
+                                }).format(product.price)}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 <Badge variant="outline">
@@ -164,19 +187,19 @@ export default function ProductShow({ product }: { product: Product }) {
                                 {downloadableFile && (
                                     <Badge variant="green">
                                         <CheckCircle2 />
-                                        File available
+                                        File tersedia
                                     </Badge>
                                 )}
                             </div>
                         </div>
 
                         <div className="border-t pt-5">
-                            <h2 className="mb-2 text-sm font-semibold text-slate-900">
-                                Product description
+                            <h2 className="mb-2 text-sm font-semibold text-foreground">
+                                Deskripsi produk
                             </h2>
-                            <p className="text-sm leading-6 whitespace-pre-line text-slate-600">
+                            <p className="text-sm leading-6 whitespace-pre-line text-muted-foreground">
                                 {product.description ||
-                                    'No product description available.'}
+                                    'Deskripsi produk belum tersedia.'}
                             </p>
                         </div>
 
@@ -187,7 +210,7 @@ export default function ProductShow({ product }: { product: Product }) {
                             onClick={openQuotation}
                         >
                             <MessageCircle />
-                            Request quotation
+                            Minta penawaran
                         </Button>
 
                         <Button
@@ -208,8 +231,8 @@ export default function ProductShow({ product }: { product: Product }) {
                         >
                             <Download />
                             {downloadableFile
-                                ? 'Download catalog'
-                                : 'File unavailable'}
+                                ? 'Unduh katalog'
+                                : 'File belum tersedia'}
                         </Button>
                     </section>
                 </div>
@@ -223,152 +246,198 @@ export default function ProductShow({ product }: { product: Product }) {
                     }
                 }}
             >
-                <DialogContent className="max-h-[90vh] max-w-lg">
+                <DialogContent
+                    scrollable={false}
+                    className="max-h-[90vh] max-w-lg"
+                >
                     <DialogHeader>
-                        <DialogTitle>Request quotation</DialogTitle>
+                        <DialogTitle>Minta penawaran</DialogTitle>
                         <DialogDescription>
                             Isi data berikut. Setelah tersimpan, WhatsApp Sales
                             akan dibuka dengan detail produk ini.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
-                        <p className="font-medium text-slate-900">
-                            {product.name}
-                        </p>
-                        <p className="text-slate-500">SKU: {product.sku}</p>
-                    </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+                        <div className="rounded-lg bg-muted px-3 py-2 text-sm">
+                            <p className="font-medium text-foreground">
+                                {product.name}
+                            </p>
+                            <p className="text-muted-foreground">
+                                SKU: {product.sku}
+                            </p>
+                        </div>
 
-                    <form
-                        id="request-quotation-form"
-                        onSubmit={submitQuotation}
-                        className="grid gap-4"
-                    >
-                        <Field>
-                            <FieldLabel htmlFor="customer_name">
-                                Nama lengkap{' '}
-                                <span className="text-destructive">*</span>
-                            </FieldLabel>
-                            <Input
-                                id="customer_name"
-                                value={data.customer_name}
-                                onChange={(event) =>
-                                    setData('customer_name', event.target.value)
-                                }
-                                placeholder="Nama Anda"
-                                autoComplete="name"
-                                required
-                            />
-                            {errors.customer_name && (
-                                <p className="text-sm text-red-500">
-                                    {errors.customer_name}
-                                </p>
-                            )}
-                        </Field>
-
-                        <Field>
-                            <FieldLabel htmlFor="customer_phone">
-                                Nomor WhatsApp{' '}
-                                <span className="text-destructive">*</span>
-                            </FieldLabel>
-                            <Input
-                                id="customer_phone"
-                                type="tel"
-                                value={data.customer_phone}
-                                onChange={(event) =>
-                                    setData(
-                                        'customer_phone',
-                                        event.target.value,
-                                    )
-                                }
-                                placeholder="08xxxxxxxxxx"
-                                autoComplete="tel"
-                                required
-                            />
-                            {errors.customer_phone && (
-                                <p className="text-sm text-red-500">
-                                    {errors.customer_phone}
-                                </p>
-                            )}
-                        </Field>
-
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <form
+                            id="request-quotation-form"
+                            onSubmit={submitQuotation}
+                            className="mt-4 grid gap-4"
+                        >
                             <Field>
-                                <FieldLabel htmlFor="company_name">
-                                    Nama perusahaan{' '}
-                                    <span className="text-xs text-slate-400">
-                                        (opsional)
-                                    </span>
+                                <FieldLabel htmlFor="customer_name">
+                                    Nama lengkap{' '}
+                                    <span className="text-destructive">*</span>
                                 </FieldLabel>
                                 <Input
-                                    id="company_name"
-                                    value={data.company_name}
+                                    id="customer_name"
+                                    name="customer_name"
+                                    value={data.customer_name}
                                     onChange={(event) =>
                                         setData(
-                                            'company_name',
+                                            'customer_name',
                                             event.target.value,
                                         )
                                     }
-                                    placeholder="Nama perusahaan"
-                                    autoComplete="organization"
+                                    placeholder="Nama Anda"
+                                    autoComplete="name"
+                                    aria-invalid={!!errors.customer_name}
+                                    aria-describedby={
+                                        errors.customer_name
+                                            ? 'customer_name-error'
+                                            : undefined
+                                    }
+                                    required
                                 />
-                                {errors.company_name && (
-                                    <p className="text-sm text-red-500">
-                                        {errors.company_name}
-                                    </p>
+                                {errors.customer_name && (
+                                    <FieldError id="customer_name-error">
+                                        {errors.customer_name}
+                                    </FieldError>
                                 )}
                             </Field>
 
                             <Field>
-                                <FieldLabel htmlFor="quantity">
-                                    Jumlah kebutuhan{' '}
-                                    <span className="text-xs text-slate-400">
+                                <FieldLabel htmlFor="customer_phone">
+                                    Nomor WhatsApp{' '}
+                                    <span className="text-destructive">*</span>
+                                </FieldLabel>
+                                <Input
+                                    id="customer_phone"
+                                    type="tel"
+                                    name="customer_phone"
+                                    value={data.customer_phone}
+                                    onChange={(event) =>
+                                        setData(
+                                            'customer_phone',
+                                            event.target.value,
+                                        )
+                                    }
+                                    placeholder="08xxxxxxxxxx"
+                                    autoComplete="tel"
+                                    aria-invalid={!!errors.customer_phone}
+                                    aria-describedby={
+                                        errors.customer_phone
+                                            ? 'customer_phone-error'
+                                            : undefined
+                                    }
+                                    required
+                                />
+                                {errors.customer_phone && (
+                                    <FieldError id="customer_phone-error">
+                                        {errors.customer_phone}
+                                    </FieldError>
+                                )}
+                            </Field>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <Field>
+                                    <FieldLabel htmlFor="company_name">
+                                        Nama perusahaan{' '}
+                                        <span className="text-xs text-muted-foreground">
+                                            (opsional)
+                                        </span>
+                                    </FieldLabel>
+                                    <Input
+                                        id="company_name"
+                                        name="company_name"
+                                        value={data.company_name}
+                                        onChange={(event) =>
+                                            setData(
+                                                'company_name',
+                                                event.target.value,
+                                            )
+                                        }
+                                        placeholder="Nama perusahaan"
+                                        autoComplete="organization"
+                                        aria-invalid={!!errors.company_name}
+                                        aria-describedby={
+                                            errors.company_name
+                                                ? 'company_name-error'
+                                                : undefined
+                                        }
+                                    />
+                                    {errors.company_name && (
+                                        <FieldError id="company_name-error">
+                                            {errors.company_name}
+                                        </FieldError>
+                                    )}
+                                </Field>
+
+                                <Field>
+                                    <FieldLabel htmlFor="quantity">
+                                        Jumlah kebutuhan{' '}
+                                        <span className="text-xs text-muted-foreground">
+                                            (opsional)
+                                        </span>
+                                    </FieldLabel>
+                                    <Input
+                                        id="quantity"
+                                        type="number"
+                                        name="quantity"
+                                        min="1"
+                                        value={data.quantity}
+                                        onChange={(event) =>
+                                            setData(
+                                                'quantity',
+                                                event.target.value,
+                                            )
+                                        }
+                                        placeholder="Contoh: 100"
+                                        aria-invalid={!!errors.quantity}
+                                        aria-describedby={
+                                            errors.quantity
+                                                ? 'quantity-error'
+                                                : undefined
+                                        }
+                                    />
+                                    {errors.quantity && (
+                                        <FieldError id="quantity-error">
+                                            {errors.quantity}
+                                        </FieldError>
+                                    )}
+                                </Field>
+                            </div>
+
+                            <Field>
+                                <FieldLabel htmlFor="notes">
+                                    Catatan atau kebutuhan khusus{' '}
+                                    <span className="text-xs text-muted-foreground">
                                         (opsional)
                                     </span>
                                 </FieldLabel>
-                                <Input
-                                    id="quantity"
-                                    type="number"
-                                    min="1"
-                                    value={data.quantity}
+                                <Textarea
+                                    id="notes"
+                                    name="notes"
+                                    value={data.notes}
                                     onChange={(event) =>
-                                        setData('quantity', event.target.value)
+                                        setData('notes', event.target.value)
                                     }
-                                    placeholder="Contoh: 100"
+                                    placeholder="Tuliskan kebutuhan atau pertanyaan Anda"
+                                    rows={4}
+                                    aria-invalid={!!errors.notes}
+                                    aria-describedby={
+                                        errors.notes ? 'notes-error' : undefined
+                                    }
                                 />
-                                {errors.quantity && (
-                                    <p className="text-sm text-red-500">
-                                        {errors.quantity}
-                                    </p>
+                                {errors.notes && (
+                                    <FieldError id="notes-error">
+                                        {errors.notes}
+                                    </FieldError>
                                 )}
                             </Field>
-                        </div>
+                        </form>
+                    </div>
 
-                        <Field>
-                            <FieldLabel htmlFor="notes">
-                                Catatan atau kebutuhan khusus{' '}
-                                <span className="text-xs text-slate-400">
-                                    (opsional)
-                                </span>
-                            </FieldLabel>
-                            <Textarea
-                                id="notes"
-                                value={data.notes}
-                                onChange={(event) =>
-                                    setData('notes', event.target.value)
-                                }
-                                placeholder="Tuliskan kebutuhan atau pertanyaan Anda"
-                                rows={4}
-                            />
-                            {errors.notes && (
-                                <p className="text-sm text-red-500">
-                                    {errors.notes}
-                                </p>
-                            )}
-                        </Field>
-                    </form>
-
-                    <DialogFooter>
+                    <DialogFooter className="shrink-0">
                         <Button
                             type="button"
                             variant="outline"
@@ -383,7 +452,7 @@ export default function ProductShow({ product }: { product: Product }) {
                             disabled={processing}
                         >
                             <Send />
-                            {processing ? 'Menyimpan...' : 'buka WhatsApp'}
+                            {processing ? 'Menyimpan...' : 'Buka WhatsApp'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

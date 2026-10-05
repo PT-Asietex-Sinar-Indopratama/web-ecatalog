@@ -7,17 +7,17 @@ export default function BottomNav() {
     const currentUrl = usePage().url;
 
     const navItems = [
-        { id: 'home', label: 'Home', icon: Home, href: route('main') },
+        { id: 'home', label: 'Beranda', icon: Home, href: route('main') },
         {
             id: 'profile',
-            label: 'Account',
+            label: auth.user ? 'Akun' : 'Masuk',
             icon: User,
             href: auth.user ? route('profile') : route('login'),
         },
     ];
 
     return (
-        <nav className="fixed right-0 bottom-0 left-0 z-[9999] w-full border-t border-slate-200 bg-white md:hidden">
+        <nav className="fixed right-0 bottom-0 left-0 z-[9999] w-full border-t border-border bg-background md:hidden">
             <div className="flex h-16 items-center justify-around">
                 {navItems.map((item) => {
                     const Icon = item.icon;
@@ -35,16 +35,16 @@ export default function BottomNav() {
                             <Icon
                                 className={`h-5 w-5 ${
                                     isActive
-                                        ? 'fill-blue-900/20 text-blue-900' // Warna biru menyesuaikan tombol di desain Anda
-                                        : 'text-slate-500'
+                                        ? 'fill-primary/20 text-primary'
+                                        : 'text-muted-foreground'
                                 }`}
                                 strokeWidth={isActive ? 2.5 : 2}
                             />
                             <span
                                 className={`text-[10px] font-medium ${
                                     isActive
-                                        ? 'text-blue-900'
-                                        : 'text-slate-500'
+                                        ? 'text-primary'
+                                        : 'text-muted-foreground'
                                 }`}
                             >
                                 {item.label}
