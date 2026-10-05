@@ -37,14 +37,14 @@ export default function ProductCardList({ product }: any) {
                 <div className="flex h-full flex-col justify-between space-y-4 md:space-y-3">
                     <div className="space-y-2.5">
                         <div className="flex flex-col gap-1">
-                            <span className="truncate text-sm text-slate-900">
-                                {product.name}
-                            </span>
                             {categoryName && (
                                 <span className="text-xs font-bold text-slate-900">
                                     {categoryName}
                                 </span>
                             )}
+                            <span className="truncate text-sm text-slate-900 uppercase">
+                                {product.name}
+                            </span>
                         </div>
                         <div className="flex flex-wrap gap-2 text-[0.65rem]">
                             {product.material && (

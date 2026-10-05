@@ -35,11 +35,11 @@ export default function ProductCardGrid({ product }: any) {
             <div className="flex w-full flex-1 flex-col">
                 <div className="space-y-2.5">
                     <div className="flex flex-col gap-1">
-                        <span className="truncate text-sm text-slate-900">
-                            {product.name}
-                        </span>
                         <span className="text-xs font-bold text-slate-900">
                             {product.category?.name}
+                        </span>
+                        <span className="truncate text-sm text-slate-900 uppercase">
+                            {product.name}
                         </span>
                     </div>
                     <div className="flex flex-wrap gap-2 text-[0.65rem]">

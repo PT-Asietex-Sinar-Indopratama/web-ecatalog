@@ -131,7 +131,7 @@ export default function Navbar() {
                         </>
                     ) : (
                         <Button
-                            className="text-primary hover:font-semibold"
+                            className=""
                             variant="ghost"
                             render={<Link href={route('login')} />}
                         >
