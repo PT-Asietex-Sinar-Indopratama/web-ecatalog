@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class UserRoleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Role::query()->withCount('users');
+        $query = Role::query()->withCount('users')->with('permissions:id,name');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');
@@ -38,8 +39,11 @@ class UserRoleController extends Controller
             ->paginate(7)
             ->withQueryString();
 
+        $allPermissions = Permission::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('Dashboard/UserRole/Index', [
             'roles' => $roles,
+            'allPermissions' => $allPermissions,
             'filters' => [
                 'search' => $request->input('search', ''),
                 'sort' => $sort,
@@ -52,12 +56,18 @@ class UserRoleController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string|exists:permissions,name',
         ]);
 
-        Role::create([
+        $role = Role::create([
             'name' => $request->name,
             'guard_name' => 'web',
         ]);
+
+        if ($request->has('permissions')) {
+            $role->syncPermissions($request->permissions);
+        }
 
         return redirect()
             ->route('dashboard.user-role')
@@ -73,11 +83,17 @@ class UserRoleController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string|exists:permissions,name',
         ]);
 
         $role->update([
             'name' => $request->name,
         ]);
+
+        if ($request->has('permissions')) {
+            $role->syncPermissions($request->permissions);
+        }
 
         return redirect()
             ->route('dashboard.user-role')

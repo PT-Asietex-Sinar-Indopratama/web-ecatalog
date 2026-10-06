@@ -21,16 +21,9 @@ class ProductFilesFactory extends Factory
         static $index = 0;
 
         $files = [
-            ['file_path' => 'files/catalog-basic-t-shirt.pdf', 'file_name' => 'catalog-basic-t-shirt.pdf'],
-            ['file_path' => 'files/size-chart-t-shirt.pdf', 'file_name' => 'size-chart-t-shirt.pdf'],
-            ['file_path' => 'files/catalog-polo-shirt.pdf', 'file_name' => 'catalog-polo-shirt.pdf'],
-            ['file_path' => 'files/catalog-hoodie.pdf', 'file_name' => 'catalog-hoodie.pdf'],
-            ['file_path' => 'files/catalog-jacket.pdf', 'file_name' => 'catalog-jacket.pdf'],
-            ['file_path' => 'files/catalog-sportswear.pdf', 'file_name' => 'catalog-sportswear.pdf'],
-            ['file_path' => 'files/catalog-ladies-wear.pdf', 'file_name' => 'catalog-ladies-wear.pdf'],
-            ['file_path' => 'files/material-guide.pdf', 'file_name' => 'material-guide.pdf'],
-            ['file_path' => 'files/printing-guide.pdf', 'file_name' => 'printing-guide.pdf'],
-            ['file_path' => 'files/product-care-instruction.pdf', 'file_name' => 'product-care-instruction.pdf'],
+            ['file_path' => 'products/files/seeder-sample-catalog.pdf', 'file_name' => 'seeder-sample-catalog.pdf'],
+            ['file_path' => 'products/files/seeder-sample-catalog-2.pdf', 'file_name' => 'seeder-sample-catalog-2.pdf'],
+            ['file_path' => 'products/files/seeder-sample-catalog-3.pdf', 'file_name' => 'seeder-sample-catalog-3.pdf'],
         ];
 
         $file = $files[$index % count($files)];

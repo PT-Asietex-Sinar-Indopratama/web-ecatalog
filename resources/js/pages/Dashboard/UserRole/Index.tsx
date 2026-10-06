@@ -21,7 +21,7 @@ import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getUserRoleColumns } from './Columns';
-import type { Role } from './Columns';
+import type { PermissionItem, Role } from './Columns';
 import { UserRoleForm } from './FormCreateEdit';
 
 interface FilterProps {
@@ -32,9 +32,11 @@ interface FilterProps {
 
 export default function UserRole({
     roles,
+    allPermissions = [],
     filters = {},
 }: {
     roles: Paginated<Role>;
+    allPermissions?: PermissionItem[];
     filters?: FilterProps;
 }) {
     const { flash } = usePage<PageProps>().props;
@@ -171,7 +173,7 @@ export default function UserRole({
                     }
                 }}
             >
-                <DialogContent className="max-h-[90vh] w-full max-w-xl">
+                <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>
                             {selectedRole
@@ -180,13 +182,14 @@ export default function UserRole({
                         </DialogTitle>
                         <DialogDescription>
                             {selectedRole
-                                ? 'Update user role data.'
-                                : 'Add a new user role.'}
+                                ? 'Update user role data and access rights.'
+                                : 'Add a new user role and select permissions.'}
                         </DialogDescription>
                     </DialogHeader>
 
                     <UserRoleForm
                         role={selectedRole}
+                        allPermissions={allPermissions}
                         onCancel={closeFormModal}
                         onSuccess={closeFormModal}
                     />

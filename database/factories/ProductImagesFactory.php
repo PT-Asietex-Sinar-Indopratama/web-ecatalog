@@ -21,16 +21,9 @@ class ProductImagesFactory extends Factory
         static $index = 0;
 
         $imagePaths = [
-            'products/combed-basic-tee-24s.jpg',
-            'products/combed-basic-tee-30s.jpg',
-            'products/oversize-heavy-cotton-tee.jpg',
-            'products/corporate-polo-pique.jpg',
-            'products/fleece-pullover-hoodie.jpg',
-            'products/coach-jacket-windbreaker.jpg',
-            'products/running-jersey-dryfit.jpg',
-            'products/ladies-relaxed-tee.jpg',
-            'products/field-work-shirt.jpg',
-            'products/canvas-tote-bag.jpg',
+            'products/images/seeder-sample-catalog.png',
+            'products/images/seeder-sample-catalog-2.png',
+            'products/images/seeder-sample-catalog-3.png',
         ];
 
         $imagePath = $imagePaths[$index % count($imagePaths)];

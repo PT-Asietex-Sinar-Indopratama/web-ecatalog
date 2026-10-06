@@ -33,6 +33,12 @@ export function SearchInput({
         setValue(initialValue);
     }
 
+    const onSearchRef = useRef(onSearch);
+
+    useEffect(() => {
+        onSearchRef.current = onSearch;
+    }, [onSearch]);
+
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
@@ -41,11 +47,11 @@ export function SearchInput({
         }
 
         const timer = setTimeout(() => {
-            onSearch(value);
+            onSearchRef.current(value);
         }, delay);
 
         return () => clearTimeout(timer);
-    }, [value, delay, onSearch]);
+    }, [value, delay]);
 
     return (
         <div className={className}>

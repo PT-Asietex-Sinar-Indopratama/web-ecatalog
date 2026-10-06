@@ -5,6 +5,7 @@ import {
     Image,
     PanelsTopLeft,
     Tag,
+    UserCircle,
     UserCog,
     Users,
 } from 'lucide-react';
@@ -19,6 +20,11 @@ export const site = {
                     title: 'Dashboard',
                     url: 'dashboard.main',
                     icon: PanelsTopLeft,
+                },
+                {
+                    title: 'Profile',
+                    url: 'profile',
+                    icon: UserCircle,
                 },
             ],
         },

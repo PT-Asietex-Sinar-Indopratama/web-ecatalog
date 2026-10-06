@@ -2,7 +2,7 @@
 
 ## Status
 
-Dokumen ini menjelaskan arsitektur target berdasarkan implementasi Laravel,
+Dokumen ini menjelaskan arsitektur saat ini dan arah target berdasarkan implementasi Laravel,
 Inertia.js, dan React. Detail scope produk ada di [PRD](./PRD.md).
 
 ## Stack saat ini
@@ -37,11 +37,11 @@ service secara bertahap agar mudah diuji dan dikembangkan.
 ## Batas area
 
 - Katalog publik hanya membaca produk aktif.
-- Dashboard memerlukan autentikasi.
-- Route admin memerlukan role `admin`.
+- Dashboard internal memerlukan autentikasi dan role `admin` atau `staff`.
+- Route pengelolaan user, role, dan permission granular hanya memerlukan role `admin`.
 - File gambar dan PDF dikelola melalui storage, bukan disimpan sebagai blob di
   database.
-- Request quotation MVP adalah inquiry, bukan checkout atau pembayaran.
+- Request quotation saat ini adalah inquiry yang disimpan di `request_quotations`, bukan checkout atau pembayaran.
 
 ## Prinsip pengembangan
 
@@ -65,6 +65,7 @@ menuju inquiry atau e-commerce.
 | `category_id` | Ya       | Mengacu pada kategori yang tersedia |
 | `sku`         | Ya       | Unik                                |
 | `name`        | Ya       | Nama produk                         |
+| `price`       | Ya       | Harga dasar produk, minimal 0       |
 | `slug`        | Ya       | Unik dan stabil untuk URL           |
 | `description` | Tidak    | Deskripsi produk                    |
 | `material`    | Ya       | Material produk                     |
@@ -73,69 +74,100 @@ menuju inquiry atau e-commerce.
 
 #### Product asset
 
-Current implementation memiliki satu gambar utama dan satu file PDF per produk.
+Current implementation membatasi upload menjadi satu gambar utama dan satu file
+PDF per produk. Relasi aset sudah memakai tabel `product_images` dan
+`product_files` dengan penanda `is_thumbnail` dan `is_downloadable`, sehingga
 MVP dapat menambahkan beberapa gambar dengan satu gambar yang ditandai sebagai
-utama.
+utama tanpa mengubah konsep relasi.
 
 #### Category
 
 Kategori memiliki nama, slug, deskripsi, status aktif, dan relasi parent-child.
 Parent tidak boleh menunjuk dirinya sendiri atau membuat siklus hierarki.
 
-#### User dan role
+#### User, role, dan permission
 
-User memiliki identitas login, status aktif, dan role. Pada versi saat ini role
-admin memiliki akses yang sama; permission granular bukan scope wajib MVP.
+User memiliki identitas login, status aktif, role, dan permission. Sistem memiliki 2 role default:
+
+- `admin`: memiliki akses penuh ke seluruh fitur dashboard termasuk pengelolaan user, role, dan permission granular.
+- `staff`: memiliki akses operasional ke pengelolaan katalog produk, kategori, aset, dan inquiry quotation.
+
+Pengelolaan role mendukung penetapan permission granular per modul (`products`, `categories`, `quotations`, `users`, `roles`) melalui UI matrix/checkbox di dashboard Admin.
+
+#### Request quotation
+
+Request quotation disimpan pada tabel `request_quotations`. Endpoint publik
+membuat inquiry guest dari detail produk aktif, menyimpan snapshot `product_id`,
+`product_name`, dan `product_sku`, lalu mengembalikan flash data berisi URL
+WhatsApp Sales. Dashboard Staff/Admin dapat mencari, memfilter, dan mengubah
+status inquiry.
+
+Field utama:
+
+| Field               | Wajib     | Aturan                                                    |
+| ------------------- | --------- | --------------------------------------------------------- |
+| `product_id`        | Tidak     | Nullable; menjadi null jika produk dihapus                |
+| `product_name`      | Ya        | Snapshot nama produk                                      |
+| `product_sku`       | Ya        | Snapshot SKU produk                                       |
+| `customer_name`     | Ya        | Nama customer                                             |
+| `customer_phone`    | Ya        | Nomor WhatsApp customer                                   |
+| `company_name`      | Tidak     | Nama perusahaan                                           |
+| `quantity`          | Tidak     | Minimal 1 jika diisi                                      |
+| `notes`             | Tidak     | Catatan customer                                          |
+| `status`            | Ya        | `new`, `in_progress`, atau `closed`                       |
+| `closed_reason`     | Bersyarat | Wajib saat status `closed`: `won`, `lost`, atau `invalid` |
+| `admin_notes`       | Tidak     | Catatan internal Staff/Admin                              |
+| `status_changed_by` | Otomatis  | User terakhir yang mengubah status                        |
+| `status_changed_at` | Otomatis  | Waktu perubahan status terakhir                           |
 
 ### Entitas roadmap
 
-`customers`, `product_variants`, `inquiries`, `inquiry_items`, `quotations`,
-`quotation_items`, `carts`, `cart_items`, `orders`, `order_items`, dan `payments`
+`customers`, `product_variants`, `quotations`, `quotation_items`, `carts`,
+`cart_items`, `orders`, `order_items`, dan `payments`
 disiapkan sebagai arah future roadmap. Jangan menambahkannya hanya untuk
 memenuhi roadmap sebelum proses bisnisnya disepakati.
 
 ### Aturan integritas
 
 - SKU dan slug harus unik.
+- Harga produk tidak boleh negatif.
 - Produk nonaktif tidak tampil di katalog publik.
 - Penghapusan produk harus menangani aset terkait.
 - Relasi kategori tidak boleh membentuk siklus.
 - Field sensitif user tidak boleh masuk response publik.
+- Request quotation publik hanya dapat dibuat untuk produk aktif.
+- Perubahan status request quotation menggunakan optimistic concurrency melalui `updated_at`.
 
 ### Perubahan model
 
 Setiap perubahan data harus disertai migration, validasi, perubahan kontrak API
 yang relevan, dan test untuk aturan yang berubah.
 
-## API Conventions
+## Route dan Response Conventions
 
-Bagian ini menjadi aturan umum untuk endpoint internal dan endpoint katalog.
-Detail endpoint aktual harus mengikuti route dan controller yang tersedia.
+Bagian ini menjadi aturan umum untuk route internal dan route katalog. Aplikasi
+saat ini memakai Inertia page props, redirect, flash data, validasi Laravel, dan
+pagination Eloquent. Struktur JSON standar hanya dipakai jika nanti dibuat
+endpoint API khusus.
 
 ### Request
 
 - Validasi input dilakukan di server.
 - Field wajib, tipe, ukuran, format, dan uniqueness harus dinyatakan jelas.
 - Mutation yang mengubah data harus memiliki perlindungan CSRF sesuai mekanisme
-  aplikasi.
+  aplikasi web Laravel.
 - Query listing menggunakan parameter pencarian, filter, sorting, dan pagination
   yang konsisten.
 
 ### Response
 
-Gunakan struktur yang konsisten:
+Route Inertia mengembalikan page props untuk data awal, redirect untuk mutation,
+dan flash message untuk feedback sukses atau data tambahan seperti
+`whatsapp_url`. Error validasi dikembalikan melalui mekanisme validation errors
+Laravel/Inertia agar dapat ditampilkan oleh form.
 
-```json
-{
-    "success": true,
-    "message": "Optional message",
-    "data": {},
-    "meta": {}
-}
-```
-
-Response error harus memberi status HTTP yang benar, pesan yang aman, dan detail
-validasi yang dapat ditampilkan oleh form tanpa membocorkan informasi sensitif.
+Jika aplikasi menambahkan endpoint JSON/API, response harus konsisten, memakai
+status HTTP yang benar, dan tidak membocorkan informasi sensitif.
 
 ### Pagination
 

@@ -14,7 +14,7 @@ export interface StatusOption {
 }
 
 const DEFAULT_STATUS_ITEMS: StatusOption[] = [
-    { label: 'Show All', value: 'all' },
+    { label: 'Show All Status', value: 'all' },
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
 ];

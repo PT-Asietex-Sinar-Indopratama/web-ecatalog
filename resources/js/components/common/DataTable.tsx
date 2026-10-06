@@ -134,93 +134,101 @@ export function DataTable<T>({
     );
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    {columns.map((column) => {
-                        const key = String(column.key);
-                        const isActive = sortKey === key;
+        <div className="w-full max-w-full overflow-x-auto">
+            <Table className="min-w-max">
+                <TableHeader>
+                    <TableRow>
+                        {columns.map((column) => {
+                            const key = String(column.key);
+                            const isActive = sortKey === key;
 
-                        return (
-                            <TableHead
-                                key={key}
-                                aria-sort={
-                                    column.sortable
-                                        ? isActive
-                                            ? sortDirection === 'asc'
-                                                ? 'ascending'
-                                                : 'descending'
-                                            : 'none'
-                                        : undefined
-                                }
-                                className={cn(
-                                    column.className,
-                                    column.headerClassName,
-                                )}
-                            >
-                                <div className="flex items-center gap-1">
-                                    <span>{column.header}</span>
+                            return (
+                                <TableHead
+                                    key={key}
+                                    aria-sort={
+                                        column.sortable
+                                            ? isActive
+                                                ? sortDirection === 'asc'
+                                                    ? 'ascending'
+                                                    : 'descending'
+                                                : 'none'
+                                            : undefined
+                                    }
+                                    className={cn(
+                                        column.className,
+                                        column.headerClassName,
+                                    )}
+                                >
+                                    <div className="flex items-center gap-1">
+                                        <span>{column.header}</span>
 
-                                    {column.sortable && (
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-11 w-11 shrink-0 sm:h-6 sm:w-6"
-                                            aria-label={`Sort by ${column.header} ${isActive && sortDirection === 'asc' ? 'descending' : 'ascending'}`}
-                                            onClick={() =>
-                                                handleSort(key, column.sortable)
-                                            }
-                                        >
-                                            {isActive ? (
-                                                sortDirection === 'asc' ? (
+                                        {column.sortable && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-11 w-11 shrink-0 sm:h-6 sm:w-6"
+                                                aria-label={`Sort by ${column.header} ${isActive && sortDirection === 'asc' ? 'descending' : 'ascending'}`}
+                                                onClick={() =>
+                                                    handleSort(
+                                                        key,
+                                                        column.sortable,
+                                                    )
+                                                }
+                                            >
+                                                {isActive ? (
+                                                    sortDirection === 'asc' ? (
+                                                        <ArrowUpWideNarrow
+                                                            aria-hidden="true"
+                                                            className="h-4 w-4"
+                                                        />
+                                                    ) : (
+                                                        <ArrowDownWideNarrow
+                                                            aria-hidden="true"
+                                                            className="h-4 w-4"
+                                                        />
+                                                    )
+                                                ) : (
                                                     <ArrowUpWideNarrow
                                                         aria-hidden="true"
-                                                        className="h-4 w-4"
+                                                        className="h-4 w-4 opacity-30"
                                                     />
-                                                ) : (
-                                                    <ArrowDownWideNarrow
-                                                        aria-hidden="true"
-                                                        className="h-4 w-4"
-                                                    />
-                                                )
-                                            ) : (
-                                                <ArrowUpWideNarrow
-                                                    aria-hidden="true"
-                                                    className="h-4 w-4 opacity-30"
-                                                />
-                                            )}
-                                        </Button>
-                                    )}
-                                </div>
-                            </TableHead>
-                        );
-                    })}
-                </TableRow>
-            </TableHeader>
-
-            <TableBody>
-                {sortedData.length > 0 ? (
-                    sortedData.map((item, index) => (
-                        <TableRow key={index}>
-                            {columns.map((column) => (
-                                <TableCell
-                                    key={String(column.key)}
-                                    className={column.className}
-                                >
-                                    {renderCell(item, column)}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    ))
-                ) : (
-                    <TableRow>
-                        <TableCell colSpan={columns.length} className="p-4">
-                            {emptyState}
-                        </TableCell>
+                                                )}
+                                            </Button>
+                                        )}
+                                    </div>
+                                </TableHead>
+                            );
+                        })}
                     </TableRow>
-                )}
-            </TableBody>
-        </Table>
+                </TableHeader>
+
+                <TableBody>
+                    {sortedData.length > 0 ? (
+                        sortedData.map((item, index) => (
+                            <TableRow key={index}>
+                                {columns.map((column) => (
+                                    <TableCell
+                                        key={String(column.key)}
+                                        className={column.className}
+                                    >
+                                        {renderCell(item, column)}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell
+                                colSpan={columns.length}
+                                className="min-w-[320px] p-4"
+                            >
+                                {emptyState}
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
     );
 }

@@ -15,6 +15,7 @@ export interface CustomAction {
     icon?: React.ReactNode;
     onClick: () => void;
     variant?: 'default' | 'destructive';
+    className?: string;
 }
 
 interface ActionDropdownProps {
@@ -25,6 +26,7 @@ interface ActionDropdownProps {
     deleteDescription?: string;
     customActions?: CustomAction[];
     triggerLabel?: string;
+    contentClassName?: string;
 }
 
 export function ActionDropdown({
@@ -35,6 +37,7 @@ export function ActionDropdown({
     deleteDescription = 'Are you sure you want to delete this item?',
     customActions = [],
     triggerLabel = 'Action',
+    contentClassName,
 }: ActionDropdownProps) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -62,7 +65,7 @@ export function ActionDropdown({
                     }
                 />
 
-                <DropdownMenuContent>
+                <DropdownMenuContent className={contentClassName}>
                     <DropdownMenuGroup>
                         {onDetail && (
                             <DropdownMenuItem onClick={onDetail}>
@@ -80,6 +83,7 @@ export function ActionDropdown({
                             <DropdownMenuItem
                                 key={index}
                                 variant={action.variant}
+                                className={action.className}
                                 onClick={action.onClick}
                             >
                                 {action.icon}

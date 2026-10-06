@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Products;
 use App\Models\RequestQuotations;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,37 @@ class RequestQuotationController extends Controller
             $query->where('status', $request->status);
         }
 
+        $datePreset = $request->string('date_preset', 'all')->toString();
+        $dateFrom = $request->string('date_from')->toString();
+        $dateTo = $request->string('date_to')->toString();
+
+        if (! in_array($datePreset, ['all', 'today', 'last_7_days', 'last_30_days', 'custom'], true)) {
+            $datePreset = 'all';
+        }
+
+        [$startDate, $endDate] = match ($datePreset) {
+            'today' => [now()->startOfDay(), now()->endOfDay()],
+            'last_7_days' => [now()->subDays(6)->startOfDay(), now()->endOfDay()],
+            'last_30_days' => [now()->subDays(29)->startOfDay(), now()->endOfDay()],
+            'custom' => [
+                Carbon::hasFormat($dateFrom, 'Y-m-d')
+                    ? Carbon::createFromFormat('Y-m-d', $dateFrom)->startOfDay()
+                    : null,
+                Carbon::hasFormat($dateTo, 'Y-m-d')
+                    ? Carbon::createFromFormat('Y-m-d', $dateTo)->endOfDay()
+                    : null,
+            ],
+            default => [null, null],
+        };
+
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->where('created_at', '<=', $endDate);
+        }
+
         $sortableColumns = [
             'created_at',
             'customer_name',
@@ -67,6 +99,9 @@ class RequestQuotationController extends Controller
             'filters' => [
                 'search' => $request->input('search', ''),
                 'status' => $request->input('status', 'all'),
+                'date_preset' => $datePreset,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
                 'sort' => $sort,
                 'direction' => $direction,
             ],

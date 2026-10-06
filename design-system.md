@@ -1,100 +1,99 @@
 # Design System Guidelines (`design-system.md`)
 
-Dokumen ini merupakan panduan sistem desain terpadu untuk pengembangan halaman Root, Dashboard, dan halaman lainnya pada project **web-ecatalog**. Panduan ini disusun berdasarkan konvensi dan skill UI/UX yang tersedia pada repository (`better-*`, `design-taste-frontend`, `frontend-design`, `ui-taste`, `emil-design-eng`, `apple-design`, `animate`, `shadcn`, dll).
+Dokumen ini menjadi panduan sistem desain untuk project **web-ecatalog** sesuai implementasi saat ini di `resources/css/app.css`, komponen `resources/js/components/ui`, layout publik, dan dashboard internal.
 
----
+## 1. Arah Visual
 
-## 1. Core Visual Principles & Aesthetic Direction
+- UI publik berfungsi sebagai katalog produk B2B: bersih, mudah dipindai, dan membantu customer menemukan produk tanpa banyak distraksi.
+- Dashboard internal mengutamakan kepadatan informasi, navigasi cepat, tabel yang mudah dibaca, filter yang jelas, dan feedback aksi yang langsung terasa.
+- Gunakan komponen shadcn/Base UI yang sudah tersedia sebelum membuat pola baru. Ikon menggunakan `lucide-react`.
+- Hindari dekorasi generik yang tidak membantu konteks produk. Visual utama harus mendukung produk, aset katalog, atau workflow operasional.
 
-- **Anti-Slop & Premium Finish**: Hindari tampilan generik/templated. Setiap komponen dan elemen visual harus memiliki intensi yang jelas, rapi, dan terasa _custom_.
-- **Optical Alignment & Depth**: Gunakan permainan _elevation_, _subtle shadows_, _translucent background (glassmorphism)_, dan _concentric border-radius_ untuk menciptakan kedalaman hierarki visual.
-- **Contextual & Intentional**: UI untuk halaman publik (Root) difokuskan pada daya tarik visual, kejelasan pesan, dan responsivitas, sedangkan halaman Dashboard mengutamakan efisiensi navigasi, kepadatan informasi yang terstruktur, dan _snappy interaction_.
+## 2. Token Aktual
 
----
+Token warna dan radius utama didefinisikan di `resources/css/app.css` dengan format OKLCH. Gunakan token Tailwind/tema, bukan hard-coded hex baru, kecuali untuk aset khusus yang memang perlu.
 
-## 2. Color System & Palette (`better-colors`)
+| Token                                    | Penggunaan                              |
+| ---------------------------------------- | --------------------------------------- |
+| `background` / `foreground`              | Latar dan teks halaman utama            |
+| `card` / `card-foreground`               | Card produk, panel dashboard, modal     |
+| `primary` / `primary-foreground`         | CTA utama, active state, link penting   |
+| `secondary` / `secondary-foreground`     | Tombol sekunder dan permukaan pendukung |
+| `muted` / `muted-foreground`             | Empty state, metadata, helper text      |
+| `accent` / `accent-foreground`           | Hover/selected subtle state             |
+| `destructive` / `destructive-foreground` | Delete, error, aksi berisiko            |
+| `border`, `input`, `ring`                | Border form, focus ring, outline        |
+| `sidebar-*`                              | Navigasi dashboard                      |
 
-### Functional Color Tokens
+Aturan warna:
 
-| Category                      | Usage / Context                               | Color Style / Hex                                        |
-| :---------------------------- | :-------------------------------------------- | :------------------------------------------------------- |
-| **Primary Base**              | Action utama, brand accent, active state      | Modern Dark/Indigo / Deep Teal (Tailwind/HSL Token)      |
-| **Surface / Background**      | Background utama (Light/Dark mode compatible) | Slate / Zinc Neutral tones (`#FAFAFA` / `#0F172A`)       |
-| **Elevated Surface**          | Card, Modal, Dropdown, Floating Bar           | `#FFFFFF` (with subtle border `#E2E8F0`)                 |
-| **Text Primary**              | Headline, Label utama, Body text              | `#0F172A` (High contrast, legibilitas maksimal)          |
-| **Text Secondary**            | Subtitle, Caption, Meta info                  | `#64748B`                                                |
-| **Success / Warning / Error** | Status Badge, Toast notification              | Emerald (`#10B981`), Amber (`#F59E0B`), Rose (`#F43F5E`) |
+- Pertahankan kontras teks minimal WCAG AA untuk teks normal.
+- Gunakan `primary` untuk aksi yang benar-benar utama, misalnya submit quotation atau simpan data.
+- Badge status harus mudah dibedakan: gunakan varian semantik yang ada dan hindari hanya mengandalkan warna tanpa label.
+- Mode gelap sudah memiliki token `.dark`; komponen baru harus memakai token agar tetap kompatibel.
 
-### Color Rules:
+## 3. Tipografi
 
-- Gunakan kontras rasio minimal **4.5:1** (WCAG AA compliant) untuk teks normal.
-- Selalu padukan warna aksen dengan warna netral yang tenang agar UI tidak tampak bising.
+- Font utama adalah `Figtree Variable` melalui `@fontsource-variable/figtree`.
+- `font-sans` adalah default aplikasi. `font-mono` hanya untuk data teknis seperti SKU, ID, atau nilai yang perlu dipindai presisi.
+- Jangan menambah keluarga font baru tanpa kebutuhan kuat.
 
----
+Skala umum:
 
-## 3. Typography & Spacing Scale (`better-typography` & `better-layout`)
+- Page title/detail produk: `text-3xl`, `font-semibold` atau `font-bold`.
+- Section title/dashboard card title: `text-lg` sampai `text-xl`, `font-semibold`.
+- Body dan tabel: `text-sm` dengan leading yang cukup.
+- Metadata, helper text, dan caption: `text-xs` atau `text-sm` dengan `text-muted-foreground`.
 
-### Font Hierarchy
+## 4. Layout dan Radius
 
-- **Primary Sans-Serif**: Inter / Outfit / System Font Stacks (`font-sans`).
-- **Display / Headline**: Sans-serif serbaguna dengan _weight_ tebal (`font-bold` / `font-semibold`) dan _tracking_ sedikit rapat (`tracking-tight`).
-- **Monospace**: Untuk ID tracking, data teknis, atau kode (`font-mono`).
+- Spacing mengikuti kelipatan Tailwind 4px: `gap-2`, `gap-4`, `gap-6`, `gap-8`.
+- Container publik memakai padding responsif dan area katalog yang jelas antara sidebar filter dan daftar produk.
+- Radius dasar aplikasi adalah `--radius: 0.625rem`; gunakan `rounded-md`, `rounded-lg`, atau `rounded-xl` sesuai komponen. Hindari radius yang terlalu besar pada tabel dan tool surface.
+- Product image memakai rasio stabil agar grid tidak melompat saat data berubah.
+- Tabel dashboard harus mempertahankan alignment kolom, sort state, filter, dan pagination yang konsisten.
 
-### Type Scale
+## 5. Pola Komponen Saat Ini
 
-- **H1 (Hero / Page Title)**: `text-3xl` s.d. `text-5xl`, `font-extrabold`, `tracking-tight`
-- **H2 (Section Header)**: `text-2xl`, `font-bold`
-- **H3 (Card / Modal Header)**: `text-lg` s.d. `text-xl`, `font-semibold`
-- **Body Large**: `text-base`, `leading-relaxed`
-- **Body / Standard**: `text-sm`, `leading-normal`
-- **Caption / Meta**: `text-xs`, `text-slate-500`
+### Katalog Publik
 
-### Spacing & Grid Layout
+- Halaman utama memakai hero image dari aset lokal, search sticky di mobile, filter sidebar di desktop, dan drawer filter di mobile.
+- Product card grid/list harus menampilkan gambar/placeholder, nama, kategori atau metadata penting, dan akses ke detail.
+- Toggle grid/list memakai ikon `Grid2x2` dan `List`; label boleh disembunyikan di layar kecil jika ikon sudah jelas.
+- Pagination harus mempertahankan query filter, sort, dan pencarian.
 
-- System Spacing berbasis kelipatan **4px / 8px** (`gap-2`, `gap-4`, `gap-6`, `gap-8`).
-- **Container Padding**:
-    - Mobile: `px-4`
-    - Tablet: `px-6`
-    - Desktop: `px-8` s.d. `max-w-7xl`
-- **Concentric Border Radius**: Border radius elemen di dalam kontainer harus selaras dengan border radius outer container ($R_{inner} = R_{outer} - padding$).
+### Detail Produk
 
----
+- Detail produk menampilkan gambar utama atau placeholder, kategori, nama, SKU, harga IDR, material, status file, deskripsi, CTA `Minta penawaran`, dan tombol unduh katalog.
+- Dialog request quotation harus menjaga fokus input pertama yang error, menonaktifkan submit saat proses berjalan, dan tidak menutup paksa saat request sedang diproses.
+- WhatsApp dibuka setelah inquiry berhasil tersimpan; kegagalan popup tidak boleh menghapus inquiry.
 
-## 4. Motion, Animation & Interaction (`animate` & `emil-design-eng`)
+### Dashboard
 
-- **Purposeful Motion**: Animasi hanya digunakan untuk memberikan umpan balik (feedback), mengarahkan perhatian, atau memperhalus transisi keadaan (_state transition_). Hindari animasi berlebihan yang menghambat efisiensi kerja user.
-- **Timing & Curves**:
-    - **Quick Micro-interactions** (Button hover, toggle): `150ms - 200ms`, `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out).
-    - **Page / Modal Transitions**: `250ms - 350ms`, spring dynamics atau ease-in-out berbobot halus.
-- **Interactive Feedback**:
-    - Hover state pada tombol dan card harus memiliki perubahan visual yang halus (_subtle scale_, _border highlight_, atau _background shift_).
-    - Focus states wajib menggunakan ring indikator yang jelas demi aksesibilitas.
+- Sidebar dashboard menampilkan menu operasional sesuai role.
+- Tabel menggunakan search, filter status/tanggal bila relevan, sort, pagination, dan action dropdown.
+- Form create/edit produk wajib menampilkan field kategori, SKU, nama, harga, slug, deskripsi, material, status, gambar, dan file PDF.
+- Request quotation dashboard menampilkan customer, produk, status, tanggal, dan aksi update status dengan alasan penutupan saat status `closed`.
 
----
+## 6. Motion dan Feedback
 
-## 5. Component Patterns & UX Standards (`shadcn` & `better-ui`)
+- Motion dipakai untuk feedback ringan: hover, active state, drawer/dialog transition, dan loading/processing.
+- Durasi micro-interaction: 150-200ms.
+- Transisi dialog/drawer mengikuti komponen Base UI/shadcn yang ada.
+- Jangan membuat animasi yang memperlambat dashboard atau mengganggu input data.
+- Toast/flash message dipakai untuk aksi sukses/gagal. Copy harus spesifik terhadap aksi, misalnya "Status inquiry berhasil diperbarui."
 
-### Halaman Root (Landing Page / Public View)
+## 7. Aksesibilitas dan Copy
 
-- **Hero Section**: Memiliki judul utama yang lugas, _call-to-action (CTA)_ yang menonjol, dan elemen visual pendukung yang bersih.
-- **Product Catalog Cards**: Memuat gambar produk rasio konsisten, nama produk, kategori, dan tombol aksi cepat.
-- **Navigation Header**: Sticky/Glassmorphism header dengan logo, tautan navigasi utama, dan pencarian cepat.
+- Gunakan semantic HTML: `<header>`, `<nav>`, `<main>`, `<aside>`, `<section>`, dan `<footer>` sesuai struktur.
+- Semua gambar produk wajib memiliki `alt` yang bermakna; placeholder harus tetap informatif.
+- Icon-only button wajib memiliki `aria-label` atau tooltip.
+- Form wajib punya label, error message, `aria-invalid`, dan `aria-describedby` saat error.
+- Copy menggunakan Bahasa Indonesia yang lugas dan profesional. Hindari pesan internal seperti stack trace, nama query, atau path server.
 
-### Halaman Dashboard (Admin / Customer Portal)
+## 8. Prinsip Perubahan UI
 
-- **Sidebar Navigation**: Menu bertingkat yang rapi dengan status aktif jelas, icon kontekstual, dan opsi _collapse_.
-- **Data Tables & Filters**:
-    - Mendukung pencarian cepat (_debounced search_), filter status, dan pagination.
-    - Baris tabel memliki _hover state_ untuk keterbacaan yang lebih baik.
-- **Stat Cards / Summary Metrics**: Menampilkan indikator statistik utama dengan tren (naik/turun) yang kontras secara visual.
-- **Feedback System (Toast & Modals)**: Integrasi notifikasi toast (`ask-sonner`) untuk aksi sukses/gagal secara non-intrusif.
-
----
-
-## 6. Accessibility & Copywriting (`better-accessibility` & `better-writing`)
-
-- **Semantic HTML**: Gunakan tag `<header>`, `<nav>`, `<main>`, `<aside>`, `<footer>`, `<article>`, dan `<section>` secara tepat.
-- **ARIA & Alt Attributes**: Semua ikon tanpa teks pendamping harus memiliki `aria-label`. Semua gambar produk harus memiliki tag `alt`.
-- **Microcopy**:
-    - Gunakan Bahasa Indonesia yang lugas, profesional, dan membantu (_helpful error messages_).
-    - Hindari istilah teknis error internal (seperti `500 Server Error`), gantilah dengan kalimat yang memberikan petunjuk solutif bagi pengguna.
+- Ikuti token dan komponen yang sudah ada sebelum menambah variasi baru.
+- Perubahan pada katalog publik harus diuji di desktop dan mobile.
+- Perubahan pada dashboard harus mempertahankan workflow cepat untuk Staff/Admin.
+- Jika menambah pola visual baru, dokumentasikan token, state, dan penggunaan di dokumen ini.

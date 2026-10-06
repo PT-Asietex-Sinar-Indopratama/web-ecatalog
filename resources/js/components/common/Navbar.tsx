@@ -41,21 +41,21 @@ export default function Navbar() {
                     <Button
                         className="font-semibold"
                         variant="ghost"
-                        render={<Link href={route('main')} />}
+                        render={<a href="#" />}
                     >
                         Katalog
                     </Button>
                     <Button
                         className="hover:font-semibold"
                         variant="ghost"
-                        render={<a href="#about" />}
+                        render={<a href="#" />}
                     >
                         Tentang
                     </Button>
                     <Button
                         className="hover:font-semibold"
                         variant="ghost"
-                        render={<a href="#faq" />}
+                        render={<a href="#" />}
                     >
                         FAQ
                     </Button>

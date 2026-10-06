@@ -9,6 +9,8 @@ use App\Models\Products;
 use App\Models\Users;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
@@ -112,13 +114,60 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        foreach ($products as $product) {
+        $seedImageTemplates = [
+            'products/images/seeder-sample-catalog.png',
+            'products/images/seeder-sample-catalog-2.png',
+            'products/images/seeder-sample-catalog-3.png',
+        ];
+        $seedFileTemplates = [
+            'products/files/seeder-sample-catalog.pdf',
+            'products/files/seeder-sample-catalog-2.pdf',
+            'products/files/seeder-sample-catalog-3.pdf',
+        ];
+
+        foreach ($products->values() as $index => $product) {
+            $imagePath = $this->copySeedAssetForProduct(
+                $seedImageTemplates[$index % count($seedImageTemplates)],
+                "products/images/seeded-product-{$product->id}.png",
+            );
+            $filePath = $this->copySeedAssetForProduct(
+                $seedFileTemplates[$index % count($seedFileTemplates)],
+                "products/files/seeded-product-{$product->id}.pdf",
+            );
+
             ProductImages::factory()
                 ->for($product, 'product')
-                ->create(['is_thumbnail' => true]);
+                ->create([
+                    'image_path' => $imagePath,
+                    'is_thumbnail' => true,
+                ]);
             ProductFiles::factory()
                 ->for($product, 'product')
-                ->create(['is_downloadable' => true]);
+                ->create([
+                    'file_path' => $filePath,
+                    'file_name' => basename($filePath),
+                    'file_type' => 'pdf',
+                    'is_downloadable' => true,
+                ]);
         }
+
+        $this->call(RequestQuotationSeeder::class);
+    }
+
+    private function copySeedAssetForProduct(string $sourcePath, string $destinationPath): string
+    {
+        $disk = Storage::disk('public');
+
+        if (! $disk->exists($sourcePath)) {
+            throw new RuntimeException("Seed asset not found: {$sourcePath}");
+        }
+
+        if ($disk->exists($destinationPath)) {
+            $disk->delete($destinationPath);
+        }
+
+        $disk->copy($sourcePath, $destinationPath);
+
+        return $destinationPath;
     }
 }

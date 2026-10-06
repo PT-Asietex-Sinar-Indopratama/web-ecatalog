@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProductCategories;
 use App\Models\Products;
+use App\Models\RequestQuotations;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -34,6 +35,7 @@ class AdminController extends Controller
                 'updated_at',
             ]);
         $categories = ProductCategories::hierarchyOptions(activeOnly: true);
+        $newQuotationsQuery = RequestQuotations::where('status', 'new');
 
         return Inertia::render('Dashboard/Index', [
             'stats' => [
@@ -41,6 +43,10 @@ class AdminController extends Controller
                 'active_products' => Products::where('is_active', true)->count(),
                 'active_categories' => ProductCategories::where('is_active', true)->count(),
                 'missing_download_files' => Products::doesntHave('downloadableFile')->count(),
+                'total_quotations' => RequestQuotations::count(),
+                'new_quotations' => (clone $newQuotationsQuery)->count(),
+                'in_progress_quotations' => RequestQuotations::where('status', 'in_progress')->count(),
+                'closed_quotations' => RequestQuotations::where('status', 'closed')->count(),
             ],
             'needsAttention' => [
                 'missing_thumbnail' => Products::doesntHave('thumbnailImage')->count(),
@@ -49,6 +55,9 @@ class AdminController extends Controller
                     ->orWhere('description', '')
                     ->count(),
                 'inactive_products' => Products::where('is_active', false)->count(),
+                'overdue_new_quotations' => (clone $newQuotationsQuery)
+                    ->where('created_at', '<', now()->subDay())
+                    ->count(),
             ],
             'latestProducts' => $latestProducts,
             'categories' => $categories,

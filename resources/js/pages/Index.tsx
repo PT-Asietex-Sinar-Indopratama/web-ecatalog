@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { Filter, Grid2x2, List } from 'lucide-react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
+import backgroundUrl from '@/assets/background-4.png';
 import ProductCardGrid from '@/components/common/ProductCardGrid';
 import ProductCardList from '@/components/common/ProductCardList';
 import type { ProductCategoryFilter } from '@/components/common/ProductFilter';
@@ -206,8 +207,15 @@ export default function Dashboard({
     // ========== KODE UNTUK PAGINATION (END) ==========
 
     return (
-        <AppLayout className="grid grid-cols-1 gap-8 rounded-4xl! bg-white p-5! lg:grid-cols-4 lg:p-8!">
-            {/* <Card className="hidden rounded-xl border border-border bg-white p-5 shadow-md md:block"> */}
+        <AppLayout
+            hero={
+                <div
+                    className="h-64 w-full bg-cover bg-center md:h-80 lg:h-96"
+                    style={{ backgroundImage: `url(${backgroundUrl})` }}
+                />
+            }
+            className="grid grid-cols-1 gap-8 rounded-4xl bg-white p-5! lg:grid-cols-4 lg:p-8!"
+        >
             {/* SIDEBAR FILTER */}
             <aside className="hidden h-fit space-y-4 rounded-xl border border-border/50 bg-white p-5 shadow-lg md:block">
                 <ProductFilter

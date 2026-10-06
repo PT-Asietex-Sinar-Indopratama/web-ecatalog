@@ -8,18 +8,12 @@ import { DataPagination } from '@/components/common/DataPagination';
 import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductImageColumns } from './Columns';
 import type { ProductImage } from './Columns';
+import { ProductImageDetailDialog } from './Detail';
 
 interface FilterProps {
     search?: string;
@@ -137,39 +131,10 @@ export default function ProductImage({
                 <DataPagination meta={images} />
             </div>
 
-            <Dialog
-                open={!!selectedImage}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setSelectedImage(null);
-                    }
-                }}
-            >
-                <DialogContent className="max-h-[90vh] w-full max-w-5xl!">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {selectedImage?.product?.name ?? 'Product image'}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {selectedImage?.product?.sku ??
-                                'Full image preview'}
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    {selectedImage && (
-                        <div className="flex max-h-[70vh] justify-center overflow-hidden rounded-md border bg-muted p-2">
-                            <img
-                                src={selectedImage.image_url}
-                                alt={
-                                    selectedImage.product?.name ??
-                                    'Product image'
-                                }
-                                className="max-h-[65vh] w-full object-contain"
-                            />
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
+            <ProductImageDetailDialog
+                image={selectedImage}
+                onClose={() => setSelectedImage(null)}
+            />
         </DashboardLayout>
     );
 }

@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import React from 'react';
 import { route } from 'ziggy-js';
 import { AppSidebar } from '@/components/common/AppSidebar';
@@ -25,7 +25,6 @@ export default function Page({ children, className, breadcrumbs = null }: any) {
         : breadcrumbs
           ? [{ label: breadcrumbs }]
           : [];
-    const { auth } = usePage().props as any;
 
     return (
         <SidebarProvider>
@@ -121,17 +120,6 @@ export default function Page({ children, className, breadcrumbs = null }: any) {
                                     )}
                                 </BreadcrumbList>
                             </Breadcrumb>
-                        </div>
-                        <div className="flex shrink-0 items-center">
-                            <div className="flex items-center gap-2">
-                                <div className="hidden text-sm md:block">
-                                    {' '}
-                                    Hello, {auth?.user?.name || 'User'}{' '}
-                                </div>
-                                <div className="flex aspect-1/1 w-7 items-center justify-center rounded-full bg-secondary text-center text-xs font-semibold">
-                                    {auth?.user?.name[0] || 'U'}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </header>

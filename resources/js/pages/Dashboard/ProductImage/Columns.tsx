@@ -7,6 +7,9 @@ export interface ProductImage {
     };
     image_path: string;
     image_url: string;
+    is_thumbnail: boolean;
+    created_at?: string;
+    updated_at?: string;
 }
 
 interface ProductImageColumnsProps {

@@ -1,7 +1,7 @@
 import type { PageProps } from '@inertiajs/core';
 import { router, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { route } from 'ziggy-js';
 import { AlertComponent } from '@/components/common/AlertComponent';
 import { DashboardSearchFilter } from '@/components/common/DashboardSearchFilter';
@@ -64,34 +64,40 @@ export default function User({
         setSelectedUser(undefined);
     };
 
-    const handleFilter = (
-        newSearch: string,
-        newStatus: string,
-        newSort = tableSort.sort,
-        newDirection = tableSort.direction,
-    ) => {
-        const query: Record<string, string> = {};
+    const handleFilter = useCallback(
+        (
+            newSearch: string,
+            newStatus: string,
+            newSort = tableSort.sort,
+            newDirection = tableSort.direction,
+        ) => {
+            const query: Record<string, string> = {};
 
-        if (newSearch) {
-            query.search = newSearch;
-        }
+            if (newSearch) {
+                query.search = newSearch;
+            }
 
-        if (newStatus && newStatus !== 'all') {
-            query.status = newStatus;
-        }
+            if (newStatus && newStatus !== 'all') {
+                query.status = newStatus;
+            }
 
-        tableSort.appendSortQuery(query, newSort, newDirection);
+            tableSort.appendSortQuery(query, newSort, newDirection);
 
-        router.get(route('dashboard.user'), query, {
-            preserveState: true,
-            replace: true,
-        });
-    };
+            router.get(route('dashboard.user'), query, {
+                preserveState: true,
+                replace: true,
+            });
+        },
+        [tableSort],
+    );
 
-    const handleSearch = (newSearch: string) => {
-        setSearch(newSearch);
-        handleFilter(newSearch, status);
-    };
+    const handleSearch = useCallback(
+        (newSearch: string) => {
+            setSearch(newSearch);
+            handleFilter(newSearch, status);
+        },
+        [handleFilter, status],
+    );
 
     const handleStatusChange = (newStatus: string) => {
         setStatus(newStatus);

@@ -27,6 +27,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
+        ->name('profile.password.update');
 
     // Dashboard — dapat diakses Staff dan Admin (role:admin|staff)
     Route::middleware('role:admin|staff')->prefix('/dashboard')->name('dashboard.')->group(function () {

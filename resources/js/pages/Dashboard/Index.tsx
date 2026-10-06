@@ -5,6 +5,7 @@ import {
     ArrowRight,
     Box,
     CheckCircle2,
+    ClipboardList,
     Clock3,
     FileText,
     Image,
@@ -23,7 +24,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
     Card,
     CardContent,
@@ -41,6 +42,10 @@ interface DashboardStats {
     active_products: number;
     active_categories: number;
     missing_download_files: number;
+    total_quotations: number;
+    new_quotations: number;
+    in_progress_quotations: number;
+    closed_quotations: number;
 }
 
 interface NeedsAttention {
@@ -48,6 +53,7 @@ interface NeedsAttention {
     missing_download_file: number;
     missing_description: number;
     inactive_products: number;
+    overdue_new_quotations: number;
 }
 
 interface LatestProduct {
@@ -264,6 +270,58 @@ export default function Admin({
                 />
             </div>
 
+            <Card className="col-span-4">
+                <CardHeader className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div className="space-y-1">
+                        <CardTitle>Request Quotations</CardTitle>
+                        <CardDescription>
+                            Inquiry status that needs sales follow-up.
+                        </CardDescription>
+                    </div>
+                    <Link
+                        href={route('dashboard.request-quotations')}
+                        className={buttonVariants({ variant: 'secondary' })}
+                    >
+                        View inquiries
+                        <ArrowRight />
+                    </Link>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <AttentionRow
+                            label="Total inquiries"
+                            value={stats.total_quotations}
+                            href={route('dashboard.request-quotations')}
+                            icon={ClipboardList}
+                        />
+                        <AttentionRow
+                            label="New inquiries"
+                            value={stats.new_quotations}
+                            href={route('dashboard.request-quotations', {
+                                status: 'new',
+                            })}
+                            icon={AlertTriangle}
+                        />
+                        <AttentionRow
+                            label="In progress"
+                            value={stats.in_progress_quotations}
+                            href={route('dashboard.request-quotations', {
+                                status: 'in_progress',
+                            })}
+                            icon={Clock3}
+                        />
+                        <AttentionRow
+                            label="Closed inquiries"
+                            value={stats.closed_quotations}
+                            href={route('dashboard.request-quotations', {
+                                status: 'closed',
+                            })}
+                            icon={CheckCircle2}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
             <Card className="col-span-4 lg:col-span-2">
                 <CardHeader>
                     <CardTitle>Needs Attention</CardTitle>
@@ -295,6 +353,14 @@ export default function Admin({
                         value={needsAttention.inactive_products}
                         href={route('dashboard.product')}
                         icon={Clock3}
+                    />
+                    <AttentionRow
+                        label="New inquiries over one day"
+                        value={needsAttention.overdue_new_quotations}
+                        href={route('dashboard.request-quotations', {
+                            status: 'new',
+                        })}
+                        icon={AlertTriangle}
                     />
                 </CardContent>
             </Card>

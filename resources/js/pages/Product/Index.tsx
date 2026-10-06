@@ -134,8 +134,8 @@ export default function ProductShow({ product }: { product: Product }) {
         <AppLayout className="block">
             <div className="space-y-6">
                 <Button
+                    className="-ml-2 text-muted-foreground"
                     variant="ghost"
-                    className="-ml-2"
                     render={<Link href={route('main')} />}
                 >
                     <ArrowLeft />
@@ -452,7 +452,7 @@ export default function ProductShow({ product }: { product: Product }) {
                             disabled={processing}
                         >
                             <Send />
-                            {processing ? 'Menyimpan...' : 'Buka WhatsApp'}
+                            {processing ? 'Menyimpan...' : 'Kirim permintaan'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

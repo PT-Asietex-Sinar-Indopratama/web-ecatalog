@@ -1,11 +1,22 @@
 import React from 'react';
-import backgroundUrl from '@/assets/background-4.png';
 import BottomNav from '@/components/common/BottomNav';
 import Footer from '@/components/common/Footer';
 import Navbar from '@/components/common/Navbar';
 import { cn } from '@/lib/utils';
 
-export default function AppLayout({ children, className }: any) {
+interface AppLayoutProps {
+    children: React.ReactNode;
+    className?: string;
+    hero?: React.ReactNode;
+    fullWidth?: boolean;
+}
+
+export default function AppLayout({
+    children,
+    className,
+    hero,
+    fullWidth,
+}: AppLayoutProps) {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <a
@@ -21,16 +32,19 @@ export default function AppLayout({ children, className }: any) {
             {/* Bottom Navigation */}
             <BottomNav />
 
-            <div
-                className="h-100 w-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${backgroundUrl})` }}
-            />
+            {/* HERO / FULL-WIDTH SECTION */}
+            {hero && <div className="relative top-16 z-10 w-full">{hero}</div>}
 
             {/* MAIN CONTENT */}
             <main
                 id="main-content"
                 className={cn(
-                    'relative z-10 mx-auto -mt-12 min-h-screen w-full max-w-7xl px-4 pt-4 pb-20 sm:px-6 md:-mt-16 md:pt-10 lg:px-8',
+                    'relative z-10 mx-auto min-h-screen w-full px-4 pt-4 pb-20 sm:px-6 lg:px-8',
+                    // hero ? '' : 'top-24 -mt-12 md:-mt-16 md:pt-10',
+                    hero ? '' : 'md:pt-20',
+                    fullWidth
+                        ? 'max-w-none px-0! sm:px-0! lg:px-0!'
+                        : 'max-w-7xl',
                     className,
                 )}
             >

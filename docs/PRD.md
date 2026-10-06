@@ -1,8 +1,8 @@
 # Product Requirements Document — Web E-Catalog
 
 **Status:** Draft — kondisi saat ini, target E-Catalog MVP, dan arah pengembangan  
-**Versi:** 1.1  
-**Tanggal:** 2 Oktober 2026  
+**Versi:** 1.2  
+**Tanggal:** 6 Oktober 2026  
 **Platform:** Web responsive
 
 ## 1. Ringkasan Produk
@@ -18,7 +18,7 @@ Produk ini berfungsi sebagai digital sales assistant, bukan pengganti tim sales.
 PRD ini membedakan tiga tingkat cakupan agar fitur yang sudah tersedia tidak tercampur dengan rencana pengembangan:
 
 1. **Current implementation:** fitur yang sudah terlihat pada kode project.
-2. **E-Catalog MVP target:** fitur yang menjadi target penguatan versi E-Catalog, termasuk product gallery dan request quotation.
+2. **E-Catalog MVP target:** fitur yang menjadi target penguatan versi E-Catalog, terutama product gallery dan penyempurnaan operasional inquiry.
 3. **Future roadmap:** arah pengembangan semi e-commerce dan full e-commerce; bersifat informatif dan belum menjadi scope implementasi saat ini.
 
 ## 2. Dasar Penyusunan
@@ -59,11 +59,13 @@ Pola tersebut merupakan arah pengembangan maintainability, bukan klaim bahwa sel
 - Hanya produk aktif yang ditampilkan kepada pengunjung.
 - Pengunjung tidak perlu login untuk melihat detail dan mengunduh PDF.
 - Login diperlukan untuk staff/user dan admin.
-- Dashboard dilindungi autentikasi dan role `admin`.
+- Dashboard dilindungi autentikasi dan role `admin` atau `staff`.
 - Produk memiliki satu gambar utama dan satu file PDF yang dapat diunduh.
+- Produk memiliki harga dasar (`price`) yang ditampilkan pada detail produk dan dikelola dari dashboard.
 - Kategori mendukung struktur parent-child.
-- Admin saat ini memiliki akses yang sama.
-- Fitur audit log, analitik, backup otomatis, dan CTA sales belum terlihat sebagai fitur aplikasi saat ini.
+- Request quotation dari halaman detail produk sudah tersimpan ke database, membuka WhatsApp Sales dengan pesan awal, dan dapat diproses Staff/Admin dari dashboard.
+- User dengan role `staff` dapat mengakses fitur operasional katalog dan inquiry, sedangkan pengelolaan user dan role hanya tersedia untuk `admin`.
+- Fitur audit log lengkap, analitik, backup otomatis, dan product gallery multi-gambar belum terlihat sebagai fitur aplikasi saat ini.
 
 ### Alur bisnis saat ini
 
@@ -138,7 +140,7 @@ Karena itu, E-Catalog diprioritaskan untuk memperbaiki discovery produk dan inqu
 
 ### 5.1 Current implementation
 
-Current implementation adalah fitur yang sudah tersedia berdasarkan kode project, yaitu katalog publik, pencarian, filter, sorting, detail produk, download PDF, autentikasi, dashboard admin, CRUD produk/kategori/user/role, dan pengelolaan aset.
+Current implementation adalah fitur yang sudah tersedia berdasarkan kode project, yaitu katalog publik, pencarian, filter kategori bertingkat, sorting, detail produk, harga produk, download PDF, request quotation guest, redirect WhatsApp Sales, autentikasi, dashboard Staff/Admin, CRUD produk/kategori/user/role, pengelolaan aset, dan pengelolaan status inquiry.
 
 ### 5.2 Target E-Catalog MVP
 
@@ -149,11 +151,11 @@ Target MVP memperkuat katalog untuk kebutuhan customer dan sales dengan fitur be
 - Product detail page.
 - Product gallery: satu gambar utama dan gambar tambahan per produk jika diperlukan.
 - Download PDF produk.
-- Request quotation dari halaman produk.
+- Penyempurnaan request quotation sesuai kebutuhan operasional.
 - Tombol WhatsApp yang membuka WhatsApp sales, idealnya dengan pesan awal yang memuat nama atau SKU produk.
 - CMS internal untuk Staff dan Admin dalam mengelola katalog.
 
-Request quotation pada MVP merupakan proses inquiry yang wajib disimpan ke database, bukan checkout dan bukan pembayaran online. Seluruh Staff dan Admin dapat melihat dan memproses inquiry.
+Request quotation pada implementasi saat ini merupakan proses inquiry yang disimpan ke database, bukan checkout dan bukan pembayaran online. Seluruh Staff dan Admin dapat melihat dan memproses inquiry.
 
 ### 5.3 Future roadmap
 
@@ -187,7 +189,7 @@ Fitur transaksi baru dipertimbangkan setelah proses bisnis siap:
 ### 5.4 Di luar scope implementasi saat ini
 
 - Transaksi atau checkout.
-- Pengelolaan harga, stok, pesanan, dan pembayaran.
+- Pengelolaan stok, pesanan, pembayaran, dan harga khusus per customer.
 - Permission granular per aksi untuk setiap role.
 - Approval workflow multi-level.
 - CRM atau pencatatan lead sales yang lengkap.
@@ -198,10 +200,10 @@ Fitur transaksi baru dipertimbangkan setelah proses bisnis siap:
 | Persona    | Deskripsi                                          | Akses                                                                              |
 | ---------- | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Pengunjung | Customer atau pihak eksternal yang melihat katalog | Melihat katalog, mencari, memfilter, membuka detail, dan mengunduh PDF tanpa login |
-| Staff/User | Staff internal, termasuk tim sales                 | Mengakses seluruh fitur internal kecuali pengelolaan user dan role                 |
-| Admin      | Pengelola katalog dan user                         | Mengakses dashboard, mengelola produk, kategori, aset, user, dan role              |
+| Staff      | Tim operasional & sales internal                   | Mengakses seluruh fitur internal katalog & inquiry (tanpa kelola user/role)        |
+| Admin      | Pengelola sistem, katalog, dan user                | Akses penuh dashboard: produk, kategori, inquiry, user, serta role & permission    |
 
-Seluruh Staff dan Admin dapat melihat dan memproses inquiry. Hanya Admin yang dapat mengakses menu dan route pengelolaan user dan role. Pembatasan akses wajib diterapkan pada backend dan tidak hanya dengan menyembunyikan menu pada frontend. Pada versi saat ini, seluruh Admin memiliki tingkat akses yang sama.
+Seluruh Staff dan Admin dapat melihat dan memproses inquiry. Hanya Admin yang dapat mengakses menu dan route pengelolaan user dan role. Pembatasan akses wajib diterapkan pada backend dan tidak hanya dengan menyembunyikan menu pada frontend. Pengelolaan role menyediakan seleksi permission granular per modul (products, categories, quotations, users, roles).
 
 ## 7. Ruang Lingkup Fitur
 
@@ -228,6 +230,7 @@ Detail produk menampilkan:
 - SKU.
 - Kategori dan jalur kategori induk.
 - Material.
+- Harga dasar produk.
 - Deskripsi.
 - Satu gambar utama atau placeholder jika gambar belum tersedia.
 - Indikator ketersediaan file.
@@ -237,15 +240,15 @@ Detail produk menampilkan:
 #### Target tambahan E-Catalog MVP
 
 - Product gallery dengan satu gambar utama dan gambar tambahan yang dapat dilihat dari halaman detail.
-- Tombol request quotation yang mengarahkan customer ke proses inquiry.
-- Tombol WhatsApp yang membuka percakapan dengan sales. Tombol ini hanya berupa link/redirect dan tidak mencakup WhatsApp API, bot, webhook, atau sinkronisasi chat.
+- Penyempurnaan product gallery dengan beberapa gambar tambahan.
+- Penyempurnaan WhatsApp flow jika dibutuhkan. Integrasi saat ini berupa link/redirect dan tidak mencakup WhatsApp API, bot, webhook, atau sinkronisasi chat.
 
 #### Request quotation
 
 Request quotation adalah inquiry dari customer terhadap produk yang dipilih.
 Fitur ini bukan checkout, bukan pembayaran, dan bukan order final.
 
-Alur target:
+Alur saat ini:
 
 ```text
 Visitor membuka detail produk
@@ -257,7 +260,7 @@ Mengirim konteks produk
 Sales menerima dan melakukan follow-up
 ```
 
-Keputusan implementasi MVP:
+Keputusan implementasi saat ini:
 
 - Request quotation dapat dimulai dari halaman detail produk.
 - Inquiry dapat dikirim sebagai guest tanpa login.
@@ -289,11 +292,11 @@ Keamanan dan pencegahan penyalahgunaan request quotation:
 - Pelanggaran rate limit menampilkan pesan umum tanpa membocorkan aturan keamanan secara terperinci dan dicatat dalam security log.
 - Jika alamat IP disimpan hanya untuk pembatasan dan deteksi penyalahgunaan, alamat tersebut disimpan dalam bentuk hash.
 - Data inquiry hanya dapat diakses oleh Staff dan Admin melalui endpoint yang dilindungi autentikasi dan otorisasi backend.
-- Form menampilkan pemberitahuan singkat bahwa data customer digunakan untuk menindaklanjuti permintaan quotation.
+- Form menjelaskan bahwa data customer digunakan untuk menindaklanjuti permintaan quotation.
 
-Di luar scope request quotation MVP:
+Di luar scope request quotation saat ini:
 
-- Harga otomatis atau customer-specific pricing.
+- Harga otomatis, diskon otomatis, atau customer-specific pricing.
 - Checkout, pembayaran, stok, pengiriman, dan invoice.
 - Inquiry cart dan inquiry history terautentikasi; ini adalah roadmap Phase 2.
 
@@ -353,7 +356,7 @@ Staff dan Admin dapat:
 - Membuat produk.
 - Mengubah produk.
 - Menghapus produk.
-- Mengatur kategori, SKU, nama, slug, deskripsi, material, dan status.
+- Mengatur kategori, SKU, nama, slug, harga dasar, deskripsi, material, dan status.
 - Mengunggah satu gambar produk.
 - Mengunggah satu file PDF produk.
 - Melihat aset yang sudah tersimpan.
@@ -372,6 +375,7 @@ Staff dan Admin dapat:
 - Kategori wajib berasal dari kategori yang tersedia.
 - SKU wajib diisi dan unik.
 - Nama, slug, dan material wajib diisi.
+- Harga dasar wajib diisi, numerik, dan tidak boleh bernilai negatif.
 - Status aktif/nonaktif wajib ditentukan.
 - Gambar hanya menerima JPG, JPEG, PNG, atau WEBP sampai 5 MB.
 - File hanya menerima PDF sampai 10 MB.
@@ -434,9 +438,8 @@ Admin dapat:
 - Membuat role.
 - Mengubah role.
 - Menghapus role.
+- Memilih dan mengatur hak akses / permission granular per modul (`products`, `categories`, `quotations`, `users`, `roles`) untuk setiap role.
 - Melihat jumlah user yang terkait dengan role.
-
-Untuk versi saat ini, role admin memiliki akses yang sama. Permission detail per modul atau per aksi belum menjadi kebutuhan wajib.
 
 ## 8. Data Produk
 
@@ -447,6 +450,7 @@ Field produk yang dipertahankan:
 | Kategori  |       Ya | Kategori utama produk                                                     |
 | SKU       |       Ya | Identitas unik produk                                                     |
 | Nama      |       Ya | Nama produk                                                               |
+| Harga     |       Ya | Harga dasar produk yang ditampilkan di detail dan dikelola dari dashboard |
 | Slug      |       Ya | Identitas URL produk                                                      |
 | Deskripsi |    Tidak | Informasi detail produk                                                   |
 | Material  |       Ya | Material produk                                                           |
@@ -464,9 +468,9 @@ Model data MVP harus memprioritaskan kebutuhan katalog, tetapi tetap memberi rua
 - `product_categories`.
 - `product_images`.
 - `product_files`.
+- `request_quotations`.
 - `customers`.
 - `product_variants`.
-- `inquiries` dan `inquiry_items`.
 - `quotations` dan `quotation_items`.
 - `carts` dan `cart_items`.
 - `orders` dan `order_items`.
@@ -474,7 +478,7 @@ Model data MVP harus memprioritaskan kebutuhan katalog, tetapi tetap memberi rua
 
 ### Entitas untuk perluasan masa depan
 
-Entitas `inquiries` wajib diimplementasikan pada E-Catalog MVP untuk menyimpan request quotation. Entitas customer, variant, quotation, cart, order, dan payment tidak wajib diimplementasikan pada E-Catalog MVP. Entitas tersebut dapat ditambahkan bertahap tanpa mengganggu katalog ketika proses bisnis B2B sudah siap dan tidak boleh menambah kompleksitas transaksi terlalu dini.
+Entitas `request_quotations` sudah digunakan untuk menyimpan request quotation saat ini. Entitas customer, variant, quotation, cart, order, dan payment tidak wajib diimplementasikan pada E-Catalog MVP. Entitas tersebut dapat ditambahkan bertahap tanpa mengganggu katalog ketika proses bisnis B2B sudah siap dan tidak boleh menambah kompleksitas transaksi terlalu dini.
 
 ## 9. Kebutuhan Non-Fungsional
 
@@ -541,15 +545,16 @@ Entitas `inquiries` wajib diimplementasikan pada E-Catalog MVP untuk menyimpan r
 - Halaman detail yang dapat dibagikan melalui URL.
 - Download PDF tanpa login.
 - Tampilan grid dan list untuk kebutuhan browsing yang berbeda.
+- Request quotation dari detail produk yang tersimpan sebelum WhatsApp Sales dibuka.
+- Dashboard inquiry untuk melihat, memfilter, dan mengubah status request quotation.
 - Informasi produk terpusat dan dapat dikelola oleh Staff dan Admin.
 
-### Dukungan sales pada target E-Catalog MVP
+### Dukungan sales pada target berikutnya
 
 1. Product detail memiliki URL yang mudah dibagikan.
-2. Customer dapat mengajukan request quotation dari produk yang diminati.
-3. Customer dapat menekan tombol WhatsApp untuk membuka percakapan dengan sales.
-4. Link WhatsApp dapat menyertakan konteks produk, seperti nama atau SKU, pada pesan awal.
-5. Tidak ada integrasi WhatsApp API, bot, webhook, atau sinkronisasi chat pada MVP.
+2. Product gallery menampilkan gambar tambahan selain gambar utama.
+3. Flow inquiry dapat diperkaya dengan SLA operasional dan notifikasi internal bila dibutuhkan.
+4. Tidak ada integrasi WhatsApp API, bot, webhook, atau sinkronisasi chat pada MVP.
 
 ### Rekomendasi pengembangan setelah MVP
 
@@ -590,8 +595,8 @@ Fitur berikut dapat dipertimbangkan setelah versi saat ini stabil:
 11. Produk yang dihapus tidak meninggalkan aset file di storage.
 12. Tampilan utama dapat digunakan pada desktop dan mobile.
 13. Target MVP mendukung gallery dengan satu gambar utama dan gambar tambahan.
-14. Target MVP menyediakan request quotation dari produk yang dipilih.
-15. Target MVP menyediakan tombol/link WhatsApp menuju sales tanpa integrasi WhatsApp langsung.
+14. Current implementation menyediakan request quotation dari produk yang dipilih.
+15. Current implementation menyediakan tombol/link WhatsApp menuju sales tanpa integrasi WhatsApp langsung.
 16. Sistem memiliki rencana backup, keamanan, audit, monitoring, dan pemulihan sebelum digunakan sebagai aplikasi produksi.
 17. Request quotation yang valid tersimpan ke database dengan status awal `new` sebelum WhatsApp dibuka.
 18. Seluruh Staff dan Admin dapat memproses inquiry, sedangkan hanya Admin yang dapat mengakses pengelolaan user dan role.
@@ -605,11 +610,11 @@ Fitur berikut dapat dipertimbangkan setelah versi saat ini stabil:
 
 - PRD ini memisahkan current implementation, target E-Catalog MVP, dan future roadmap.
 - Satu gambar dan satu PDF per produk dipertahankan untuk current implementation.
-- Product gallery dan request quotation menjadi target E-Catalog MVP.
+- Product gallery menjadi target E-Catalog MVP; request quotation dasar sudah tersedia pada current implementation.
 - Status aktif/nonaktif cukup untuk kebutuhan saat ini.
 - Seluruh admin memiliki hak akses yang sama.
 - Pengunjung tidak membutuhkan akun.
-- Tombol WhatsApp menuju sales termasuk target MVP, sedangkan integrasi WhatsApp API tidak termasuk scope.
+- Tombol WhatsApp menuju sales sudah tersedia sebagai redirect/link, sedangkan integrasi WhatsApp API tidak termasuk scope.
 - Request quotation wajib disimpan ke database sebelum WhatsApp dibuka.
 - Seluruh Staff dan Admin dapat memproses inquiry tanpa penugasan kepada satu Staff tertentu.
 - Staff dapat mengakses seluruh fitur internal kecuali pengelolaan user dan role.

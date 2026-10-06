@@ -1,13 +1,8 @@
 import { useForm } from '@inertiajs/react';
-import {
-    CheckCircle2,
-    ChevronDown,
-    Clock,
-    MessageCircle,
-    XCircle,
-} from 'lucide-react';
+import { CheckCircle2, Clock, MessageCircle, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
+import { ActionDropdown } from '@/components/common/ActionDropdown';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,14 +13,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import {
     Select,
@@ -151,7 +138,7 @@ function StatusUpdateDialog({
         >
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Perbarui Inquiry</DialogTitle>
+                    <DialogTitle>Update Inquiry</DialogTitle>
                     <DialogDescription>
                         {quotation.customer_name} — {quotation.product_name}
                     </DialogDescription>
@@ -171,7 +158,7 @@ function StatusUpdateDialog({
                             }
                         >
                             <SelectTrigger id="status">
-                                <SelectValue placeholder="Pilih status" />
+                                <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="new">New</SelectItem>
@@ -189,7 +176,7 @@ function StatusUpdateDialog({
                     {needsClosedReason && (
                         <Field>
                             <FieldLabel htmlFor="closed_reason">
-                                Alasan penutupan{' '}
+                                Close reason{' '}
                                 <span className="text-destructive">*</span>
                             </FieldLabel>
                             <Select
@@ -202,17 +189,17 @@ function StatusUpdateDialog({
                                 }
                             >
                                 <SelectTrigger id="closed_reason">
-                                    <SelectValue placeholder="Pilih alasan" />
+                                    <SelectValue placeholder="Select reason" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="won">
-                                        Won — Deal berhasil
+                                        Won — Deal completed
                                     </SelectItem>
                                     <SelectItem value="lost">
-                                        Lost — Deal gagal
+                                        Lost — Deal lost
                                     </SelectItem>
                                     <SelectItem value="invalid">
-                                        Invalid — Bukan inquiry valid
+                                        Invalid — Not a valid inquiry
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
@@ -224,9 +211,9 @@ function StatusUpdateDialog({
 
                     <Field>
                         <FieldLabel htmlFor="admin_notes">
-                            Catatan internal{' '}
+                            Internal notes{' '}
                             <span className="text-xs text-muted-foreground">
-                                (opsional)
+                                (optional)
                             </span>
                         </FieldLabel>
                         <Textarea
@@ -235,7 +222,7 @@ function StatusUpdateDialog({
                             onChange={(e) =>
                                 setData('admin_notes', e.target.value)
                             }
-                            placeholder="Catatan untuk tim internal..."
+                            placeholder="Notes for the internal team..."
                             rows={3}
                         />
                         {errors.admin_notes && (
@@ -258,14 +245,14 @@ function StatusUpdateDialog({
                         disabled={processing}
                         onClick={onClose}
                     >
-                        Batal
+                        Cancel
                     </Button>
                     <Button
                         type="submit"
                         form="update-status-form"
                         disabled={processing}
                     >
-                        {processing ? 'Menyimpan...' : 'Simpan'}
+                        {processing ? 'Saving...' : 'Save'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -273,11 +260,28 @@ function StatusUpdateDialog({
     );
 }
 
-export function getRequestQuotationColumns() {
+interface RequestQuotationColumnsProps {
+    onDetail: (quotation: RequestQuotation) => void;
+}
+
+export function getRequestQuotationColumns({
+    onDetail,
+}: RequestQuotationColumnsProps) {
     return [
         {
+            key: 'actions',
+            header: 'Action',
+            sortable: false,
+            cell: (item: RequestQuotation) => (
+                <InlineStatusActions
+                    quotation={item}
+                    onDetail={() => onDetail(item)}
+                />
+            ),
+        },
+        {
             key: 'created_at',
-            header: 'Tanggal',
+            header: 'Date',
             sortable: true,
             cell: (item: RequestQuotation) => (
                 <span className="text-sm whitespace-nowrap">
@@ -305,7 +309,7 @@ export function getRequestQuotationColumns() {
         },
         {
             key: 'product_name',
-            header: 'Produk',
+            header: 'Product',
             sortable: true,
             cell: (item: RequestQuotation) => (
                 <div className="space-y-0.5">
@@ -320,7 +324,7 @@ export function getRequestQuotationColumns() {
         },
         {
             key: 'quantity',
-            header: 'Jumlah',
+            header: 'Quantity',
             sortable: true,
             cell: (item: RequestQuotation) => item.quantity ?? '-',
         },
@@ -339,60 +343,33 @@ export function getRequestQuotationColumns() {
                 </div>
             ),
         },
-        {
-            key: 'actions',
-            header: '',
-            sortable: false,
-            cell: (item: RequestQuotation) => (
-                <InlineStatusActions quotation={item} />
-            ),
-        },
     ];
 }
 
-function InlineStatusActions({ quotation }: { quotation: RequestQuotation }) {
+function InlineStatusActions({
+    quotation,
+    onDetail,
+}: {
+    quotation: RequestQuotation;
+    onDetail: () => void;
+}) {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     return (
         <>
-            <DropdownMenu>
-                <DropdownMenuTrigger
-                    render={
-                        <Button variant="ghost" size="sm" className="h-8 px-2">
-                            Tindak lanjut
-                            <ChevronDown className="ml-1 size-3" />
-                        </Button>
-                    }
-                />
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Ubah status</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                        onClick={() => setDialogOpen(true)}
-                        className="cursor-pointer"
-                    >
-                        <MessageCircle className="mr-2 size-4" />
-                        Perbarui / tutup inquiry
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                        {quotation.notes && (
-                            <span
-                                title={quotation.notes}
-                                className="block max-w-[200px] truncate"
-                            >
-                                Catatan: {quotation.notes}
-                            </span>
-                        )}
-                        {quotation.status_changed_at && (
-                            <span className="block">
-                                Diubah:{' '}
-                                {formatDate(quotation.status_changed_at)}
-                            </span>
-                        )}
-                    </DropdownMenuLabel>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            <ActionDropdown
+                onDetail={onDetail}
+                triggerLabel="Action"
+                contentClassName="w-auto min-w-56"
+                customActions={[
+                    {
+                        label: 'Update / close inquiry',
+                        icon: <MessageCircle className="h-3.5! w-3.5!" />,
+                        className: 'whitespace-nowrap',
+                        onClick: () => setDialogOpen(true),
+                    },
+                ]}
+            />
 
             <StatusUpdateDialog
                 quotation={quotation}
