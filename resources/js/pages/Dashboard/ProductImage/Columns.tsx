@@ -1,3 +1,5 @@
+import { formatDateTime } from '@/lib/formatDate';
+
 export interface ProductImage {
     id: number;
     product?: {
@@ -64,6 +66,18 @@ export function getProductImageColumns({
                     {item.image_path}
                 </span>
             ),
+        },
+        {
+            key: 'created_at',
+            header: 'Created At',
+            sortable: true,
+            cell: (item: ProductImage) => formatDateTime(item.created_at),
+        },
+        {
+            key: 'updated_at',
+            header: 'Updated At',
+            sortable: true,
+            cell: (item: ProductImage) => formatDateTime(item.updated_at),
         },
     ];
 }

@@ -70,12 +70,13 @@ export default function Navbar() {
                                         <Button
                                             className="group hover:font-semibold"
                                             variant={'ghost'}
-                                            size={'icon'}
+                                            // size={'icon'}
                                             aria-label="Buka menu akun"
                                         />
                                     }
                                 >
-                                    <User className="h-5 w-5 transition-transform duration-300 group-hover:scale-103" />
+                                    <User className="h-5 w-5 transition-transform duration-300 group-hover:scale-103" />{' '}
+                                    {auth.user.name}
                                 </DropdownMenuTrigger>
 
                                 <DropdownMenuContent

@@ -34,6 +34,32 @@ Kode lama dapat tetap menggunakan controller dan Eloquent secara langsung.
 Business logic baru, khususnya request quotation, sebaiknya dipisahkan ke
 service secara bertahap agar mudah diuji dan dikembangkan.
 
+## Struktur Modul Dashboard Frontend
+
+Untuk menjaga konsistensi pada kode frontend React di bawah `resources/js/pages/Dashboard/[NamaModul]`, setiap menu/modul mengikuti konvensi struktur file berikut:
+
+```text
+resources/js/pages/Dashboard/[NamaModul]/
+├── Index.tsx            (Wajib)
+├── Columns.tsx          (Opsional)
+├── FormCreateEdit.tsx   (Opsional)
+└── Detail.tsx           (Opsional)
+```
+
+### Keterangan Berkas & Perannya:
+
+- **`Index.tsx` (Wajib)**:
+  Page utama / entry point dari menu Inertia. Bertanggung jawab atas layout utama, pencarian (search), filter, sorting, pagination, integrasi `AlertComponent`, serta menampilkan tabel atau kontainer data.
+
+- **`Columns.tsx` (Opsional)**:
+  Mendefinisikan tipe data (interface) modul, komponen status badge, formatters, dan fungsi pembuat kolom tabel (`getColumns()`) untuk `DataTable`. Dipisah dari `Index.tsx` agar definisi tabel tetap bersih dan dapat diuji/diubah secara independen.
+
+- **`FormCreateEdit.tsx` (Opsional)**:
+  Formulir / dialog modal untuk operasi pembuatan (Create) maupun penyuntingan (Edit/Update) data. Dipisah menjadi berkas tersendiri agar kode form tidak menumpuk di `Index.tsx` atau `Columns.tsx`.
+
+- **`Detail.tsx` (Opsional)**:
+  Komponen modal / view khusus untuk menampilkan rincian/detail lengkap dari suatu entitas (read-only view) tanpa mengganggu flow tabel utama.
+
 ## Batas area
 
 - Katalog publik hanya membaca produk aktif.
@@ -100,7 +126,7 @@ Request quotation disimpan pada tabel `request_quotations`. Endpoint publik
 membuat inquiry guest dari detail produk aktif, menyimpan snapshot `product_id`,
 `product_name`, dan `product_sku`, lalu mengembalikan flash data berisi URL
 WhatsApp Sales. Dashboard Staff/Admin dapat mencari, memfilter, dan mengubah
-status inquiry.
+status inquiry. Komponen dialog update status/form dipisahkan ke dalam `FormCreateEdit.tsx` tersendiri agar konsisten dengan modul dashboard lainnya (`Product`, `ProductCategory`, dsb). Pemilihan status dan close reason pada UI menggunakan pemetaan label yang rapi (misal `In Progress` untuk `in_progress`), bukan menampilkan raw value ID.
 
 Field utama:
 

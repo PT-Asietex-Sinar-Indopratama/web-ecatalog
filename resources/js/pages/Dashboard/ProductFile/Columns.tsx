@@ -1,5 +1,6 @@
-import { ExternalLink } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatDateTime } from '@/lib/formatDate';
 
 export interface ProductFile {
     id: number;
@@ -12,9 +13,15 @@ export interface ProductFile {
     file_name: string;
     file_type: string;
     file_url: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
-export function getProductFileColumns() {
+interface ProductFileColumnsProps {
+    onPreview: (file: ProductFile) => void;
+}
+
+export function getProductFileColumns({ onPreview }: ProductFileColumnsProps) {
     return [
         {
             key: 'preview',
@@ -23,17 +30,16 @@ export function getProductFileColumns() {
             className: 'w-1 whitespace-nowrap',
             cell: (item: ProductFile) => (
                 <div className="inline-flex w-max gap-2 whitespace-nowrap">
-                    <a href={item.file_url} target="_blank" rel="noreferrer">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="icon-sm"
-                            className="gap-2 md:h-8 md:w-auto md:px-2.5"
-                        >
-                            <span className="hidden md:block">Open</span>
-                            <ExternalLink />
-                        </Button>
-                    </a>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon-sm"
+                        className="gap-2 md:h-8 md:w-auto md:px-2.5"
+                        onClick={() => onPreview(item)}
+                    >
+                        <span className="hidden md:block">Detail</span>
+                        <Eye />
+                    </Button>
                 </div>
             ),
         },
@@ -62,6 +68,18 @@ export function getProductFileColumns() {
                     </p>
                 </div>
             ),
+        },
+        {
+            key: 'created_at',
+            header: 'Created At',
+            sortable: true,
+            cell: (item: ProductFile) => formatDateTime(item.created_at),
+        },
+        {
+            key: 'updated_at',
+            header: 'Updated At',
+            sortable: true,
+            cell: (item: ProductFile) => formatDateTime(item.updated_at),
         },
     ];
 }

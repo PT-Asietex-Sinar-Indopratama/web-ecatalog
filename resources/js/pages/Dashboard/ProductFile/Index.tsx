@@ -7,20 +7,13 @@ import { DashboardSearchFilter } from '@/components/common/DashboardSearchFilter
 import { DataPagination } from '@/components/common/DataPagination';
 import { DataShowing } from '@/components/common/DataShowing';
 import { DataTable } from '@/components/common/DataTable';
-import {
-    AlertDialog,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { useServerTableSort } from '@/hooks/use-server-table-sort';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import type { Paginated } from '@/types';
 import { getProductFileColumns } from './Columns';
 import type { ProductFile } from './Columns';
+import { ProductFileDetailDialog } from './Detail';
 
 interface FilterProps {
     search?: string;
@@ -38,11 +31,7 @@ export default function ProductFile({
     const { flash } = usePage<PageProps>().props;
     const [search, setSearch] = useState(filters.search || '');
     const tableSort = useServerTableSort(filters);
-    const [selectedFile, setSelectedFile] = useState<ProductFile | undefined>();
-
-    const closePreview = () => {
-        setSelectedFile(undefined);
-    };
+    const [selectedFile, setSelectedFile] = useState<ProductFile | null>(null);
 
     const handleFilter = (
         newSearch: string,
@@ -87,7 +76,9 @@ export default function ProductFile({
         },
     ];
 
-    const columns = getProductFileColumns();
+    const columns = getProductFileColumns({
+        onPreview: setSelectedFile,
+    });
 
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -138,44 +129,10 @@ export default function ProductFile({
                 <DataPagination meta={files} />
             </div>
 
-            <AlertDialog
-                open={!!selectedFile}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        closePreview();
-                    }
-                }}
-            >
-                <AlertDialogContent
-                    className="max-h-[90vh] w-full max-w-4xl!"
-                    overlayProps={{ onClick: closePreview }}
-                >
-                    <AlertDialogHeader className="place-items-start text-left">
-                        <AlertDialogTitle>
-                            {selectedFile?.file_name ?? 'File Preview'}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {selectedFile?.product?.name ?? 'Product file'}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-
-                    {selectedFile && (
-                        <div className="w-full overflow-hidden rounded-md border bg-muted">
-                            <iframe
-                                src={`${selectedFile.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
-                                title={selectedFile.file_name}
-                                className="h-full w-full"
-                            />
-                        </div>
-                    )}
-
-                    <AlertDialogHeader>
-                        <AlertDialogCancel onClick={closePreview}>
-                            Close
-                        </AlertDialogCancel>
-                    </AlertDialogHeader>
-                </AlertDialogContent>
-            </AlertDialog>
+            <ProductFileDetailDialog
+                file={selectedFile}
+                onClose={() => setSelectedFile(null)}
+            />
         </DashboardLayout>
     );
 }

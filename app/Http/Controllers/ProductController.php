@@ -82,6 +82,7 @@ class ProductController extends Controller
                 'category_id',
                 'material',
                 'is_active',
+                'created_at',
                 'updated_at',
             ];
 
@@ -161,6 +162,7 @@ class ProductController extends Controller
         $sortableColumns = [
             'image_path',
             'product',
+            'created_at',
             'updated_at',
         ];
 
@@ -217,6 +219,7 @@ class ProductController extends Controller
         $sortableColumns = [
             'file_name',
             'product',
+            'created_at',
             'updated_at',
         ];
 

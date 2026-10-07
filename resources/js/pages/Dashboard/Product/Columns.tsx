@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { ActionDropdown } from '@/components/common/ActionDropdown';
 import { Badge } from '@/components/ui/badge';
+import { formatDateTime } from '@/lib/formatDate';
 
 export interface Product {
     id: number;
@@ -109,6 +110,18 @@ export function getProductColumns({ onDetail, onEdit }: ProductColumnsProps) {
                 ) : (
                     <Badge variant="yellow">Inactive</Badge>
                 ),
+        },
+        {
+            key: 'created_at',
+            header: 'Created At',
+            sortable: true,
+            cell: (item: Product) => formatDateTime(item.created_at),
+        },
+        {
+            key: 'updated_at',
+            header: 'Updated At',
+            sortable: true,
+            cell: (item: Product) => formatDateTime(item.updated_at),
         },
     ];
 }

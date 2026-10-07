@@ -167,9 +167,12 @@ function AttentionRow({
                 </div>
                 <span className="truncate text-sm font-medium">{label}</span>
             </div>
-            <Badge variant={hasIssue ? 'yellow' : 'green'}>
-                {formatNumber(value)}
-            </Badge>
+            <div className="flex items-center gap-2">
+                <Badge variant={hasIssue ? 'yellow' : 'green'}>
+                    {formatNumber(value)}
+                </Badge>
+                <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+            </div>
         </Link>
     );
 }
@@ -213,6 +216,58 @@ export default function Admin({
                     className="col-span-4 mb-4"
                 />
             )}
+
+            <Card className="col-span-4">
+                <CardHeader className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div className="space-y-1">
+                        <CardTitle>Request Quotations</CardTitle>
+                        <CardDescription>
+                            Inquiry status that needs sales follow-up.
+                        </CardDescription>
+                    </div>
+                    <Link
+                        href={route('dashboard.request-quotations')}
+                        className={buttonVariants({ variant: 'default' })}
+                    >
+                        View inquiries
+                        <ArrowRight />
+                    </Link>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <AttentionRow
+                            label="Total inquiries"
+                            value={stats.total_quotations}
+                            href={route('dashboard.request-quotations')}
+                            icon={ClipboardList}
+                        />
+                        <AttentionRow
+                            label="New inquiries"
+                            value={stats.new_quotations}
+                            href={route('dashboard.request-quotations', {
+                                status: 'new',
+                            })}
+                            icon={AlertTriangle}
+                        />
+                        <AttentionRow
+                            label="In progress"
+                            value={stats.in_progress_quotations}
+                            href={route('dashboard.request-quotations', {
+                                status: 'in_progress',
+                            })}
+                            icon={Clock3}
+                        />
+                        <AttentionRow
+                            label="Closed inquiries"
+                            value={stats.closed_quotations}
+                            href={route('dashboard.request-quotations', {
+                                status: 'closed',
+                            })}
+                            icon={CheckCircle2}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
             <div className="col-span-4 flex flex-col gap-3 rounded-lg border bg-card p-4 text-card-foreground shadow-sm md:flex-row md:items-center md:justify-between">
                 <div className="space-y-1">
@@ -269,58 +324,6 @@ export default function Admin({
                     tone="bg-amber-100 text-amber-700"
                 />
             </div>
-
-            <Card className="col-span-4">
-                <CardHeader className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="space-y-1">
-                        <CardTitle>Request Quotations</CardTitle>
-                        <CardDescription>
-                            Inquiry status that needs sales follow-up.
-                        </CardDescription>
-                    </div>
-                    <Link
-                        href={route('dashboard.request-quotations')}
-                        className={buttonVariants({ variant: 'secondary' })}
-                    >
-                        View inquiries
-                        <ArrowRight />
-                    </Link>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <AttentionRow
-                            label="Total inquiries"
-                            value={stats.total_quotations}
-                            href={route('dashboard.request-quotations')}
-                            icon={ClipboardList}
-                        />
-                        <AttentionRow
-                            label="New inquiries"
-                            value={stats.new_quotations}
-                            href={route('dashboard.request-quotations', {
-                                status: 'new',
-                            })}
-                            icon={AlertTriangle}
-                        />
-                        <AttentionRow
-                            label="In progress"
-                            value={stats.in_progress_quotations}
-                            href={route('dashboard.request-quotations', {
-                                status: 'in_progress',
-                            })}
-                            icon={Clock3}
-                        />
-                        <AttentionRow
-                            label="Closed inquiries"
-                            value={stats.closed_quotations}
-                            href={route('dashboard.request-quotations', {
-                                status: 'closed',
-                            })}
-                            icon={CheckCircle2}
-                        />
-                    </div>
-                </CardContent>
-            </Card>
 
             <Card className="col-span-4 lg:col-span-2">
                 <CardHeader>
