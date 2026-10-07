@@ -12,7 +12,7 @@ jobs:
       - self-hosted
       - linux
       - x64
-      - web-ecatalog
+      - web-catalog
 
     steps:
       - name: Deploy
