@@ -1,0 +1,65 @@
+name: Deploy e-Catalog
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Production
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - web-ecatalog
+
+    steps:
+      - name: Deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP_DIR="/var/www/e-catalog/production"
+
+          echo "======================================"
+          echo "Deploying e-Catalog Production"
+          echo "======================================"
+
+          cd "$APP_DIR"
+
+          echo "[1/7] Checking working tree..."
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "ERROR: Working tree is not clean."
+            git status --short
+            exit 1
+          fi
+
+          echo "[2/7] Updating source code..."
+          git fetch origin main
+          git pull --ff-only origin main
+
+          echo "[3/7] Installing PHP dependencies..."
+          composer install \
+            --no-dev \
+            --prefer-dist \
+            --optimize-autoloader \
+            --no-interaction
+
+          echo "[4/7] Installing frontend dependencies..."
+          npm ci
+
+          echo "[5/7] Building frontend..."
+          npm run build
+
+          echo "[6/7] Running database migrations..."
+          php artisan migrate --force
+
+          echo "[7/7] Refreshing Laravel cache..."
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+          echo ""
+          echo "Deploy completed successfully."
